@@ -13,6 +13,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -20,102 +24,167 @@
   <header class="site-header">
     <a class="mark" href="#top" aria-label="Shiqi Lin, back to top">SL</a>
     <nav aria-label="Sections">
+      <a href="#build">Inside</a>
       <a href="#projects">Projects</a>
       <a href="#experience">Experience</a>
-      <a href="#skills">Skills</a>
       <a href="#contact">Contact</a>
     </nav>
+    <button class="power" id="power" type="button" aria-pressed="false" aria-label="Lights off (dark mode)">
+      <span class="power-led" aria-hidden="true"></span>
+      <span class="power-track" aria-hidden="true"><span class="power-knob"></span></span>
+      <span class="power-label">Lights</span>
+    </button>
   </header>
 
   <main id="main">
+    <!-- HERO -->
     <section class="hero" id="top">
       <div class="hero-text">
-        <h1>Shiqi Lin</h1>
-        <p class="role">Computer Engineering student at Boston University, class of 2028</p>
+        <h1 class="hero-name" aria-label="Shiqi Lin">
+          <span class="split" aria-hidden="true">Shiqi</span>
+          <span class="split" aria-hidden="true">Lin</span>
+        </h1>
+        <p class="role">Computer Engineering at Boston University, class of 2028</p>
         <p class="intro">I build robots, embedded systems and websites. I captained a FIRST Tech Challenge team to the World Championship, shipped sites for small businesses in Brooklyn, and now teach Arduino and motor control to engineering students at BU.</p>
         <ul class="pads" aria-label="Links">
-          <li><a href="mailto:shiqilin17@gmail.com">Email</a></li>
+          <li><a href="#projects">See my work</a></li>
           <li><a href="https://www.linkedin.com/in/shiqi017" target="_blank" rel="noopener">LinkedIn</a></li>
           <li><a href="https://github.com/ShiqiLin17" target="_blank" rel="noopener">GitHub</a></li>
         </ul>
       </div>
 
-      <svg class="traces" viewBox="0 0 420 420" aria-hidden="true" focusable="false">
-        <g class="trace-lines" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 60 H160 L210 110 V230 L260 280 H400" />
-          <path d="M20 120 H120 L170 170 V320 L210 360 H400" />
-          <path d="M20 200 H80 L120 240 V400" />
-          <path d="M240 20 V70 L300 130 H400" />
-          <path d="M330 20 V80 L360 110 V200 L400 240" />
-        </g>
-        <g class="vias">
-          <circle cx="210" cy="230" r="7" />
-          <circle cx="170" cy="320" r="7" />
-          <circle cx="120" cy="240" r="7" />
-          <circle cx="300" cy="130" r="7" />
-          <circle cx="360" cy="200" r="7" />
-        </g>
-        <g class="chip">
-          <rect x="250" y="160" width="110" height="80" rx="4" />
-          <text x="305" y="206" text-anchor="middle">SL-2028</text>
-        </g>
-      </svg>
+      <aside class="live" aria-label="Live readout from Boston">
+        <div class="live-head">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Live from Boston</span>
+        </div>
+        <div class="live-grid">
+          <div><p class="live-num" id="live-time">--:--</p><p class="live-cap">Local time</p></div>
+          <div><p class="live-num" id="live-temp">--°</p><p class="live-cap" id="live-sky">Checking the sky</p></div>
+          <div><p class="live-num" id="live-wind">--</p><p class="live-cap">Wind, mph</p></div>
+        </div>
+        <svg class="scope" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
+          <path id="scope-line" d="M0 35 H300" />
+        </svg>
+        <p class="live-note">Move your cursor over the readout to probe the signal.</p>
+      </aside>
     </section>
 
-    <section id="projects" class="section">
-      <h2>Projects</h2>
-
-      <article class="feature">
-        <div class="feature-head">
-          <h3>FTC Team 3371 competition robots</h3>
-          <p class="when">2020–2024 · Team captain</p>
+    <!-- SCROLL STORY: 3D board turns as you scroll -->
+    <section class="story" id="build" aria-label="What I work with">
+      <div class="story-sticky">
+        <canvas id="board" aria-hidden="true"></canvas>
+        <div class="story-steps">
+          <div class="step-progress" aria-hidden="true"><span id="step-bar"></span></div>
+          <article class="step" data-step="0">
+            <h2>What's inside</h2>
+            <p>Scroll to take apart the way I build things. Every part on this board is a skill I use.</p>
+          </article>
+          <article class="step" data-step="1">
+            <h3>The brain</h3>
+            <p>C++, Python, Java and JavaScript. I write firmware and autonomous OpModes as comfortably as web frontends and Node.js backends.</p>
+          </article>
+          <article class="step" data-step="2">
+            <h3>The eyes</h3>
+            <p>Computer vision with AprilTags and UVC cameras, fused with color, ultrasonic and IMU sensors so a robot knows where it is.</p>
+          </article>
+          <article class="step" data-step="3">
+            <h3>The muscle</h3>
+            <p>Servo, stepper and DC motor control with PIDF loops and encoders. I now teach these labs to BU engineering students.</p>
+          </article>
+          <article class="step" data-step="4">
+            <h3>The shell</h3>
+            <p>CAD in Onshape, SolidWorks and Fusion 360, then fabrication and testing. Design it, build it, break it, fix it.</p>
+          </article>
         </div>
-        <p>Led design, fabrication and programming of competition robots for four seasons. I wrote autonomous OpModes in C++ that used AprilTag vision plus color and ultrasonic sensors for localization, with PIDF motor control for precise movement. TeleOp combined live UVC camera feeds, IMU data and motor encoders.</p>
-        <p>The team reached the 2023 FIRST Championship (Curie Division), won the Think Award and ranked 2nd at an NYC qualifier. On the FRC side with Team 333, I ran sponsorship outreach that funded a $50K+ annual budget.</p>
-        <ul class="tags"><li>C++</li><li>Computer vision</li><li>PIDF control</li><li>Sensor fusion</li></ul>
-      </article>
+      </div>
+    </section>
 
-      <div class="project-list">
-        <article>
-          <h3>Water filtration for schools in Kenya</h3>
-          <p class="when">Engineers Without Borders · 2025</p>
-          <p>As filtration team leader, I led design and preparation of freshwater plumbing filtration systems and kept engineers and project coordinators in sync.</p>
-          <ul class="tags"><li>Systems design</li><li>Team leadership</li></ul>
+    <!-- PROJECTS CAROUSEL -->
+    <section id="projects" class="section">
+      <div class="section-head">
+        <h2>Projects</h2>
+        <div class="carousel-controls">
+          <p class="counter" aria-live="polite"><span id="proj-current">1</span> / <span id="proj-total">6</span></p>
+          <button type="button" class="arrow" id="proj-prev" aria-label="Previous project">‹</button>
+          <button type="button" class="arrow" id="proj-next" aria-label="Next project">›</button>
+        </div>
+      </div>
+      <p class="hint">Drag, swipe or use the arrows. Open any project for the full story.</p>
+
+      <div class="carousel" id="carousel" tabindex="0" aria-label="Projects">
+        <article class="card c-robot" data-project="ftc">
+          <div class="card-art" aria-hidden="true"><span>3371</span></div>
+          <div class="card-body">
+            <p class="when">2020–2024 · Team captain</p>
+            <h3>FTC competition robots</h3>
+            <p>Autonomous navigation with AprilTag vision and PIDF control. Reached the FIRST Championship.</p>
+            <ul class="tags"><li>C++</li><li>Vision</li><li>Controls</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
         </article>
 
-        <article>
-          <h3>VibeWake</h3>
-          <p class="when">Startup project at BU</p>
-          <p>Exploring how smart hardware, an app and behavioral science can change the way people wake up and start their day.</p>
-          <ul class="tags"><li>Hardware</li><li>App development</li><li>Product</li></ul>
+        <article class="card c-water" data-project="ewb">
+          <div class="card-art" aria-hidden="true"><span>H₂O</span></div>
+          <div class="card-body">
+            <p class="when">2025 · Engineers Without Borders</p>
+            <h3>Water filtration in Kenya</h3>
+            <p>Led the team designing freshwater plumbing filtration systems for schools.</p>
+            <ul class="tags"><li>Systems</li><li>Leadership</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
         </article>
 
-        <article>
-          <h3>Websites for Brooklyn small businesses</h3>
-          <p class="when">2026</p>
-          <p>Designed and built sites for Seaway Beauty, the North America Cantonese Arts Foundation and KXNY International, and moved each domain to GoDaddy.</p>
-          <ul class="tags"><li>HTML/CSS</li><li>JavaScript</li><li>Domains &amp; DNS</li></ul>
+        <article class="card c-wake" data-project="vibewake">
+          <div class="card-art" aria-hidden="true"><span>7:00</span></div>
+          <div class="card-body">
+            <p class="when">Startup project at BU</p>
+            <h3>VibeWake</h3>
+            <p>Smart hardware, an app and behavioral science to change how people wake up.</p>
+            <ul class="tags"><li>Hardware</li><li>App</li><li>Product</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
         </article>
 
-        <article>
-          <h3>SHIQI X BUJI Design</h3>
-          <p class="when">2025 · Fashion collaboration</p>
-          <p>Launched a clothing line with BUJI Design: signed the contract, created original designs sold worldwide on the partner's site, and promoted them on social media.</p>
-          <ul class="tags"><li>Design</li><li>Marketing</li></ul>
+        <article class="card c-web" data-project="web">
+          <div class="card-art" aria-hidden="true"><span>&lt;/&gt;</span></div>
+          <div class="card-body">
+            <p class="when">2025–2026 · Freelance &amp; nonprofit</p>
+            <h3>Websites for Brooklyn</h3>
+            <p>Designed and shipped sites for four local businesses and nonprofits.</p>
+            <ul class="tags"><li>HTML/CSS</li><li>JavaScript</li><li>Figma</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
         </article>
 
-        <article>
-          <h3>Invasive species research at Jamaica Bay</h3>
-          <p class="when">Brooklyn College · 2023</p>
-          <p>Field research on biological control of <i>Phragmites australis</i>. Analyzed the data in Excel and presented a poster at the American Museum of Natural History.</p>
-          <ul class="tags"><li>Field research</li><li>Data analysis</li></ul>
+        <article class="card c-fashion" data-project="buji">
+          <div class="card-art" aria-hidden="true"><span>SxB</span></div>
+          <div class="card-body">
+            <p class="when">2025 · Fashion collaboration</p>
+            <h3>SHIQI X BUJI Design</h3>
+            <p>An original clothing line sold worldwide through a partner brand.</p>
+            <ul class="tags"><li>Design</li><li>Marketing</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-bio" data-project="bio">
+          <div class="card-art" aria-hidden="true"><span>Bay</span></div>
+          <div class="card-body">
+            <p class="when">2023 · Brooklyn College</p>
+            <h3>Jamaica Bay research</h3>
+            <p>Field research on invasive species, presented at the American Museum of Natural History.</p>
+            <ul class="tags"><li>Research</li><li>Data</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
         </article>
       </div>
     </section>
 
+    <!-- EXPERIENCE -->
     <section id="experience" class="section">
       <h2>Experience</h2>
-      <ol class="timeline">
+      <ol class="timeline" id="timeline">
         <li>
           <p class="dates">Sep 2026 – now</p>
           <div>
@@ -127,7 +196,7 @@
           <p class="dates">Jul – Sep 2026</p>
           <div>
             <h3>Web Developer <span>Freelance, Brooklyn</span></h3>
-            <p>Built websites and handled domain migration for three local businesses and nonprofits.</p>
+            <p>Built websites and handled domain migration for Seaway Beauty, the North America Cantonese Arts Foundation and KXNY International.</p>
           </div>
         </li>
         <li>
@@ -141,7 +210,7 @@
           <p class="dates">Jun – Sep 2025</p>
           <div>
             <h3>Frontend Developer <span>Cultured Kids Cuisine</span></h3>
-            <p>Redesigned responsive frontend for a youth culinary-education nonprofit with HTML, CSS, JavaScript and Node.js. My redesign was chosen in A/B review and shipped to production.</p>
+            <p>Redesigned the responsive frontend for a youth culinary-education nonprofit. My redesign was chosen in A/B review and shipped to production.</p>
           </div>
         </li>
         <li>
@@ -168,40 +237,35 @@
       </ol>
     </section>
 
+    <!-- SKILLS -->
     <section id="skills" class="section">
-      <h2>Skills</h2>
-      <div class="skills">
-        <div>
-          <h3>Programming</h3>
-          <p>C++, Python, Java, JavaScript, HTML5, CSS3, Node.js, MATLAB</p>
-        </div>
-        <div>
-          <h3>Robotics &amp; embedded</h3>
-          <p>Arduino, motor control, sensor integration, AprilTags, ROS, real-time control</p>
-        </div>
-        <div>
-          <h3>CAD &amp; hardware</h3>
-          <p>Onshape, SolidWorks, Fusion 360, AutoCAD, circuit design, hardware debugging</p>
-        </div>
-        <div>
-          <h3>Tools &amp; design</h3>
-          <p>Figma, Jenkins, GitLab CI, VS Code, CLion, Agile/Scrum, Microsoft 365</p>
-        </div>
-        <div>
-          <h3>Languages</h3>
-          <p>English and Chinese (native), Spanish (working)</p>
-        </div>
-        <div>
-          <h3>At BU</h3>
-          <p>Society of Women Engineers, BU Blockchain Club, Dean's Imagineering Competition</p>
-        </div>
+      <h2>Toolbox</h2>
+      <p class="hint">Pick a category to filter.</p>
+      <div class="filters" role="group" aria-label="Filter skills">
+        <button type="button" class="filter is-on" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="filter" data-filter="code" aria-pressed="false">Code</button>
+        <button type="button" class="filter" data-filter="robot" aria-pressed="false">Robotics</button>
+        <button type="button" class="filter" data-filter="cad" aria-pressed="false">CAD &amp; hardware</button>
+        <button type="button" class="filter" data-filter="tools" aria-pressed="false">Tools &amp; design</button>
       </div>
+      <ul class="chips" id="chips">
+        <li data-cat="code">C++</li><li data-cat="code">Python</li><li data-cat="code">Java</li><li data-cat="code">JavaScript</li><li data-cat="code">HTML5 &amp; CSS3</li><li data-cat="code">Node.js</li><li data-cat="code">MATLAB</li>
+        <li data-cat="robot">Arduino</li><li data-cat="robot">Motor control</li><li data-cat="robot">PIDF tuning</li><li data-cat="robot">AprilTags</li><li data-cat="robot">Sensor integration</li><li data-cat="robot">ROS</li>
+        <li data-cat="cad">Onshape</li><li data-cat="cad">SolidWorks</li><li data-cat="cad">Fusion 360</li><li data-cat="cad">AutoCAD</li><li data-cat="cad">Circuit design</li><li data-cat="cad">Hardware debugging</li>
+        <li data-cat="tools">Figma</li><li data-cat="tools">Jenkins CI/CD</li><li data-cat="tools">GitLab</li><li data-cat="tools">VS Code</li><li data-cat="tools">CLion</li><li data-cat="tools">Agile/Scrum</li><li data-cat="tools">Microsoft 365</li>
+      </ul>
+      <p class="langs">I speak English and Chinese natively, and Spanish at a working level.</p>
     </section>
 
+    <!-- CONTACT -->
     <section id="contact" class="section contact">
-      <h2>Contact</h2>
-      <p>I'm looking for engineering internships in robotics, embedded systems and software. The fastest way to reach me is email.</p>
-      <a class="email" href="mailto:shiqilin17@gmail.com">shiqilin17@gmail.com</a>
+      <h2>Let's build something</h2>
+      <p>I'm looking for engineering internships in robotics, embedded systems and software. Email is the fastest way to reach me.</p>
+      <div class="email-row">
+        <a class="email" href="mailto:shiqilin17@gmail.com">shiqilin17@gmail.com</a>
+        <button type="button" class="copy" id="copy-email">Copy email</button>
+      </div>
+      <p class="toast" id="toast" role="status" aria-live="polite"></p>
     </section>
   </main>
 
@@ -209,6 +273,13 @@
     <p>© <span id="year">2026</span> Shiqi Lin · New York and Boston</p>
   </footer>
 
+  <!-- Project detail dialog -->
+  <dialog class="detail" id="detail" aria-labelledby="detail-title">
+    <button type="button" class="detail-close" id="detail-close" aria-label="Close project">✕</button>
+    <div id="detail-body"></div>
+  </dialog>
+
   <script src="script.js"></script>
+  <script type="module" src="board.js"></script>
 </body>
 </html>

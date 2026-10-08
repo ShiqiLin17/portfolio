@@ -6,12 +6,16 @@ Personal portfolio site. Plain HTML, CSS and a few lines of JavaScript, with no 
 
 - `index.html` – all page content (edit text here)
 - `styles.css` – colors, fonts and layout (palette variables are at the top)
-- `script.js` – sets the footer year
+- `script.js` – interactions: lights switch, live Boston readout, project carousel and pop-ups, timeline, skills filter, copy email
+- `board.js` – the 3D circuit board that turns as you scroll (three.js)
+- `vendor/` – bundled three.js, so the site has no outside script dependencies
 - `favicon.svg` – browser tab icon
+
+Project pop-up text lives in the `projects` object in `script.js`.
 
 ## Preview locally
 
-Open `index.html` in a browser, or run:
+The 3D board needs a local server (opening the file directly won't load it). Run:
 
 ```bash
 python3 -m http.server 8000
