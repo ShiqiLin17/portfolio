@@ -510,17 +510,17 @@ if (portrait && ME_PHOTOS[0]) {
    media: [{ type: "image", src: "media/certs/excel.jpg", alt: "Certificate" }]. */
 const CERTS = [
   { group: "Software & data", items: [
-    { abbr: "XL", title: "Microsoft Office Specialist: Excel Expert", issuer: "Microsoft · Office 2019", text: "The advanced Excel certification: complex formulas and functions, data analysis, macros, and managing workbooks." },
-    { abbr: "XL", title: "Microsoft Office Specialist: Excel Associate", issuer: "Microsoft · Office 2019", text: "Core Excel skills: formulas, charts, tables and data organization." },
-    { abbr: "W", title: "Microsoft Office Specialist: Word Associate", issuer: "Microsoft", text: "Creating and formatting professional documents, tables and references in Word.", where: "Earned at the SUNY ATTAIN Lab" },
+    { abbr: "XL", title: "Microsoft Office Specialist: Excel Expert", issuer: "Microsoft · Office 2019", text: "The advanced Excel certification: complex formulas and functions, data analysis, macros, and managing workbooks.", links: [{ label: "Verify on Credly", href: "https://www.credly.com/badges/2e4e28e3-e14c-4e76-a29e-11329fe34c51" }] },
+    { abbr: "XL", title: "Microsoft Office Specialist: Excel Associate", issuer: "Microsoft · Office 2019", text: "Core Excel skills: formulas, charts, tables and data organization.", links: [{ label: "Verify on Credly", href: "https://www.credly.com/badges/75a7555f-a91d-48e0-8795-01f05ca62fa5" }] },
+    { abbr: "W", title: "Microsoft Office Specialist: Word Associate", issuer: "Microsoft · Office 2019", text: "Creating and formatting professional documents, tables and references in Word.", where: "Earned at the SUNY ATTAIN Lab", links: [{ label: "Verify on Credly", href: "https://www.credly.com/badges/c4f061d1-b7c4-4c88-b663-cb2954bd1518" }] },
     { abbr: "O", title: "Microsoft Office Specialist: Outlook Associate", issuer: "Microsoft", text: "Managing email, calendars, contacts and tasks in Outlook.", where: "Earned at the SUNY ATTAIN Lab" },
     { abbr: "</>", title: "Programming in HTML5 with JavaScript and CSS3", issuer: "Certification", text: "Building web pages and interactive apps with HTML5, JavaScript and CSS3." },
-    { abbr: "JS", title: "JavaScript Certificate", issuer: "W3Schools", text: "JavaScript fundamentals: syntax, functions, the DOM and events." },
+    { abbr: "JS", title: "JavaScript Certificate", issuer: "W3Schools", text: "JavaScript fundamentals: syntax, functions, the DOM and events.", links: [{ label: "Verify on W3Schools", href: "https://certification.w3schools.com/w3certified.asp?id=13880272" }] },
   ]},
   { group: "Engineering & AI", items: [
-    { abbr: "ML", title: "Machine Learning Onramp", issuer: "MathWorks", text: "Hands-on introduction to machine learning in MATLAB: preparing data, training classifiers and evaluating models.", where: "Earned during the AthensLabs.ai internship" },
-    { abbr: "M", title: "MATLAB Onramp", issuer: "MathWorks", text: "MATLAB essentials: variables, matrices, plotting and scripts.", where: "Earned during the AthensLabs.ai internship" },
-    { abbr: "MX", title: "Mechatronics Level 1", issuer: "NOCTI", text: "Knowledge-based workforce competency credential covering mechanical, electrical and control systems." },
+    { abbr: "ML", title: "Machine Learning Onramp", issuer: "MathWorks · Nov 2024", text: "Hands-on introduction to machine learning in MATLAB: preparing data, training classifiers and evaluating models.", links: [{ label: "View certificate", href: "https://matlabacademy.mathworks.com/progress/share/certificate.html?id=8e68f33d-c88b-4063-b461-c80c3eeb3e12" }] },
+    { abbr: "M", title: "MATLAB Onramp", issuer: "MathWorks", text: "MATLAB essentials: variables, matrices, plotting and scripts.", links: [{ label: "View certificate", href: "https://matlabacademy.mathworks.com/progress/share/certificate.html?id=474e8fe8-116e-4012-a99a-b25fba3b173a" }] },
+    { abbr: "MX", title: "Mechatronics Level 1", issuer: "NOCTI", text: "A Knowledge-Based Workforce Competency Credential covering mechanical, electrical and control systems.", links: [{ label: "Verify on NOCTI", href: "https://www.noctiskillbadge.org/badge/26717439" }] },
     { abbr: "CTE", title: "Engineering Certificate", issuer: "Career & Technical Education · Midwood High School", text: "Completed the CTE engineering pathway in Midwood's robotics branch." },
   ]},
   { group: "Science & service", items: [
@@ -546,6 +546,7 @@ const CERTS = [
             <span class="badge-face"><span class="badge-abbr">${esc(c.abbr)}</span></span>
             <span class="badge-title">${esc(c.title)}</span>
             <span class="badge-issuer">${esc(c.issuer)}</span>
+            ${c.links ? '<span class="badge-verified">✓ verified</span>' : ""}
           </button></li>`;
         }).join("")}</ul>
       </div>`).join("");

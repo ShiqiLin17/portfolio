@@ -1139,3 +1139,4 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
   .badge-abbr { font-size: 1.5rem; }
 }
 .wide-slot { grid-column: 1 / -1; aspect-ratio: 16 / 7; }
+.badge-verified { font-family: var(--hand); font-weight: 700; font-size: 1.05rem; color: var(--yarn); line-height: 1; margin-top: 2px; }
