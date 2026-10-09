@@ -529,34 +529,43 @@ const CERTS = [
     { abbr: "H&L", title: "Hats & Ladders Career Readiness Training", issuer: "Career readiness", text: "Career exploration and workplace readiness training." },
   ]},
 ];
+const HONORS = [
+  { abbr: "★", title: "FIRST Championship", kind: "Honor", issuer: "FIRST · Curie Division · 2023", text: "Competed at the 2023 FIRST Championship in the Curie Division with the Brooklyn robotics teams I helped lead." },
+  { abbr: "✦", title: "Think Award", kind: "Award", issuer: "FIRST Tech Challenge · NYC Qualifier", text: "Awarded to FTC Team 3371 for engineering documentation and design process, while ranking 2nd at the qualifier." },
+  { abbr: "♥", title: "Team Spirit Award", kind: "Award", issuer: "FIRST Robotics Competition · NY Tech Valley Regional 2023", text: "Awarded to FRC Team 333, which also finished 6th of 48 teams at the regional." },
+  { abbr: "$1K", title: "Research Stipend", kind: "Honor", issuer: "Brooklyn College AREAC · 2023", text: "Recognized for outstanding contribution to invasive species field research at Jamaica Bay, with a research poster presented at the American Museum of Natural History." },
+];
 {
-  const wrap = $("#badges");
   const tones = ["#c4dfcd", "#c6dceb", "#eadcc3", "#d3e2d0", "#efe4c2", "#b9d3dd"];
-  let n = 0;
-  const flat = [];
-  if (wrap) {
-    wrap.innerHTML = CERTS.map((g) => `
-      <div class="badge-group">
-        <h3 class="group-title">${esc(g.group)}</h3>
-        <ul class="badges">${g.items.map((c) => {
-          const i = n++;
-          flat.push(c);
-          c.color = tones[i % tones.length];
-          return `<li><button type="button" class="badge shape-${i % 3}" data-i="${i}" style="--tone:${c.color}">
-            <span class="badge-face"><span class="badge-abbr">${esc(c.abbr)}</span></span>
-            <span class="badge-title">${esc(c.title)}</span>
-            <span class="badge-issuer">${esc(c.issuer)}</span>
-            ${c.links ? '<span class="badge-verified">✓ verified</span>' : ""}
-          </button></li>`;
-        }).join("")}</ul>
-      </div>`).join("");
-    $$(".badge", wrap).forEach((b) => b.addEventListener("click", (e) => {
-      const c = flat[+b.dataset.i];
-      openDetail({
-        color: c.color, art: c.abbr, title: c.title, when: c.issuer, summary: c.text,
-        links: c.links, media: c.media, placeholder: "Certificate scan coming soon",
-        sections: c.where ? [["Where", [c.where]]] : [],
-      }, e.currentTarget);
-    }));
+  const flat = CERTS.flatMap((g) => g.items);
+  const frame = (c, i, honor) => {
+    c.color = tones[i % tones.length];
+    const kind = c.kind || (/Onramp|Certificate|Program|Training/.test(c.title) ? "Certificate of Completion" : "Certification");
+    return `<li><button type="button" class="frame-btn${honor ? " honor" : ""}" data-i="${i}" style="--tone:${c.color}">
+      <span class="frame"><span class="cert-doc">
+        <span class="cert-kicker">${esc(kind)}</span>
+        <span class="cert-to">presented to</span>
+        <span class="cert-name">Shiqi Lin</span>
+        <span class="cert-for">${esc(c.title)}</span>
+        <span class="cert-issuer">${esc(c.issuer)}</span>
+        <span class="cert-seal">${esc(c.abbr)}</span>
+        ${honor ? '<span class="ribbon" aria-hidden="true"></span>' : ""}
+      </span></span>
+      ${c.links ? '<span class="cert-verified">✓ verified</span>' : ""}
+    </button></li>`;
+  };
+  const open = (c, opener) => openDetail({
+    color: c.color, art: c.abbr, title: c.title, when: c.issuer, summary: c.text,
+    links: c.links, media: c.media, placeholder: "Certificate scan coming soon",
+    sections: c.where ? [["Where", [c.where]]] : [],
+  }, opener);
+  const hw = $("#honors-wall"), cw = $("#certs-wall");
+  if (hw) {
+    hw.innerHTML = HONORS.map((c, i) => frame(c, i + 2, true)).join("");
+    $$(".frame-btn", hw).forEach((b) => b.addEventListener("click", (e) => open(HONORS[+b.dataset.i - 2], e.currentTarget)));
+  }
+  if (cw) {
+    cw.innerHTML = flat.map((c, i) => frame(c, i, false)).join("");
+    $$(".frame-btn", cw).forEach((b) => b.addEventListener("click", (e) => open(flat[+b.dataset.i], e.currentTarget)));
   }
 }
