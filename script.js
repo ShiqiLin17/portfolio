@@ -367,30 +367,52 @@ $("#copy-email").addEventListener("click", async () => {
 /* ---------- Photos of me ----------
    Drop pictures into media/me/ and list them here, e.g.
    { src: "media/me/robotics-lab.jpg", alt: "Me in the robotics lab" }
-   The first photo also goes in the About polaroid. With no photos, cute
-   placeholders show instead and the faded background collage stays off. */
+   The first photo goes in the About polaroid and the second (or first) is
+   tucked into the shirt pocket as a hidden surprise. */
 const ME_PHOTOS = [];
 
-const strip = $("#strip-frames");
-if (strip) {
-  const faces = ["(◕‿◕)", "(✿^‿^)", "(｡•̀ᴗ-)✧", "(≧◡≦)"];
-  strip.innerHTML = [0, 1, 2, 3].map((i) => {
-    const p = ME_PHOTOS[i];
-    return p
-      ? `<div class="frame"><img src="${esc(p.src)}" alt="${esc(p.alt || "Shiqi")}" loading="lazy"></div>`
-      : `<div class="frame frame-empty"><span>${faces[i]}</span></div>`;
-  }).join("");
-}
 const portrait = $("#portrait-slot");
 if (portrait && ME_PHOTOS[0]) {
   portrait.outerHTML = `<img src="${esc(ME_PHOTOS[0].src)}" alt="${esc(ME_PHOTOS[0].alt || "Shiqi")}">`;
 }
-const wash = $("#photo-wash");
-if (wash && ME_PHOTOS.length) {
-  // A soft collage of photos that slowly cross-fade behind the page.
-  const pick = ME_PHOTOS.slice(0, 8);
-  wash.innerHTML = pick.map((p, i) => `<img src="${esc(p.src)}" alt="" style="--i:${i};--n:${pick.length}">`).join("");
-  wash.classList.add("on");
+// A photo tucked in the shirt pocket: only peeks out a little.
+// Drag it up (or press Enter) to pull it out; click again to tuck it back.
+{
+  const secret = $("#secret");
+  const pic = ME_PHOTOS[1] || ME_PHOTOS[0];
+  if (secret && pic) $("#secret-photo").innerHTML = `<img src="${esc(pic.src)}" alt="${esc(pic.alt || "Shiqi")}">`;
+  if (secret) {
+    let start = null, moved = false;
+    const setOut = (out) => {
+      secret.classList.toggle("is-out", out);
+      secret.setAttribute("aria-label", out ? "Photo of Shiqi. Activate to tuck it back in the pocket" : "Something is tucked in the shirt pocket");
+      secret.style.removeProperty("--lift");
+    };
+    secret.addEventListener("pointerdown", (e) => {
+      start = e.clientY; moved = false;
+      secret.setPointerCapture(e.pointerId);
+      secret.classList.add("is-dragging");
+    });
+    secret.addEventListener("pointermove", (e) => {
+      if (start === null || secret.classList.contains("is-out")) return;
+      const lift = Math.max(0, start - e.clientY);
+      if (lift > 4) moved = true;
+      secret.style.setProperty("--lift", Math.min(lift, 160) + "px");
+      if (lift > 80) { start = null; secret.classList.remove("is-dragging"); setOut(true); }
+    });
+    const end = () => {
+      if (start === null) return;
+      start = null;
+      secret.classList.remove("is-dragging");
+      if (!moved) setOut(!secret.classList.contains("is-out"));
+      else secret.style.removeProperty("--lift");
+    };
+    secret.addEventListener("pointerup", end);
+    secret.addEventListener("pointercancel", end);
+    secret.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOut(!secret.classList.contains("is-out")); }
+    });
+  }
 }
 /* ---------- Mailbox → envelope → letter ---------- */
 {

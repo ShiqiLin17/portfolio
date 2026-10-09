@@ -32,7 +32,7 @@ Entries without media show "coming soon" placeholders.
 
 ### Photos of me
 
-Put pictures in `media/me/` and list them in `ME_PHOTOS` at the bottom of `script.js`. The first four fill the photo-booth strip, the first one also goes in the About polaroid, and up to eight fade softly in the background.
+Put pictures in `media/me/` and list them in `ME_PHOTOS` at the bottom of `script.js`. The first one goes in the About polaroid, and the second (or first) is hidden in the shirt pocket for visitors to drag out.
 
 ### CAD models
 
