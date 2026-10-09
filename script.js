@@ -253,28 +253,126 @@ const projects = {
   },
 };
 
+/* ---------- Experience details ----------
+   Same shape as projects. For photos, videos and links, fill in:
+     media: [{ type: "image", src: "media/x.jpg", alt: "..." },
+             { type: "video", src: "media/x.mp4" },
+             { type: "youtube", id: "VIDEO_ID" }]
+     links: [{ label: "Visit the site", href: "https://..." }]
+   Empty lists show "coming soon" placeholders. */
+const experience = {
+  "bu-ta": {
+    color: "#1d5c43", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
+    summary: "Helping first-year engineering students take a project from problem statement to working prototype.",
+    sections: [["What I do", [
+      "Mentor student teams through the full design process: problem statements, requirements, morphological charts, concept and detailed design, prototyping and testing.",
+      "Lead hands-on labs on Arduino programming, MOSFET switching circuits, power supplies, and servo and stepper motor control.",
+      "Help students choose sensors and actuators and develop circuit diagrams, power budgets and code flowcharts.",
+      "Support Onshape CAD instruction and coordinate fabrication sessions at BU's Engineering Product Innovation Center (EPIC).",
+      "Coordinate with faculty and TAs across sections on kits, materials and assessments.",
+    ]]],
+  },
+  freelance: {
+    color: "#3d3f8f", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
+    summary: "Designed and built websites for three local businesses and nonprofits, and moved each domain to GoDaddy.",
+    sections: [["Clients", ["Seaway Beauty", "North America Cantonese Arts Foundation", "KXNY International"]]],
+  },
+  athens: {
+    color: "#2b2f4a", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
+    summary: "Engineering and go-to-market work at an AI-agent startup building an AI-native learning platform.",
+    sections: [["What I did", [
+      "Designed full-stack systems for an AI-agent education platform, with resilient backend services and clear UIs.",
+      "Prototyped reliability-critical agent features and set up Jenkins CI/CD pipelines with automated testing in Agile sprints.",
+      "Worked across teams to align agent capabilities with market needs and support product positioning.",
+    ]]],
+    links: [{ label: "athenslabs.ai", href: "https://www.athenslabs.ai/" }],
+  },
+  cultured: {
+    color: "#c4682f", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
+    summary: "Modernized the website for a nonprofit that teaches kids through culinary education.",
+    sections: [["What I did", [
+      "Redesigned responsive frontend pages to match updated brand standards, using Figma, HTML, CSS, JavaScript and Node.js.",
+      "Built UI components and checked functionality, load times and responsiveness.",
+      "My redesign was chosen in a cross-team A/B review and deployed to production.",
+      "Assigned and tracked weekly development tasks with a fellow developer.",
+    ]]],
+  },
+  fortune: {
+    color: "#4a5a52", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
+    summary: "Fixed warehouse air-quality problems flagged by state officials.",
+    sections: [["What I did", [
+      "Inspected and diagnosed failing air handling and filtration systems.",
+      "Replaced HEPA filters, pre-filters and activated carbon units, and balanced ductwork airflow.",
+      "Validated indoor air quality after the upgrade, bringing the site into OSHA compliance.",
+    ]]],
+  },
+  suny: {
+    color: "#2b6c8f", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
+    summary: "Kept a research and training lab's computers running and helped people use them.",
+    sections: [["What I did", [
+      "Diagnosed and fixed workstation hardware, peripheral and connectivity issues.",
+      "Applied system patches, firmware upgrades and security updates under SUNY IT policy.",
+      "Earned Microsoft Office Specialist certifications: Word Associate, Excel Expert and Outlook Associate.",
+    ]]],
+  },
+  infinity: {
+    color: "#9c3d5a", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
+    summary: "Designed digital materials for mental-health awareness programs in South Brooklyn.",
+    sections: [["What I did", [
+      "Turned user needs into high-fidelity Figma prototypes.",
+      "Improved information architecture and user flows for accessibility and ease of use.",
+      "Produced presentations and web layouts for community outreach.",
+    ]]],
+  },
+};
+
 const dialog = $("#detail");
 const detailBody = $("#detail-body");
 let lastOpener = null;
-function openProject(key, opener) {
-  const p = projects[key];
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+
+function mediaHTML(media = []) {
+  if (!media.length) {
+    return `<div class="gallery">
+      <div class="slot"><span class="slot-icon" aria-hidden="true">▣</span>Photos coming soon</div>
+      <div class="slot"><span class="slot-icon" aria-hidden="true">▶</span>Video coming soon</div>
+    </div>`;
+  }
+  return `<div class="gallery">${media.map((m) => {
+    if (m.type === "image") return `<figure><img src="${esc(m.src)}" alt="${esc(m.alt || "")}" loading="lazy">${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    if (m.type === "video") return `<figure><video src="${esc(m.src)}" controls playsinline preload="metadata"></video>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    if (m.type === "youtube") return `<figure class="wide"><iframe src="https://www.youtube-nocookie.com/embed/${esc(m.id)}" title="${esc(m.caption || "Video")}" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></figure>`;
+    return "";
+  }).join("")}</div>`;
+}
+function linksHTML(links = []) {
+  if (!links.length) return `<p class="links"><span class="link-slot">Links coming soon</span></p>`;
+  return `<p class="links">${links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("")}</p>`;
+}
+
+function openDetail(p, opener) {
   if (!p) return;
   lastOpener = opener;
-  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   detailBody.innerHTML = `
     <div class="detail-art" style="background:${p.color}">${esc(p.art)}</div>
     <div class="detail-content">
       <p class="when">${esc(p.when)}</p>
       <h2 id="detail-title">${esc(p.title)}</h2>
       <p>${esc(p.summary)}</p>
+      ${linksHTML(p.links)}
+      ${mediaHTML(p.media)}
       ${p.sections.map(([h, items]) => `<h3>${esc(h)}</h3><ul class="points">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`).join("")}
     </div>`;
   dialog.showModal();
   dialog.scrollTop = 0;
 }
+const openProject = (key, opener) => openDetail(projects[key], opener);
 cards.forEach((card) => {
   $(".open", card).addEventListener("click", (e) => openProject(card.dataset.project, e.currentTarget));
   $(".card-art", card).addEventListener("click", () => { if (!dragged) openProject(card.dataset.project, $(".open", card)); });
+});
+$$("#timeline li[data-exp]").forEach((li) => {
+  $(".open", li).addEventListener("click", (e) => openDetail(experience[li.dataset.exp], e.currentTarget));
 });
 $("#detail-close").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });

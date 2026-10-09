@@ -25,6 +25,7 @@
     <a class="mark" href="#top" aria-label="Shiqi Lin, back to top">SL</a>
     <nav aria-label="Sections">
       <a href="#build">Inside</a>
+      <a href="#cad">CAD</a>
       <a href="#projects">Projects</a>
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
@@ -181,57 +182,85 @@
       </div>
     </section>
 
+    <!-- CAD LAB -->
+    <section id="cad" class="section">
+      <h2>CAD lab</h2>
+      <p class="hint">Real models I designed in Fusion 360. Drag to rotate, scroll or pinch to zoom.</p>
+      <div class="cad">
+        <div class="cad-stage">
+          <canvas id="cad-canvas" aria-label="3D model viewer"></canvas>
+          <p class="cad-status" id="cad-status" role="status">Loading model</p>
+          <div class="cad-tools">
+            <button type="button" id="cad-spin" aria-pressed="true">Auto-rotate</button>
+            <button type="button" id="cad-wire" aria-pressed="false">Wireframe</button>
+            <button type="button" id="cad-reset">Reset view</button>
+          </div>
+        </div>
+        <div class="cad-side">
+          <div class="cad-list" id="cad-list" role="tablist" aria-label="Choose a model"></div>
+          <div class="cad-info" id="cad-info"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- EXPERIENCE -->
     <section id="experience" class="section">
       <h2>Experience</h2>
       <ol class="timeline" id="timeline">
-        <li>
+        <li data-exp="bu-ta">
           <p class="dates">Sep 2026 – now</p>
           <div>
             <h3>Teaching Assistant <span>Boston University College of Engineering</span></h3>
             <p>Mentor student teams through the engineering design process and lead labs on Arduino, MOSFET switching, power supplies, and servo and stepper motor control. Support Onshape CAD instruction and fabrication at BU's EPIC.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="freelance">
           <p class="dates">Jul – Sep 2026</p>
           <div>
             <h3>Web Developer <span>Freelance, Brooklyn</span></h3>
             <p>Built websites and handled domain migration for Seaway Beauty, the North America Cantonese Arts Foundation and KXNY International.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="athens">
           <p class="dates">Jul – Oct 2025</p>
           <div>
             <h3>Fullstack Engineer &amp; Marketing <span>AthensLabs.ai</span></h3>
             <p>Built full-stack systems for an AI-agent education platform, prototyped agent features, and set up Jenkins CI/CD with automated tests in Agile sprints. Helped shape product positioning.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="cultured">
           <p class="dates">Jun – Sep 2025</p>
           <div>
             <h3>Frontend Developer <span>Cultured Kids Cuisine</span></h3>
             <p>Redesigned the responsive frontend for a youth culinary-education nonprofit. My redesign was chosen in A/B review and shipped to production.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="fortune">
           <p class="dates">Jun – Aug 2025</p>
           <div>
             <h3>EHS Technician Assistant <span>Fortune Logistics</span></h3>
             <p>Diagnosed failing warehouse air handling, replaced HEPA and carbon filtration, and validated air quality for OSHA compliance.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="suny">
           <p class="dates">Jun – Aug 2024</p>
           <div>
             <h3>IT Specialist <span>SUNY ATTAIN Lab</span></h3>
             <p>Fixed workstation hardware and connectivity issues and applied patches and firmware updates for lab operations.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
-        <li>
+        <li data-exp="infinity">
           <p class="dates">Jul – Sep 2023</p>
           <div>
             <h3>UX/UI Design Specialist <span>Infinity Educational Programs</span></h3>
             <p>Designed accessible Figma prototypes and content for mental-health programs in South Brooklyn.</p>
+            <button type="button" class="open">View details</button>
           </div>
         </li>
       </ol>
@@ -281,5 +310,6 @@
 
   <script src="script.js"></script>
   <script type="module" src="board.js"></script>
+  <script type="module" src="cad.js"></script>
 </body>
 </html>

@@ -11,7 +11,26 @@ Personal portfolio site. Plain HTML, CSS and a few lines of JavaScript, with no 
 - `vendor/` – bundled three.js, so the site has no outside script dependencies
 - `favicon.svg` – browser tab icon
 
-Project pop-up text lives in the `projects` object in `script.js`.
+Project pop-up text lives in the `projects` object in `script.js`, and experience pop-ups in the `experience` object.
+
+### Adding photos, videos and links
+
+Put files in `media/`, then add to any project or experience entry in `script.js`:
+
+```js
+media: [
+  { type: "image", src: "media/robot.jpg", alt: "Robot on the field", caption: "2023 season" },
+  { type: "video", src: "media/demo.mp4" },
+  { type: "youtube", id: "VIDEO_ID" },
+],
+links: [{ label: "Visit the site", href: "https://example.com" }],
+```
+
+Entries without media show "coming soon" placeholders.
+
+### CAD models
+
+Export from Fusion 360 as `.stl` into `cad/`. File names and descriptions are listed at the top of `cad.js`.
 
 ## Preview locally
 
