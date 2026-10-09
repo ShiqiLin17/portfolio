@@ -79,7 +79,7 @@ const fill = new THREE.DirectionalLight(0xffd8b8, 0.9);
 fill.position.set(-4, 2, -3);
 scene.add(fill);
 
-const grid = new THREE.GridHelper(4, 20, 0xa85f27, 0x8aa596);
+const grid = new THREE.GridHelper(4, 20, 0xf1e6c4, 0xbcd3c2);
 grid.material.transparent = true;
 grid.material.opacity = 0.35;
 grid.visible = false;

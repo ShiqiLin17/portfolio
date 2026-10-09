@@ -11,7 +11,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Caveat:wght@500;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@1,900&family=Special+Elite&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
     // Apply saved theme before paint to avoid a flash.
@@ -21,9 +21,16 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+    </defs>
+  </svg>
+
   <header class="site-header">
-    <a class="mark" href="#top" aria-label="Shiqi Lin, back to top">SL</a>
+    <a class="mark" href="#top" aria-label="Shiqi Lin, back to top"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></a>
     <nav aria-label="Sections">
+      <a href="#about">About</a>
       <a href="#build">Inside</a>
       <a href="#cad">CAD</a>
       <a href="#projects">Projects</a>
@@ -31,7 +38,6 @@
       <a href="#contact">Contact</a>
     </nav>
     <button class="power" id="power" type="button" aria-pressed="false" aria-label="Lights off (dark mode)">
-      <span class="power-led" aria-hidden="true"></span>
       <span class="power-track" aria-hidden="true"><span class="power-knob"></span></span>
       <span class="power-label">Lights</span>
     </button>
@@ -41,11 +47,12 @@
     <!-- HERO -->
     <section class="hero" id="top">
       <div class="hero-text">
+        <p class="scribble">hi, I'm</p>
         <h1 class="hero-name" aria-label="Shiqi Lin">
           <span class="split" aria-hidden="true">Shiqi</span>
           <span class="split" aria-hidden="true">Lin</span>
         </h1>
-        <p class="role">Computer Engineering at Boston University, class of 2028</p>
+        <p class="role"><span class="tape-label">Computer Engineering</span> Boston University, class of 2028</p>
         <p class="intro">I build robots, embedded systems and websites. I captained a FIRST Tech Challenge team to the World Championship, shipped sites for small businesses in Brooklyn, and now teach Arduino and motor control to engineering students at BU.</p>
         <ul class="pads" aria-label="Links">
           <li><a href="#projects">See my work</a></li>
@@ -54,11 +61,11 @@
         </ul>
       </div>
 
-      <aside class="live" aria-label="Live readout from Boston">
-        <div class="live-head">
-          <span class="live-dot" aria-hidden="true"></span>
-          <span>Live from Boston</span>
-        </div>
+      <aside class="live clipping" aria-label="Live readout from Boston">
+        <span class="tape tape-tl" aria-hidden="true"></span>
+        <span class="tape tape-br" aria-hidden="true"></span>
+        <p class="masthead">The Boston Daily Weather</p>
+        <p class="dateline" id="live-date">Today's edition</p>
         <div class="live-grid">
           <div><p class="live-num" id="live-time">--:--</p><p class="live-cap">Local time</p></div>
           <div><p class="live-num" id="live-temp">--°</p><p class="live-cap" id="live-sky">Checking the sky</p></div>
@@ -67,44 +74,88 @@
         <svg class="scope" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
           <path id="scope-line" d="M0 35 H300" />
         </svg>
-        <p class="live-note">Move your cursor over the readout to probe the signal.</p>
+        <p class="live-note">Run your needle over the stitch to tug the thread.</p>
       </aside>
     </section>
 
-    <!-- SCROLL STORY: 3D board turns as you scroll -->
+    <!-- SCROLL STORY: a needle threads the shirt button, the shirt opens, robotics inside -->
     <section class="story" id="build" aria-label="What I work with">
       <div class="story-sticky">
-        <canvas id="board" aria-hidden="true"></canvas>
+        <div class="shirt-wrap">
+          <svg id="shirt" viewBox="0 0 500 560" role="img" aria-label="A stitched shirt that opens to show robot parts inside"></svg>
+        </div>
         <div class="story-steps">
           <div class="step-progress" aria-hidden="true"><span id="step-bar"></span></div>
           <article class="step" data-step="0">
-            <h2>What's inside</h2>
-            <p>Scroll to take apart the way I build things. Every part on this board is a skill I use.</p>
+            <h2 class="ransom">Under the seams</h2>
+            <p>Every good build starts with a single stitch. Keep scrolling to thread the needle and see what's sewn inside.</p>
           </article>
           <article class="step" data-step="1">
-            <h3>The brain</h3>
-            <p>C++, Python, Java and JavaScript. I write firmware and autonomous OpModes as comfortably as web frontends and Node.js backends.</p>
+            <h3>The heart</h3>
+            <p class="note">AI · robotics · real-world impact</p>
+            <p>What keeps it all running: building things that make life easier, smarter or more fun, and using AI and robotics ethically in education, health and everyday life.</p>
+            <p><a class="step-link" href="#about">Read my story</a></p>
           </article>
           <article class="step" data-step="2">
-            <h3>The eyes</h3>
-            <p>Computer vision with AprilTags and UVC cameras, fused with color, ultrasonic and IMU sensors so a robot knows where it is.</p>
+            <h3>The brain</h3>
+            <p class="note">C++ · Python · Java · JavaScript</p>
+            <p>I write firmware and autonomous OpModes as comfortably as web frontends and Node.js backends.</p>
           </article>
           <article class="step" data-step="3">
-            <h3>The muscle</h3>
-            <p>Servo, stepper and DC motor control with PIDF loops and encoders. I now teach these labs to BU engineering students.</p>
+            <h3>The eyes</h3>
+            <p class="note">AprilTags · UVC cameras · IMU</p>
+            <p>Computer vision fused with color, ultrasonic and inertial sensors so a robot knows where it is.</p>
           </article>
           <article class="step" data-step="4">
-            <h3>The shell</h3>
-            <p>CAD in Onshape, SolidWorks and Fusion 360, then fabrication and testing. Design it, build it, break it, fix it.</p>
+            <h3>The muscle</h3>
+            <p class="note">servos · steppers · PIDF</p>
+            <p>Motor control with PIDF loops and encoders. I now teach these labs to BU engineering students.</p>
+          </article>
+          <article class="step" data-step="5">
+            <h3>The pattern</h3>
+            <p class="note">Onshape · SolidWorks · Fusion 360</p>
+            <p>Like cutting a sewing pattern, I start in CAD, then fabricate, test and stitch it all back together.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <!-- ABOUT: a journal page -->
+    <section id="about" class="section about">
+      <h2 class="ransom">About me</h2>
+      <div class="journal">
+        <figure class="portrait">
+          <span class="tape tape-tl" aria-hidden="true"></span>
+          <div class="portrait-slot" aria-label="Photo coming soon">
+            <svg viewBox="0 0 120 120" aria-hidden="true" class="mini-heart"><path d="M60 98 C 18 70, 8 40, 32 28 C 46 21, 56 32, 60 40 C 64 32, 74 21, 88 28 C 112 40, 102 70, 60 98 Z"/><circle cx="60" cy="56" r="10"/></svg>
+            <span>photo coming soon</span>
+          </div>
+          <figcaption>Shiqi · Boston, MA</figcaption>
+        </figure>
+
+        <article class="journal-page">
+          <p class="journal-date" id="journal-date">Dear reader,</p>
+          <p>I'm a Computer Engineering student at Boston University passionate about AI, robotics, and building things that make life easier, smarter, or more fun. I enjoy working on projects that combine engineering, creativity, and impact — whether that's developing autonomous robots, building digital tools, or creating new user experiences.</p>
+          <p>At BU, I've been working on a startup project called <mark>VibeWake</mark>, which explores how tech can reshape how we wake up and start our day — combining behavioral science, smart hardware, and app development. It's a passion project that pushes me to think like both an engineer and an entrepreneur.</p>
+          <p>Before college, I served as team captain of <mark>FIRST Tech Challenge Team 3371</mark>, where I led the design and programming of competition-ready robots, implemented computer vision systems, and secured sponsorships to keep our team moving. I also worked on the business and outreach side of a FIRST Robotics Competition team, managing a $50K+ budget and building community partnerships.</p>
+          <p class="pullquote">"I bring both a technical foundation and a business mindset."</p>
+          <p>Beyond robotics, I've had hands-on experience in:</p>
+          <ul class="patches">
+            <li><strong>Web development</strong> JavaScript, Node.js, C++</li>
+            <li><strong>UX/UI design</strong> Figma, user testing</li>
+            <li><strong>Marketing &amp; logistics</strong> campaign strategy, team leadership</li>
+            <li><strong>Research &amp; data</strong> MATLAB, Excel, Python</li>
+          </ul>
+          <p>I'm excited by how AI and robotics can be used ethically to solve real-world problems in education, health, and everyday life. I'm always looking to learn, build, and collaborate on something meaningful.</p>
+          <p class="signoff">Let's connect! <span>— Shiqi</span></p>
+        </article>
       </div>
     </section>
 
     <!-- PROJECTS CAROUSEL -->
     <section id="projects" class="section">
       <div class="section-head">
-        <h2>Projects</h2>
+        <h2 class="ransom">Projects</h2>
         <div class="carousel-controls">
           <p class="counter" aria-live="polite"><span id="proj-current">1</span> / <span id="proj-total">6</span></p>
           <button type="button" class="arrow" id="proj-prev" aria-label="Previous project">‹</button>
@@ -184,7 +235,7 @@
 
     <!-- CAD LAB -->
     <section id="cad" class="section">
-      <h2>CAD lab</h2>
+      <h2 class="ransom">CAD lab</h2>
       <p class="hint">Real models I designed in Fusion 360. Drag to rotate, scroll or pinch to zoom.</p>
       <div class="cad">
         <div class="cad-stage">
@@ -205,7 +256,7 @@
 
     <!-- EXPERIENCE -->
     <section id="experience" class="section">
-      <h2>Experience</h2>
+      <h2 class="ransom">Experience</h2>
       <ol class="timeline" id="timeline">
         <li data-exp="bu-ta">
           <p class="dates">Sep 2026 – now</p>
@@ -268,7 +319,7 @@
 
     <!-- SKILLS -->
     <section id="skills" class="section">
-      <h2>Toolbox</h2>
+      <h2 class="ransom">Toolbox</h2>
       <p class="hint">Pick a category to filter.</p>
       <div class="filters" role="group" aria-label="Filter skills">
         <button type="button" class="filter is-on" data-filter="all" aria-pressed="true">All</button>
@@ -288,7 +339,7 @@
 
     <!-- CONTACT -->
     <section id="contact" class="section contact">
-      <h2>Let's build something</h2>
+      <h2 class="ransom">Let's build something</h2>
       <p>I'm looking for engineering internships in robotics, embedded systems and software. Email is the fastest way to reach me.</p>
       <div class="email-row">
         <a class="email" href="mailto:shiqilin17@gmail.com">shiqilin17@gmail.com</a>
@@ -309,7 +360,8 @@
   </dialog>
 
   <script src="script.js"></script>
-  <script type="module" src="board.js"></script>
+  <script src="shirt.js"></script>
+  <script src="needle.js"></script>
   <script type="module" src="cad.js"></script>
 </body>
 </html>

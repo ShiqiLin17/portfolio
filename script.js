@@ -25,15 +25,33 @@ power.addEventListener("click", () => {
 });
 syncPower();
 
-/* ---------- Name letters that hop when you hover ---------- */
-$$(".split").forEach((word) => {
-  word.innerHTML = [...word.textContent].map((c) => `<span class="ch">${c}</span>`).join("");
-});
+/* ---------- Ransom-note cut-out letters ----------
+   Each letter becomes its own newspaper clipping with a font, paper and tilt
+   picked from a seeded sequence, so the look is the same on every visit. */
+let seed = 7;
+const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+function ransom(el, label) {
+  const text = el.textContent;
+  if (label) el.setAttribute("aria-label", text);
+  const letter = (c) => {
+    const f = Math.floor(rand() * 5);
+    const bg = Math.floor(rand() * 5);
+    const r = (rand() * 10 - 5).toFixed(1);
+    const y = (rand() * 6 - 3).toFixed(1);
+    return `<span class="ch f${f} b${bg}" style="--r:${r}deg;--y:${y}px" aria-hidden="true">${c}</span>`;
+  };
+  // keep each word together so a heading never breaks mid-word
+  el.innerHTML = text.split(" ").map((w) => `<span class="word">${[...w].map(letter).join("")}</span>`).join('<span class="gap"> </span>');
+}
+$$(".split").forEach((w) => ransom(w, false));
+$$(".ransom").forEach((h) => ransom(h, true));
+const dateline = $("#live-date");
+if (dateline) dateline.textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 if (!reduceMotion) {
   $$(".split .ch").forEach((ch) => {
     ch.addEventListener("mouseenter", () => {
-      ch.style.transform = `translateY(-0.12em) rotate(${(Math.random() * 16 - 8).toFixed(1)}deg)`;
-      setTimeout(() => (ch.style.transform = ""), 380);
+      ch.classList.add("hop");
+      setTimeout(() => ch.classList.remove("hop"), 380);
     });
   });
 }

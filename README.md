@@ -1,13 +1,15 @@
 # Shiqi Lin — Portfolio
 
-Personal portfolio site. Plain HTML, CSS and a few lines of JavaScript, with no build step.
+Personal portfolio site. Plain HTML, CSS and JavaScript, with no build step.
 
 ## Files
 
 - `index.html` – all page content (edit text here)
 - `styles.css` – colors, fonts and layout (palette variables are at the top)
 - `script.js` – interactions: lights switch, live Boston readout, project carousel and pop-ups, timeline, skills filter, copy email
-- `board.js` – the 3D circuit board that turns as you scroll (three.js)
+- `shirt.js` – the scroll story: a needle threads the shirt button, the shirt opens to show the heart, brain, eyes and gears inside, then sews itself shut
+- `needle.js` – the needle-and-yarn cursor (mouse only; off with reduced motion)
+- `cad.js` – the CAD lab 3D viewer (three.js)
 - `vendor/` – bundled three.js, so the site has no outside script dependencies
 - `favicon.svg` – browser tab icon
 
@@ -34,7 +36,7 @@ Export from Fusion 360 as `.stl` into `cad/`. File names and descriptions are li
 
 ## Preview locally
 
-The 3D board needs a local server (opening the file directly won't load it). Run:
+The CAD viewer needs a local server (opening the file directly won't load it). Run:
 
 ```bash
 python3 -m http.server 8000
