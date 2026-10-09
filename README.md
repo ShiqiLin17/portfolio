@@ -6,7 +6,7 @@ Personal portfolio site. Plain HTML, CSS and JavaScript, with no build step.
 
 - `index.html` – all page content (edit text here)
 - `styles.css` – colors, fonts and layout (palette variables are at the top)
-- `script.js` – interactions: mailbox letter, keep-scrolling note, lights switch, live Boston readout, project pinboard and pop-ups, cursor-following scroll note, timeline, skills filter, copy email
+- `script.js` – interactions: mailbox letter, keep-scrolling note, lights switch, "Shiqi Times" front page, project pinboard and pop-ups, cursor-following scroll note, timeline, skills filter, copy email
 - `garment.js` – the full-screen shirt story: a needle threads the top button, the screen frays open to show the heart, brain, eyes and muscle sewn inside, then stitches itself shut
 - `needle.js` – the needle-and-yarn cursor (mouse only; off with reduced motion)
 - `cad.js` – the CAD lab 3D viewer (three.js)

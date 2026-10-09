@@ -68,63 +68,7 @@ if (!reduceMotion) {
   });
 }
 
-/* ---------- Live readout: Boston time + weather ---------- */
-function tick() {
-  const t = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
-  $("#live-time").textContent = t.replace(/\s?[AP]M/, "");
-  $("#live-time").title = t;
-}
-tick();
-setInterval(tick, 15000);
 
-const skyWords = (code) => {
-  if (code === 0) return "Clear sky";
-  if (code <= 2) return "Partly cloudy";
-  if (code === 3) return "Overcast";
-  if (code <= 48) return "Foggy";
-  if (code <= 57) return "Drizzle";
-  if (code <= 67) return "Rain";
-  if (code <= 77) return "Snow";
-  if (code <= 82) return "Showers";
-  return "Thunderstorms";
-};
-fetch("https://api.open-meteo.com/v1/forecast?latitude=42.35&longitude=-71.1&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph")
-  .then((r) => (r.ok ? r.json() : Promise.reject()))
-  .then((d) => {
-    const c = d.current;
-    $("#live-temp").textContent = Math.round(c.temperature_2m) + "°";
-    $("#live-sky").textContent = skyWords(c.weather_code);
-    $("#live-wind").textContent = Math.round(c.wind_speed_10m);
-    windSpeed = c.wind_speed_10m;
-  })
-  .catch(() => {
-    $("#live-sky").textContent = "Weather offline";
-  });
-
-/* Oscilloscope: the wave speeds up with wind, and your cursor changes its frequency. */
-let windSpeed = 6;
-let probe = 0.5;
-const scope = $(".scope");
-const scopeLine = $("#scope-line");
-scope.addEventListener("pointermove", (e) => {
-  const r = scope.getBoundingClientRect();
-  probe = (e.clientX - r.left) / r.width;
-});
-scope.addEventListener("pointerleave", () => (probe = 0.5));
-let phase = 0;
-let freq = 2;
-function drawScope() {
-  freq += ((1 + probe * 6) - freq) * 0.08;
-  phase += 0.04 + windSpeed / 300;
-  let d = "M0 35";
-  for (let x = 0; x <= 300; x += 4) {
-    const y = 35 + Math.sin((x / 300) * Math.PI * 2 * freq + phase) * 22 * Math.sin((x / 300) * Math.PI);
-    d += ` L${x} ${y.toFixed(1)}`;
-  }
-  scopeLine.setAttribute("d", d);
-  if (!reduceMotion) requestAnimationFrame(drawScope);
-}
-drawScope();
 
 /* ---------- Scroll story: which step is showing ---------- */
 const story = $("#build");

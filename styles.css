@@ -1053,3 +1053,24 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .scroll-cue.follow.near { opacity: 1; animation: cue-blink 1.8s ease-in-out infinite; }
 .scroll-cue.follow.near.bump { animation: cue-pop .5s cubic-bezier(.3,1.8,.5,1), cue-blink 1.8s ease-in-out .5s infinite; }
 @media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none !important; } }
+
+/* ---------- The Shiqi Times: a front-page clipping ---------- */
+.times { padding: 20px 22px 18px; }
+.times .masthead { font-size: 1.75rem; }
+.times .dateline { margin-bottom: 12px; }
+.lead-headline {
+  font-family: var(--news); font-weight: 400; font-size: clamp(1.25rem, 2.2vw, 1.55rem); line-height: 1.12;
+  margin: 0 0 8px; color: #2d3531;
+}
+.lead-dek { font-family: var(--serif); font-style: italic; font-size: .9rem; line-height: 1.45; margin: 0 0 12px; color: #4b524d; }
+.times-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid #2d3531; padding-top: 10px; }
+.times-cols > div + div { border-left: 1px solid rgba(0,0,0,.2); padding-left: 12px; }
+.times-cols p { margin: 0; font-size: .86rem; line-height: 1.4; color: #2d3531; }
+.times-cols .col-head { font-family: var(--type); font-size: .74rem; color: #4f8a74; margin-bottom: 2px; }
+.stats { list-style: none; padding: 10px 0 0; margin: 12px 0 0; border-top: 3px double #2d3531; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; }
+.stats li + li { border-left: 1px solid rgba(0,0,0,.2); }
+.stats b { display: block; font-family: var(--news); font-weight: 400; font-size: 1.6rem; line-height: 1; color: #2d3531; }
+.stats span { font-family: var(--type); font-size: .7rem; line-height: 1.25; display: block; margin-top: 4px; color: #4b524d; }
+.times-links { display: flex; justify-content: center; gap: 18px; margin: 14px 0 0; }
+.times-links a { font-family: var(--hand); font-weight: 700; font-size: 1.3rem; color: #4f8a74; text-decoration: underline wavy; text-underline-offset: 5px; }
+.times-links a:hover { color: #2d3531; }
