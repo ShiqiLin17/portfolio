@@ -128,7 +128,7 @@ drawScope();
 
 /* ---------- Scroll story: which step is showing ---------- */
 const story = $("#build");
-const steps = $$(".step", story);
+const steps = $$(".step", story).sort((a, b) => a.dataset.step - b.dataset.step);
 const stepBar = $("#step-bar");
 window.storyProgress = 0;
 function updateStory() {
@@ -138,11 +138,37 @@ function updateStory() {
   window.storyProgress = p;
   const active = Math.min(steps.length - 1, Math.floor(p * steps.length));
   steps.forEach((s, i) => s.classList.toggle("is-active", i === active));
+  story.dataset.step = active;
   stepBar.style.height = (p * 100).toFixed(1) + "%";
+  updateCue(active);
+}
+
+// A sticky note that keeps telling people there's more inside the shirt.
+const cue = $("#scroll-cue");
+const cueText = $("#cue-text");
+const cueDots = $("#cue-dots");
+const cueLines = [
+  "keep scrolling to thread the needle",
+  "keep scrolling · 4 more parts inside",
+  "keep scrolling · 3 more to go",
+  "keep scrolling · 2 more to go",
+  "keep scrolling · one last stitch",
+  "all sewn up! keep going for my projects",
+];
+let lastCue = -1;
+function updateCue(active) {
+  if (!cue || active === lastCue) return;
+  lastCue = active;
+  cueDots.innerHTML = steps.map((_, i) => `<i class="${i <= active ? "on" : ""}"></i>`).join("");
+  cueText.textContent = cueLines[active] || cueLines[0];
+  cue.classList.toggle("done", active === steps.length - 1);
+  cue.classList.remove("bump");
+  void cue.offsetWidth;
+  cue.classList.add("bump");
 }
 window.addEventListener("scroll", () => requestAnimationFrame(updateStory), { passive: true });
 window.addEventListener("resize", updateStory);
-updateStory();
+setTimeout(updateStory, 0);
 
 /* ---------- Projects carousel ---------- */
 const carousel = $("#carousel");
@@ -205,7 +231,7 @@ window.addEventListener("pointerup", () => {
 /* ---------- Project details ---------- */
 const projects = {
   ftc: {
-    color: "#bfeadb", art: "3371", title: "FTC Team 3371 competition robots", when: "2020–2024 · Team captain, Brooklyn",
+    color: "#c4dfcd", art: "3371", title: "FTC Team 3371 competition robots", when: "2020–2024 · Team captain, Brooklyn",
     summary: "Four seasons leading the design, fabrication and programming of competition robots, plus the business side that kept the team funded.",
     sections: [
       ["What I built", [
@@ -226,7 +252,7 @@ const projects = {
     ],
   },
   ewb: {
-    color: "#c3e1fa", art: "H₂O", title: "Water filtration for schools in Kenya", when: "Sep–Dec 2025 · Engineers Without Borders, BU",
+    color: "#c6dceb", art: "H₂O", title: "Water filtration for schools in Kenya", when: "Sep–Dec 2025 · Engineers Without Borders, BU",
     summary: "As filtration team leader, I led design and preparation of freshwater plumbing filtration systems for schools in Kenya.",
     sections: [
       ["My role", [
@@ -236,7 +262,7 @@ const projects = {
     ],
   },
   vibewake: {
-    color: "#ffd6c2", art: "7:00", title: "VibeWake", when: "Startup project at Boston University",
+    color: "#eadcc3", art: "7:00", title: "VibeWake", when: "Startup project at Boston University",
     summary: "A passion project exploring how technology can reshape the way people wake up and start their day.",
     sections: [
       ["The idea", [
@@ -246,7 +272,7 @@ const projects = {
     ],
   },
   web: {
-    color: "#d9c8f7", art: "</>", title: "Websites for Brooklyn businesses", when: "2025–2026 · Freelance and nonprofit work",
+    color: "#d3e2d0", art: "</>", title: "Websites for Brooklyn businesses", when: "2025–2026 · Freelance and nonprofit work",
     summary: "Designing and building websites for local businesses and nonprofits, from Figma mockups to live domains.",
     sections: [
       ["Clients", [
@@ -259,7 +285,7 @@ const projects = {
     ],
   },
   buji: {
-    color: "#ffc8dc", art: "SxB", title: "SHIQI X BUJI Design", when: "Jan–Mar 2025 · Fashion collaboration",
+    color: "#b9d3dd", art: "SxB", title: "SHIQI X BUJI Design", when: "Jan–Mar 2025 · Fashion collaboration",
     summary: "A college side hustle: an original clothing line launched with BUJI Design and sold to customers worldwide.",
     sections: [
       ["What I did", [
@@ -270,7 +296,7 @@ const projects = {
     ],
   },
   bio: {
-    color: "#fbe7a1", art: "Bay", title: "Invasive species research at Jamaica Bay", when: "Jul–Sep 2023 · Brooklyn College AREAC program",
+    color: "#efe4c2", art: "Bay", title: "Invasive species research at Jamaica Bay", when: "Jul–Sep 2023 · Brooklyn College AREAC program",
     summary: "Field research on biological control of the invasive reed Phragmites australis.",
     sections: [
       ["The work", [
@@ -292,7 +318,7 @@ const projects = {
    Empty lists show "coming soon" placeholders. */
 const experience = {
   "bu-ta": {
-    color: "#bfeadb", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
+    color: "#c4dfcd", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
     summary: "Helping first-year engineering students take a project from problem statement to working prototype.",
     sections: [["What I do", [
       "Mentor student teams through the full design process: problem statements, requirements, morphological charts, concept and detailed design, prototyping and testing.",
@@ -303,12 +329,12 @@ const experience = {
     ]]],
   },
   freelance: {
-    color: "#d9c8f7", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
+    color: "#d3e2d0", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
     summary: "Designed and built websites for three local businesses and nonprofits, and moved each domain to GoDaddy.",
     sections: [["Clients", ["Seaway Beauty", "North America Cantonese Arts Foundation", "KXNY International"]]],
   },
   athens: {
-    color: "#c9d3f5", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
+    color: "#cfdeea", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
     summary: "Engineering and go-to-market work at an AI-agent startup building an AI-native learning platform.",
     sections: [["What I did", [
       "Designed full-stack systems for an AI-agent education platform, with resilient backend services and clear UIs.",
@@ -318,7 +344,7 @@ const experience = {
     links: [{ label: "athenslabs.ai", href: "https://www.athenslabs.ai/" }],
   },
   cultured: {
-    color: "#ffd6c2", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
+    color: "#eadcc3", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
     summary: "Modernized the website for a nonprofit that teaches kids through culinary education.",
     sections: [["What I did", [
       "Redesigned responsive frontend pages to match updated brand standards, using Figma, HTML, CSS, JavaScript and Node.js.",
@@ -328,7 +354,7 @@ const experience = {
     ]]],
   },
   fortune: {
-    color: "#d6e8c9", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
+    color: "#dfe6cf", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
     summary: "Fixed warehouse air-quality problems flagged by state officials.",
     sections: [["What I did", [
       "Inspected and diagnosed failing air handling and filtration systems.",
@@ -337,7 +363,7 @@ const experience = {
     ]]],
   },
   suny: {
-    color: "#c3e1fa", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
+    color: "#c6dceb", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
     summary: "Kept a research and training lab's computers running and helped people use them.",
     sections: [["What I did", [
       "Diagnosed and fixed workstation hardware, peripheral and connectivity issues.",
@@ -346,7 +372,7 @@ const experience = {
     ]]],
   },
   infinity: {
-    color: "#ffc8dc", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
+    color: "#b9d3dd", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
     summary: "Designed digital materials for mental-health awareness programs in South Brooklyn.",
     sections: [["What I did", [
       "Turned user needs into high-fidelity Figma prototypes.",
@@ -475,4 +501,59 @@ if (wash && ME_PHOTOS.length) {
   const pick = ME_PHOTOS.slice(0, 8);
   wash.innerHTML = pick.map((p, i) => `<img src="${esc(p.src)}" alt="" style="--i:${i};--n:${pick.length}">`).join("");
   wash.classList.add("on");
+}
+/* ---------- Mailbox → envelope → letter ---------- */
+{
+  const mail = $("#mail");
+  const box = $("#mailbox");
+  const env = $("#envelope");
+  const letter = $("#letter");
+  const hint = $("#mail-hint");
+  const reseal = $("#reseal");
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? 0 : ms));
+  const setState = (st, text) => { mail.dataset.state = st; if (text) hint.textContent = text; };
+
+  async function deliver() {
+    if (mail.dataset.state !== "closed") return;
+    setState("out", "A letter popped out! Click the envelope to open it.");
+    box.setAttribute("aria-label", "Mailbox is open");
+    box.disabled = true;
+    env.tabIndex = 0;
+    await wait(900);
+    env.focus({ preventScroll: true });
+  }
+  async function openLetter() {
+    if (mail.dataset.state !== "out") return;
+    setState("opening", "Unfolding…");
+    env.tabIndex = -1;
+    await wait(1100);
+    setState("read", "Thanks for stopping by ♡");
+    letter.focus({ preventScroll: true });
+    await wait(80);
+    $("#about").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }
+  function close() {
+    setState("closed", "You've got mail! Pull the mailbox door down, or click it.");
+    box.disabled = false;
+    box.setAttribute("aria-label", "Open the mailbox");
+    $("#about").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    box.focus({ preventScroll: true });
+  }
+
+  box.addEventListener("click", deliver);
+  env.addEventListener("click", openLetter);
+  reseal.addEventListener("click", close);
+
+  // Drag the door down to open it.
+  let start = null;
+  box.addEventListener("pointerdown", (e) => { start = e.clientY; box.setPointerCapture(e.pointerId); });
+  box.addEventListener("pointermove", (e) => {
+    if (start === null || mail.dataset.state !== "closed") return;
+    const pull = Math.max(0, Math.min(1, (e.clientY - start) / 90));
+    mail.style.setProperty("--pull", pull.toFixed(2));
+    if (pull >= 1) { start = null; mail.style.removeProperty("--pull"); deliver(); }
+  });
+  const endDrag = () => { start = null; mail.style.removeProperty("--pull"); };
+  box.addEventListener("pointerup", endDrag);
+  box.addEventListener("pointercancel", endDrag);
 }

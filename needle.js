@@ -13,6 +13,16 @@
   document.documentElement.classList.add("has-needle");
   const ctx = canvas.getContext("2d");
 
+  // Pop-up dialogs sit in the browser's top layer, above this canvas, so the
+  // needle would be hidden behind them. While one is open, use the normal pointer.
+  let paused = false;
+  const syncDialogs = () => {
+    paused = !!document.querySelector("dialog[open]");
+    document.documentElement.classList.toggle("has-needle", !paused);
+    canvas.style.display = paused ? "none" : "";
+  };
+  new MutationObserver(syncDialogs).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["open"] });
+
   let w = 0, h = 0, dpr = 1;
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -50,6 +60,7 @@
 
   function step() {
     requestAnimationFrame(step);
+    if (paused) return;
     ctx.clearRect(0, 0, w, h);
     const styles = getComputedStyle(document.documentElement);
     const yarn = styles.getPropertyValue("--yarn").trim() || "#c63a2f";
