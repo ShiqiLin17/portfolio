@@ -43,6 +43,8 @@
     </button>
   </header>
 
+  <div class="photo-wash" id="photo-wash" aria-hidden="true"></div>
+
   <main id="main">
     <!-- HERO -->
     <section class="hero" id="top">
@@ -52,6 +54,7 @@
           <span class="split" aria-hidden="true">Shiqi</span>
           <span class="split" aria-hidden="true">Lin</span>
         </h1>
+        <p class="hi-note" aria-hidden="true">spot the <b>hi</b> in my name? ♡</p>
         <p class="role"><span class="tape-label">Computer Engineering</span> Boston University, class of 2028</p>
         <p class="intro">I build robots, embedded systems and websites. I captained a FIRST Tech Challenge team to the World Championship, shipped sites for small businesses in Brooklyn, and now teach Arduino and motor control to engineering students at BU.</p>
         <ul class="pads" aria-label="Links">
@@ -61,6 +64,12 @@
         </ul>
       </div>
 
+      <div class="hero-side">
+      <figure class="photostrip" aria-label="Photo booth strip of Shiqi">
+        <span class="tape tape-top" aria-hidden="true"></span>
+        <div class="frames" id="strip-frames"></div>
+        <figcaption>say cheese! ♡</figcaption>
+      </figure>
       <aside class="live clipping" aria-label="Live readout from Boston">
         <span class="tape tape-tl" aria-hidden="true"></span>
         <span class="tape tape-br" aria-hidden="true"></span>
@@ -76,6 +85,7 @@
         </svg>
         <p class="live-note">Run your needle over the stitch to tug the thread.</p>
       </aside>
+      </div>
     </section>
 
     <!-- SCROLL STORY: a needle threads the shirt button, the shirt opens, robotics inside -->
@@ -126,7 +136,7 @@
       <div class="journal">
         <figure class="portrait">
           <span class="tape tape-tl" aria-hidden="true"></span>
-          <div class="portrait-slot" aria-label="Photo coming soon">
+          <div class="portrait-slot" id="portrait-slot" aria-label="Photo coming soon">
             <svg viewBox="0 0 120 120" aria-hidden="true" class="mini-heart"><path d="M60 98 C 18 70, 8 40, 32 28 C 46 21, 56 32, 60 40 C 64 32, 74 21, 88 28 C 112 40, 102 70, 60 98 Z"/><circle cx="60" cy="56" r="10"/></svg>
             <span>photo coming soon</span>
           </div>

@@ -35,7 +35,7 @@ function ransom(el, label) {
   if (label) el.setAttribute("aria-label", text);
   const letter = (c) => {
     const f = Math.floor(rand() * 5);
-    const bg = Math.floor(rand() * 5);
+    const bg = Math.floor(rand() * 8);
     const r = (rand() * 10 - 5).toFixed(1);
     const y = (rand() * 6 - 3).toFixed(1);
     return `<span class="ch f${f} b${bg}" style="--r:${r}deg;--y:${y}px" aria-hidden="true">${c}</span>`;
@@ -44,6 +44,18 @@ function ransom(el, label) {
   el.innerHTML = text.split(" ").map((w) => `<span class="word">${[...w].map(letter).join("")}</span>`).join('<span class="gap"> </span>');
 }
 $$(".split").forEach((w) => ransom(w, false));
+// Make the "hi" hiding in "Shiqi" pop: same color, a little bigger, and it waves.
+{
+  const first = $$(".hero-name .split")[0];
+  const letters = first ? $$(".ch", first) : [];
+  letters.forEach((c, i) => {
+    if (c.textContent === "h" && letters[i + 1] && letters[i + 1].textContent === "i") {
+      [c, letters[i + 1]].forEach((x) => {
+        x.className = x.className.replace(/\bb\d\b/, "").replace(/\bf\d\b/, "") + " hi f0";
+      });
+    }
+  });
+}
 $$(".ransom").forEach((h) => ransom(h, true));
 const dateline = $("#live-date");
 if (dateline) dateline.textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "America/New_York" });
@@ -193,7 +205,7 @@ window.addEventListener("pointerup", () => {
 /* ---------- Project details ---------- */
 const projects = {
   ftc: {
-    color: "#1d5c43", art: "3371", title: "FTC Team 3371 competition robots", when: "2020–2024 · Team captain, Brooklyn",
+    color: "#bfeadb", art: "3371", title: "FTC Team 3371 competition robots", when: "2020–2024 · Team captain, Brooklyn",
     summary: "Four seasons leading the design, fabrication and programming of competition robots, plus the business side that kept the team funded.",
     sections: [
       ["What I built", [
@@ -214,7 +226,7 @@ const projects = {
     ],
   },
   ewb: {
-    color: "#2b6c8f", art: "H₂O", title: "Water filtration for schools in Kenya", when: "Sep–Dec 2025 · Engineers Without Borders, BU",
+    color: "#c3e1fa", art: "H₂O", title: "Water filtration for schools in Kenya", when: "Sep–Dec 2025 · Engineers Without Borders, BU",
     summary: "As filtration team leader, I led design and preparation of freshwater plumbing filtration systems for schools in Kenya.",
     sections: [
       ["My role", [
@@ -224,7 +236,7 @@ const projects = {
     ],
   },
   vibewake: {
-    color: "#c4682f", art: "7:00", title: "VibeWake", when: "Startup project at Boston University",
+    color: "#ffd6c2", art: "7:00", title: "VibeWake", when: "Startup project at Boston University",
     summary: "A passion project exploring how technology can reshape the way people wake up and start their day.",
     sections: [
       ["The idea", [
@@ -234,7 +246,7 @@ const projects = {
     ],
   },
   web: {
-    color: "#3d3f8f", art: "</>", title: "Websites for Brooklyn businesses", when: "2025–2026 · Freelance and nonprofit work",
+    color: "#d9c8f7", art: "</>", title: "Websites for Brooklyn businesses", when: "2025–2026 · Freelance and nonprofit work",
     summary: "Designing and building websites for local businesses and nonprofits, from Figma mockups to live domains.",
     sections: [
       ["Clients", [
@@ -247,7 +259,7 @@ const projects = {
     ],
   },
   buji: {
-    color: "#9c3d5a", art: "SxB", title: "SHIQI X BUJI Design", when: "Jan–Mar 2025 · Fashion collaboration",
+    color: "#ffc8dc", art: "SxB", title: "SHIQI X BUJI Design", when: "Jan–Mar 2025 · Fashion collaboration",
     summary: "A college side hustle: an original clothing line launched with BUJI Design and sold to customers worldwide.",
     sections: [
       ["What I did", [
@@ -258,7 +270,7 @@ const projects = {
     ],
   },
   bio: {
-    color: "#5a7a2b", art: "Bay", title: "Invasive species research at Jamaica Bay", when: "Jul–Sep 2023 · Brooklyn College AREAC program",
+    color: "#fbe7a1", art: "Bay", title: "Invasive species research at Jamaica Bay", when: "Jul–Sep 2023 · Brooklyn College AREAC program",
     summary: "Field research on biological control of the invasive reed Phragmites australis.",
     sections: [
       ["The work", [
@@ -280,7 +292,7 @@ const projects = {
    Empty lists show "coming soon" placeholders. */
 const experience = {
   "bu-ta": {
-    color: "#1d5c43", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
+    color: "#bfeadb", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
     summary: "Helping first-year engineering students take a project from problem statement to working prototype.",
     sections: [["What I do", [
       "Mentor student teams through the full design process: problem statements, requirements, morphological charts, concept and detailed design, prototyping and testing.",
@@ -291,12 +303,12 @@ const experience = {
     ]]],
   },
   freelance: {
-    color: "#3d3f8f", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
+    color: "#d9c8f7", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
     summary: "Designed and built websites for three local businesses and nonprofits, and moved each domain to GoDaddy.",
     sections: [["Clients", ["Seaway Beauty", "North America Cantonese Arts Foundation", "KXNY International"]]],
   },
   athens: {
-    color: "#2b2f4a", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
+    color: "#c9d3f5", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
     summary: "Engineering and go-to-market work at an AI-agent startup building an AI-native learning platform.",
     sections: [["What I did", [
       "Designed full-stack systems for an AI-agent education platform, with resilient backend services and clear UIs.",
@@ -306,7 +318,7 @@ const experience = {
     links: [{ label: "athenslabs.ai", href: "https://www.athenslabs.ai/" }],
   },
   cultured: {
-    color: "#c4682f", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
+    color: "#ffd6c2", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
     summary: "Modernized the website for a nonprofit that teaches kids through culinary education.",
     sections: [["What I did", [
       "Redesigned responsive frontend pages to match updated brand standards, using Figma, HTML, CSS, JavaScript and Node.js.",
@@ -316,7 +328,7 @@ const experience = {
     ]]],
   },
   fortune: {
-    color: "#4a5a52", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
+    color: "#d6e8c9", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
     summary: "Fixed warehouse air-quality problems flagged by state officials.",
     sections: [["What I did", [
       "Inspected and diagnosed failing air handling and filtration systems.",
@@ -325,7 +337,7 @@ const experience = {
     ]]],
   },
   suny: {
-    color: "#2b6c8f", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
+    color: "#c3e1fa", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
     summary: "Kept a research and training lab's computers running and helped people use them.",
     sections: [["What I did", [
       "Diagnosed and fixed workstation hardware, peripheral and connectivity issues.",
@@ -334,7 +346,7 @@ const experience = {
     ]]],
   },
   infinity: {
-    color: "#9c3d5a", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
+    color: "#ffc8dc", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
     summary: "Designed digital materials for mental-health awareness programs in South Brooklyn.",
     sections: [["What I did", [
       "Turned user needs into high-fidelity Figma prototypes.",
@@ -434,3 +446,33 @@ $("#copy-email").addEventListener("click", async () => {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => (toast.textContent = ""), 3000);
 });
+
+
+/* ---------- Photos of me ----------
+   Drop pictures into media/me/ and list them here, e.g.
+   { src: "media/me/robotics-lab.jpg", alt: "Me in the robotics lab" }
+   The first photo also goes in the About polaroid. With no photos, cute
+   placeholders show instead and the faded background collage stays off. */
+const ME_PHOTOS = [];
+
+const strip = $("#strip-frames");
+if (strip) {
+  const faces = ["(◕‿◕)", "(✿^‿^)", "(｡•̀ᴗ-)✧", "(≧◡≦)"];
+  strip.innerHTML = [0, 1, 2, 3].map((i) => {
+    const p = ME_PHOTOS[i];
+    return p
+      ? `<div class="frame"><img src="${esc(p.src)}" alt="${esc(p.alt || "Shiqi")}" loading="lazy"></div>`
+      : `<div class="frame frame-empty"><span>${faces[i]}</span></div>`;
+  }).join("");
+}
+const portrait = $("#portrait-slot");
+if (portrait && ME_PHOTOS[0]) {
+  portrait.outerHTML = `<img src="${esc(ME_PHOTOS[0].src)}" alt="${esc(ME_PHOTOS[0].alt || "Shiqi")}">`;
+}
+const wash = $("#photo-wash");
+if (wash && ME_PHOTOS.length) {
+  // A soft collage of photos that slowly cross-fade behind the page.
+  const pick = ME_PHOTOS.slice(0, 8);
+  wash.innerHTML = pick.map((p, i) => `<img src="${esc(p.src)}" alt="" style="--i:${i};--n:${pick.length}">`).join("");
+  wash.classList.add("on");
+}

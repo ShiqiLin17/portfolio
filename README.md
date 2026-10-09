@@ -30,6 +30,10 @@ links: [{ label: "Visit the site", href: "https://example.com" }],
 
 Entries without media show "coming soon" placeholders.
 
+### Photos of me
+
+Put pictures in `media/me/` and list them in `ME_PHOTOS` at the bottom of `script.js`. The first four fill the photo-booth strip, the first one also goes in the About polaroid, and up to eight fade softly in the background.
+
 ### CAD models
 
 Export from Fusion 360 as `.stl` into `cad/`. File names and descriptions are listed at the top of `cad.js`.

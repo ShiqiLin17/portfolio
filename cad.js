@@ -11,7 +11,7 @@ const MODELS = [
     meta: "2023 · Mechatronics, Midwood High School",
     text: "A food-service robot designed to carry orders to assigned tables. I built the wheel assembly to actually work: 2 mm of clearance between the body, axle and wheel lets each wheel spin freely. Delivered with a dimensioned technical drawing.",
     tags: ["Assembly", "Mechanism design", "Technical drawing"],
-    color: 0x1f6b4c,
+    color: 0x8fd3bd,
   },
   {
     file: "cad/gear.stl",
@@ -19,7 +19,7 @@ const MODELS = [
     meta: "2023 · Fusion 360",
     text: "A parametric gear modeled from a tooth profile, patterned around a hub with a center bore.",
     tags: ["Parametric", "Circular pattern"],
-    color: 0xb06a2c,
+    color: 0xf2b8cc,
   },
   {
     file: "cad/support-fixture.stl",
@@ -27,7 +27,7 @@ const MODELS = [
     meta: "2023 · Fusion 360",
     text: "A mounting fixture designed for holding and supporting a part during assembly.",
     tags: ["Fixture design", "Extrude & fillet"],
-    color: 0x2e4fa3,
+    color: 0xa9c4f2,
   },
   {
     file: "cad/t-spline.stl",
@@ -35,7 +35,7 @@ const MODELS = [
     meta: "2023 · Fusion 360",
     text: "An organic shape sculpted with T-spline surface modeling rather than sketches and extrudes.",
     tags: ["Surface modeling", "T-splines"],
-    color: 0x9c3d5a,
+    color: 0xc9b4f2,
   },
   {
     file: "cad/hole-features.stl",
@@ -43,7 +43,7 @@ const MODELS = [
     meta: "2023 · Fusion 360",
     text: "Practice part covering counterbore, countersink and threaded hole features.",
     tags: ["Hole features", "Part modeling"],
-    color: 0x5a7a2b,
+    color: 0xf6d77f,
   },
 ];
 
@@ -79,7 +79,7 @@ const fill = new THREE.DirectionalLight(0xffd8b8, 0.9);
 fill.position.set(-4, 2, -3);
 scene.add(fill);
 
-const grid = new THREE.GridHelper(4, 20, 0xf1e6c4, 0xbcd3c2);
+const grid = new THREE.GridHelper(4, 20, 0xffffff, 0xe4f5ee);
 grid.material.transparent = true;
 grid.material.opacity = 0.35;
 grid.visible = false;
