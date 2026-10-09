@@ -170,63 +170,9 @@ window.addEventListener("scroll", () => requestAnimationFrame(updateStory), { pa
 window.addEventListener("resize", updateStory);
 setTimeout(updateStory, 0);
 
-/* ---------- Projects carousel ---------- */
-const carousel = $("#carousel");
-const cards = $$(".card", carousel);
-const prev = $("#proj-prev");
-const next = $("#proj-next");
-$("#proj-total").textContent = cards.length;
-
-function currentIndex() {
-  const left = carousel.scrollLeft;
-  let best = 0;
-  cards.forEach((c, i) => {
-    if (Math.abs(c.offsetLeft - carousel.offsetLeft - left) < Math.abs(cards[best].offsetLeft - carousel.offsetLeft - left)) best = i;
-  });
-  return best;
-}
-function updateCounter() {
-  const i = currentIndex();
-  const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 4;
-  $("#proj-current").textContent = atEnd ? cards.length : i + 1;
-  prev.disabled = carousel.scrollLeft < 4;
-  next.disabled = atEnd;
-}
-function goTo(i) {
-  const c = cards[Math.max(0, Math.min(cards.length - 1, i))];
-  carousel.scrollTo({ left: c.offsetLeft - carousel.offsetLeft, behavior: reduceMotion ? "auto" : "smooth" });
-}
-prev.addEventListener("click", () => goTo(currentIndex() - 1));
-next.addEventListener("click", () => goTo(currentIndex() + 1));
-carousel.addEventListener("scroll", () => requestAnimationFrame(updateCounter), { passive: true });
-carousel.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") { e.preventDefault(); goTo(currentIndex() + 1); }
-  if (e.key === "ArrowLeft") { e.preventDefault(); goTo(currentIndex() - 1); }
-});
-updateCounter();
-
-// Mouse drag (touch already swipes natively).
-let dragStart = null;
-let dragged = false;
-carousel.addEventListener("pointerdown", (e) => {
-  if (e.pointerType !== "mouse") return;
-  dragStart = { x: e.clientX, left: carousel.scrollLeft };
-  dragged = false;
-});
-window.addEventListener("pointermove", (e) => {
-  if (!dragStart) return;
-  const dx = e.clientX - dragStart.x;
-  if (Math.abs(dx) > 5) { dragged = true; carousel.classList.add("is-dragging"); }
-  carousel.scrollLeft = dragStart.left - dx;
-});
-window.addEventListener("pointerup", () => {
-  if (!dragStart) return;
-  dragStart = null;
-  if (dragged) {
-    carousel.classList.remove("is-dragging");
-    goTo(currentIndex());
-  }
-});
+/* ---------- Projects pinboard ---------- */
+const cards = $$("#carousel .card");
+const dragged = false;
 
 /* ---------- Project details ---------- */
 const projects = {
@@ -556,4 +502,34 @@ if (wash && ME_PHOTOS.length) {
   const endDrag = () => { start = null; mail.style.removeProperty("--pull"); };
   box.addEventListener("pointerup", endDrag);
   box.addEventListener("pointercancel", endDrag);
+}
+
+/* ---------- The "keep scrolling" note follows the cursor ----------
+   It trails a little behind and to the lower right, never catches clicks,
+   and only shows while the shirt is on screen. Touch screens keep it docked. */
+{
+  const garment = $("#garment");
+  const note = $("#scroll-cue");
+  const fine = window.matchMedia("(pointer: fine)").matches;
+  if (garment && note && fine && !reduceMotion) {
+    note.classList.add("follow");
+    let tx = null, ty = null, x = 0, y = 0, inView = false;
+    new IntersectionObserver(([e]) => (inView = e.isIntersecting), { threshold: 0.3 }).observe(garment);
+    window.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      tx = e.clientX; ty = e.clientY;
+    }, { passive: true });
+    (function follow() {
+      requestAnimationFrame(follow);
+      if (!inView || tx === null) { note.classList.remove("near"); return; }
+      const r = garment.getBoundingClientRect();
+      const w = note.offsetWidth, h = note.offsetHeight;
+      const gx = Math.min(r.width - w - 12, Math.max(12, tx - r.left + 26));
+      const gy = Math.min(r.height - h - 12, Math.max(12, ty - r.top + 30));
+      x += (gx - x) * 0.12; y += (gy - y) * 0.12;
+      note.style.left = x.toFixed(1) + "px";
+      note.style.top = y.toFixed(1) + "px";
+      note.classList.add("near");
+    })();
+  }
 }
