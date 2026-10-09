@@ -277,7 +277,10 @@ const detailBody = $("#detail-body");
 let lastOpener = null;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
-function mediaHTML(media = []) {
+function mediaHTML(media = [], placeholder) {
+  if (!media.length && placeholder) {
+    return `<div class="gallery"><div class="slot wide-slot"><span class="slot-icon" aria-hidden="true">▣</span>${esc(placeholder)}</div></div>`;
+  }
   if (!media.length) {
     return `<div class="gallery">
       <div class="slot"><span class="slot-icon" aria-hidden="true">▣</span>Photos coming soon</div>
@@ -306,7 +309,7 @@ function openDetail(p, opener) {
       <h2 id="detail-title">${esc(p.title)}</h2>
       <p>${esc(p.summary)}</p>
       ${linksHTML(p.links)}
-      ${mediaHTML(p.media)}
+      ${mediaHTML(p.media, p.placeholder)}
       ${p.sections.map(([h, items]) => `<h3>${esc(h)}</h3><ul class="points">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`).join("")}
     </div>`;
   dialog.showModal();
@@ -497,5 +500,62 @@ if (portrait && ME_PHOTOS[0]) {
       note.style.top = y.toFixed(1) + "px";
       note.classList.add("near");
     })();
+  }
+}
+
+
+/* ---------- Certificates as embroidered merit badges ----------
+   To add a credential link or a scan of the certificate, give an entry
+   links: [{ label: "View credential", href: "https://..." }] or
+   media: [{ type: "image", src: "media/certs/excel.jpg", alt: "Certificate" }]. */
+const CERTS = [
+  { group: "Software & data", items: [
+    { abbr: "XL", title: "Microsoft Office Specialist: Excel Expert", issuer: "Microsoft · Office 2019", text: "The advanced Excel certification: complex formulas and functions, data analysis, macros, and managing workbooks." },
+    { abbr: "XL", title: "Microsoft Office Specialist: Excel Associate", issuer: "Microsoft · Office 2019", text: "Core Excel skills: formulas, charts, tables and data organization." },
+    { abbr: "W", title: "Microsoft Office Specialist: Word Associate", issuer: "Microsoft", text: "Creating and formatting professional documents, tables and references in Word.", where: "Earned at the SUNY ATTAIN Lab" },
+    { abbr: "O", title: "Microsoft Office Specialist: Outlook Associate", issuer: "Microsoft", text: "Managing email, calendars, contacts and tasks in Outlook.", where: "Earned at the SUNY ATTAIN Lab" },
+    { abbr: "</>", title: "Programming in HTML5 with JavaScript and CSS3", issuer: "Certification", text: "Building web pages and interactive apps with HTML5, JavaScript and CSS3." },
+    { abbr: "JS", title: "JavaScript Certificate", issuer: "W3Schools", text: "JavaScript fundamentals: syntax, functions, the DOM and events." },
+  ]},
+  { group: "Engineering & AI", items: [
+    { abbr: "ML", title: "Machine Learning Onramp", issuer: "MathWorks", text: "Hands-on introduction to machine learning in MATLAB: preparing data, training classifiers and evaluating models.", where: "Earned during the AthensLabs.ai internship" },
+    { abbr: "M", title: "MATLAB Onramp", issuer: "MathWorks", text: "MATLAB essentials: variables, matrices, plotting and scripts.", where: "Earned during the AthensLabs.ai internship" },
+    { abbr: "MX", title: "Mechatronics Level 1", issuer: "NOCTI", text: "Knowledge-based workforce competency credential covering mechanical, electrical and control systems." },
+    { abbr: "CTE", title: "Engineering Certificate", issuer: "Career & Technical Education · Midwood High School", text: "Completed the CTE engineering pathway in Midwood's robotics branch." },
+  ]},
+  { group: "Science & service", items: [
+    { abbr: "H₂O", title: "Aquatic Research Environmental Assessment Center (AREAC) Program", issuer: "Brooklyn College", text: "Completed the summer field research program studying invasive Phragmites australis at Jamaica Bay, with a poster presented at the American Museum of Natural History." },
+    { abbr: "CPR", title: "CPR Certification", issuer: "Cardiopulmonary resuscitation", text: "Certified in CPR while working with children and community programs." },
+    { abbr: "H&L", title: "Hats & Ladders Career Readiness Training", issuer: "Career readiness", text: "Career exploration and workplace readiness training." },
+  ]},
+];
+{
+  const wrap = $("#badges");
+  const tones = ["#c4dfcd", "#c6dceb", "#eadcc3", "#d3e2d0", "#efe4c2", "#b9d3dd"];
+  let n = 0;
+  const flat = [];
+  if (wrap) {
+    wrap.innerHTML = CERTS.map((g) => `
+      <div class="badge-group">
+        <h3 class="group-title">${esc(g.group)}</h3>
+        <ul class="badges">${g.items.map((c) => {
+          const i = n++;
+          flat.push(c);
+          c.color = tones[i % tones.length];
+          return `<li><button type="button" class="badge shape-${i % 3}" data-i="${i}" style="--tone:${c.color}">
+            <span class="badge-face"><span class="badge-abbr">${esc(c.abbr)}</span></span>
+            <span class="badge-title">${esc(c.title)}</span>
+            <span class="badge-issuer">${esc(c.issuer)}</span>
+          </button></li>`;
+        }).join("")}</ul>
+      </div>`).join("");
+    $$(".badge", wrap).forEach((b) => b.addEventListener("click", (e) => {
+      const c = flat[+b.dataset.i];
+      openDetail({
+        color: c.color, art: c.abbr, title: c.title, when: c.issuer, summary: c.text,
+        links: c.links, media: c.media, placeholder: "Certificate scan coming soon",
+        sections: c.where ? [["Where", [c.where]]] : [],
+      }, e.currentTarget);
+    }));
   }
 }

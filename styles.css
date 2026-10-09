@@ -1108,3 +1108,34 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
   .secret.is-out { width: 140px; transform: translate(45%, 30%) rotate(4deg); }
 }
 .secret:not(.is-out) .secret-cap { display: none; }
+
+/* ---------- Merit badges (certificates) ---------- */
+.badge-groups { display: grid; gap: 40px; }
+.group-title { font-family: var(--hand); font-weight: 700; font-size: 1.7rem; color: var(--yarn); margin: 0 0 14px; }
+.badges { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 28px 22px; }
+.badge {
+  width: 100%; background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
+}
+.badge-face {
+  width: 112px; height: 112px; display: grid; place-items: center; position: relative; margin-bottom: 8px;
+  background: var(--tone);
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.22) 0 2px, transparent 2px 5px);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--tone) 70%, #2d3531), 0 6px 12px rgba(30,45,40,.22);
+  transition: transform .45s cubic-bezier(.3,1.6,.5,1);
+}
+.badge-face::after { content: ""; position: absolute; inset: 7px; border: 2px dashed rgba(45,53,49,.45); border-radius: inherit; }
+.shape-0 .badge-face { border-radius: 50%; }
+.shape-1 .badge-face { border-radius: 26px; transform: rotate(45deg) scale(.86); }
+.shape-1 .badge-abbr { transform: rotate(-45deg); }
+.shape-2 .badge-face { border-radius: 50% 50% 46% 46% / 40% 40% 60% 60%; }
+.badge-abbr { font-family: var(--news); font-size: 1.9rem; color: #2d3531; position: relative; z-index: 1; text-shadow: 1px 1px 0 rgba(255,255,255,.6); }
+.badge:hover .badge-face { transform: rotate(-8deg) scale(1.06); }
+.shape-1.badge:hover .badge-face { transform: rotate(37deg) scale(.92); }
+.badge-title { font-family: var(--serif); font-weight: 700; font-size: .9rem; line-height: 1.3; max-width: 22ch; }
+.badge-issuer { font-family: var(--type); font-size: .74rem; color: var(--muted); line-height: 1.3; }
+@media (max-width: 560px) {
+  .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .badge-face { width: 92px; height: 92px; }
+  .badge-abbr { font-size: 1.5rem; }
+}
+.wide-slot { grid-column: 1 / -1; aspect-ratio: 16 / 7; }
