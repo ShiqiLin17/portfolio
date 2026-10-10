@@ -23,7 +23,8 @@
 
   <div id="loader" aria-hidden="true">
     <div class="loader-drone"><i></i><i></i><i></i><i></i></div>
-    <p>Opening the house…</p>
+    <p id="loader-msg">Opening the house…</p>
+    <div class="loader-bar"><i id="loader-bar"></i></div>
   </div>
 
   <header class="topbar">
@@ -47,7 +48,7 @@
     </section>
 
     <!-- 2. Out the window to Manhattan; the paper lands -->
-    <section class="scene" id="s1" style="--len:330" aria-label="Headlines">
+    <section class="scene" id="s1" style="--len:440" aria-label="Headlines">
       <article id="paper" class="paper" aria-label="The Shiqi York Times">
         <header class="paper-head">
           <p class="paper-meta"><span>Late Edition</span><span id="paper-date">Today</span><span>New York · $0.00</span></p>
@@ -69,7 +70,7 @@
     </section>
 
     <!-- 3. Home through the front door, up to the study; the letter -->
-    <section class="scene" id="s2" style="--len:380" aria-label="About me">
+    <section class="scene" id="s2" style="--len:480" aria-label="About me">
       <div class="panel act">
         <p class="act-no">Scene 3</p>
         <h2>A letter on the desk</h2>
@@ -138,6 +139,7 @@
           <li><a data-github href="#" target="_blank" rel="noopener">⌥ GitHub</a></li>
         </ul>
         <p class="holo-row"><button type="button" class="pill" data-copy>Copy email</button><a class="pill ghost" href="#" data-goto="0">Fly again ↑</a></p>
+        <p class="credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
       </div>
     </section>
   </main>

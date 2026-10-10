@@ -199,13 +199,6 @@ $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
 const sections = $$(".scene");
 const canvas = $("#world");
 const mobile = !finePointer || Math.min(innerWidth, innerHeight) < 700;
-let W;
-try {
-  W = createWorld(canvas, { mobile });
-} catch (e) {
-  console.warn("3D unavailable, showing the flat version", e);
-  document.documentElement.classList.add("flat");
-}
 
 // Opening overlays and buttons work with or without 3D.
 const openLetter = (opener) => { focusOn("letter"); setTimeout(() => openDialog($("#letterDlg"), opener), reduceMotion ? 0 : 650); };
@@ -222,7 +215,7 @@ $("#btn-build").addEventListener("click", () => setApart(false));
 
 // scene nav
 const NAMES = ["Home", "Headlines", "Letter", "Experience", "Workshop", "Honors", "Hobbies", "Contact"];
-const READY = [0, 0.8, 0.85, 0.5, 0.45, 0.45, 0.65, 0.6];
+const READY = [0, 0.88, 0.85, 0.5, 0.45, 0.45, 0.65, 0.6];
 $("#scene-nav").innerHTML = NAMES.map((n, i) => `<li><button type="button" data-go="${i}" aria-label="Go to ${n}"><span>${n}</span></button></li>`).join("");
 $$("#scene-nav button").forEach((b) => b.addEventListener("click", () => {
   const i = +b.dataset.go, s = sections[i];
@@ -231,91 +224,202 @@ $$("#scene-nav button").forEach((b) => b.addEventListener("click", () => {
 }));
 $$("[data-goto]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); $(`#scene-nav [data-go="${a.dataset.goto}"]`).click(); }));
 
-if (!W) {
-  // flat fallback: nothing else to drive
-  $("#loader").remove();
-} else {
-  runMovie();
-}
-
 function focusOn() {}
 function releaseFocus() {}
 function pullBook() {}
 function setApart() {}
 
+let W;
+(async () => {
+  try {
+    const { createWorld } = await import("./world.js");
+    W = await createWorld(canvas, {
+      mobile,
+      onProgress: (p, msg) => { $("#loader-bar") && ($("#loader-bar").style.width = Math.round(p * 100) + "%"); $("#loader-msg") && ($("#loader-msg").textContent = msg); },
+    });
+  } catch (e) {
+    console.warn("3D unavailable, showing the flat version", e);
+    document.documentElement.classList.add("flat");
+    $("#loader")?.remove();
+    return;
+  }
+  if (new URLSearchParams(location.search).has("still")) window.__W = W;
+  runMovie();
+})();
+
 // ================================================================= 3D
 function runMovie() {
-  const { THREE, camera, renderer, scene, drone, objects: O } = W;
-  const V3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
-
-  // ---------- camera & drone keyframes per scene: [u, camPos, lookAt] / [u, dronePos, yaw]
+  const { THREE, camera, drone, objects: O, fromLocal, fromFrame } = W;
   const PI = Math.PI;
+  drone.rotation.order = "YXZ";
+
+  // ---------- one continuous path for the whole movie.
+  // Global time s = scene index + progress in that scene. Every track is a C1 Hermite spline in s,
+  // so the camera never jerks between scenes; it only comes to rest where you're meant to click.
+  // L = house-local coords (x right, y up, z out the front door), F = Manhattan grid (a east, y, n north).
+  const L = (x, y, z) => fromLocal(x, y, z);
+  const F = (a, y, n) => fromFrame(a, y, n);
+  const toward = [380, 30, 660]; // house-local direction toward Midtown
   const CAM = [
-    [[0, [1.6, 2.1, 9.8], [-1.0, 3.2, 4.2]], [1, [1.4, 2.5, 8.6], [-0.7, 3.3, 4.2]]],
-    [[0, [1.4, 2.5, 8.6], [-0.7, 3.3, 4.2]], [0.12, [3.8, 3.0, 5.8], [0, 3.4, 4.2]], [0.22, [3.0, 3.7, 1.6], [0, 3.6, 4.4]],
-     [0.3, [0, 4.0, 1.0], [0, 4.2, 10]], [0.4, [0, 6.7, 6.0], [0, 7.4, 16]], [0.47, [0, 7.6, 9.8], [0, 8.6, 22]],
-     [0.57, [0, 40, 86], [0, 32, 200]], [0.67, [0, 70, 470], [6, 80, 700]], [0.74, [-6, 78, 548], [10, 120, 700]], [1, [-6, 78, 550], [10, 120, 700]]],
-    [[0, [10, 4, 44], [4.2, 1.4, 27.5]], [0.1, [8, 3.2, 36], [4.2, 1.6, 27.5]], [0.18, [3.6, 2.8, 31], [0.5, 2.2, 18]],
-     [0.28, [0, 2.6, 18.5], [0, 2.3, 8]], [0.34, [0, 2.4, 11.6], [0, 2.4, 2]], [0.41, [0, 2.8, 4.6], [0, 3.6, -3]],
-     [0.48, [0, 4.4, -1.6], [0, 6.4, -8]], [0.55, [0, 6.6, -7.3], [-6, 6.6, -8.4]], [0.62, [-4.4, 7.0, -8.1], [-9, 7, -5.5]],
-     [0.71, [-9.0, 7.9, 1.6], [-9.1, 6.2, 7]], [0.8, [-8.3, 7.15, 5.05], [-9.0, 5.95, 7.05]], [1, [-8.3, 7.15, 5.05], [-9.0, 5.95, 7.05]]],
-    [[0, [-8.3, 7.15, 5.05], [-9.0, 5.95, 7.05]], [0.3, [-9.2, 7.6, 1.4], [-13.4, 7.4, 0.4]], [1, [-9.25, 7.6, 1.35], [-13.4, 7.4, 0.4]]],
-    [[0, [-9.25, 7.6, 1.35], [-13.4, 7.4, 0.4]], [0.3, [-10.3, 7.9, -2.7], [-10.3, 6.45, -9.4]], [1, [-10.3, 7.9, -2.8], [-10.3, 6.45, -9.4]]],
-    [[0, [-10.3, 7.9, -2.8], [-10.3, 6.45, -9.4]], [0.3, [-13.1, 7.6, -1.4], [-5.2, 7.55, -1.4]], [1, [-13.1, 7.6, -1.4], [-5.2, 7.55, -1.4]]],
-    [[0, [-13.1, 7.6, -1.4], [-5.2, 7.55, -1.4]], [0.12, [-6.6, 7.0, -6.6], [0, 7, -8.6]], [0.22, [0, 7.0, -8.4], [6, 7, -8.0]],
-     [0.32, [6.4, 7.2, -7.0], [10, 6.5, 0]], [0.45, [8.4, 7.6, -1.8], [10.4, 6.3, 0.6]], [0.56, [11.6, 7.6, 1.6], [10.2, 6.15, 0.5]], [1, [11.6, 7.6, 1.6], [10.2, 6.15, 0.5]]],
-    [[0, [11.6, 7.6, 1.6], [10.2, 6.15, 0.5]], [0.15, [9.5, 7.4, 3.5], [9.5, 7.5, 10]], [0.3, [9.5, 7.6, 7.6], [9.5, 7.6, 16]],
-     [0.45, [2.5, 5.6, 34], [3.6, 7.2, 16]], [1, [2.5, 5.6, 34.5], [3.6, 7.2, 16]]],
+    // 0 · the foyer
+    [0.0, L(1.6, 2.1, 9.4), L(-1.0, 3.2, 4.2)],
+    [0.95, L(1.3, 2.5, 8.4), L(-0.6, 3.3, 4.2)],
+    // 1 · orbit the drone, become the drone, out the arched window, over the East River to Central Park
+    [1.12, L(3.8, 3.0, 5.8), L(0, 3.4, 4.2)],
+    [1.22, L(3.0, 3.7, 1.6), L(0, 3.6, 4.4)],
+    [1.3, L(0.2, 3.95, 1.0), L(0, 4.4, 10)],
+    [1.37, L(0.8, 4.7, 3.9), L(1.2, 6.3, 14)],
+    [1.76, F(-400, 100, 1250), F(-385, 140, -140)],
+    [1.81, F(-416.4, 97.2, 1265.6), F(-382, 150, -140)],
+    [1.99, F(-417.6, 97.7, 1267.6), F(-382, 152, -140)],
+    // 2 · back home over the Queensboro Bridge, mailbox, front door, up the stairs, to the desk
+    [2.03, F(-405, 100, 1262), F(-250, 95, 1100)],
+    [2.4, L(25, 5.5, 34.6), L(4, 2, 30)],
+    [2.44, L(10, 4, 42), L(4.2, 1.5, 27.5)],
+    [2.48, L(8, 3.2, 36), L(1.6, 1.7, 26)],
+    [2.52, L(3.6, 2.8, 31), L(0.5, 2.2, 18)],
+    [2.555, L(0, 2.6, 18.5), L(0, 2.3, 8)],
+    [2.59, L(0, 2.4, 11.6), L(0, 2.6, 2)],
+    [2.63, L(0, 2.8, 4.6), L(0, 3.8, -3)],
+    [2.665, L(0, 4.4, -1.6), L(0, 6.4, -8)],
+    [2.7, L(0, 6.6, -7.3), L(-6, 6.6, -8.4)],
+    [2.745, L(-4.4, 7.0, -8.1), L(-9, 7, -5.5)],
+    [2.79, L(-9.0, 7.9, 1.6), L(-9.1, 6.2, 7)],
+    [2.84, L(-8.3, 7.15, 5.05), L(-9.0, 5.95, 7.05)],
+    [3.0, L(-8.3, 7.15, 5.05), L(-9.0, 5.95, 7.05)],
+    // 3 · the library
+    [3.14, L(-9.0, 7.5, 3.2), L(-12, 7.0, 2.4)],
+    [3.3, L(-9.2, 7.6, 1.4), L(-13.4, 7.4, 0.4)],
+    [4.0, L(-9.25, 7.6, 1.35), L(-13.4, 7.4, 0.4)],
+    // 4 · the workshop corner
+    [4.3, L(-10.3, 7.9, -2.7), L(-10.3, 6.45, -9.4)],
+    [5.0, L(-10.3, 7.9, -2.8), L(-10.3, 6.45, -9.4)],
+    // 5 · the wall of frames
+    [5.3, L(-11.0, 7.6, -1.2), L(-5.2, 7.5, -1.2)],
+    [6.0, L(-10.9, 7.6, -0.8), L(-5.2, 7.5, -0.8)],
+    // 6 · across the landing to the bedroom
+    [6.12, L(-6.6, 7.0, -6.6), L(0, 7, -8.6)],
+    [6.22, L(0, 7.0, -8.4), L(6, 7, -8.0)],
+    [6.32, L(6.4, 7.2, -7.0), L(10, 6.5, 0)],
+    [6.45, L(9.0, 7.7, -1.2), L(12.0, 6.3, 0.6)],
+    [6.56, L(13.0, 7.75, 2.2), L(11.5, 6.0, 0.3)],
+    [7.0, L(13.0, 7.75, 2.2), L(11.5, 6.0, 0.3)],
+    // 7 · out the bedroom window; the skyline behind the hologram
+    [7.15, L(9.5, 7.4, 3.5), L(9.5, 7.5, 10)],
+    [7.3, L(9.5, 7.6, 7.6), L(9.5, 7.8, 16)],
+    [7.4, L(9.3, 9.2, 12.0), L(9, 12, 30)],
+    [7.55, L(8, 21, 15), L(...toward)],
+    [8.0, L(8, 21.3, 15.4), L(...toward)],
   ];
   const DRONE = [
-    [[0, [0, 3.4, 4.2], 0], [1, [0, 3.4, 4.2], 0]],
-    [[0, [0, 3.4, 4.2], 0], [0.22, [0, 3.5, 4.0], 0], [0.3, [0, 3.7, 2.6], 0], [0.4, [0, 6.6, 7.6], 0], [0.47, [0, 7.6, 11.6], 0],
-     [0.57, [0, 39.4, 90], 0], [0.67, [0, 69, 474], 0], [0.74, [-3.6, 76.4, 553], 0], [1, [-3.6, 76.4, 553], 0]],
-    [[0, [4.2, 2.3, 27.5], PI], [0.1, [4.2, 2.1, 27.5], PI], [0.18, [1.5, 2.2, 24], PI], [0.28, [0, 2.2, 13], PI], [0.34, [0, 2.3, 7.5], PI],
-     [0.41, [0, 2.8, 0.6], PI], [0.48, [0, 5.2, -5], PI], [0.55, [-2.8, 6.7, -8.6], PI * 1.5], [0.62, [-7.6, 7.1, -7.4], PI * 1.5],
-     [0.71, [-8.4, 7.6, 3.8], PI * 2], [0.8, [-10.9, 7.0, 7.9], PI * 2.15], [1, [-10.9, 7.0, 7.9], PI * 2.15]],
-    [[0, [-10.9, 7.0, 7.9], PI * 2.15], [0.3, [-11.2, 8.3, 2.2], PI * 1.5], [1, [-11.2, 8.3, 2.2], PI * 1.5]],
-    [[0, [-11.2, 8.3, 2.2], PI * 1.5], [0.3, [-7.9, 9.2, -6.6], PI], [1, [-7.9, 9.2, -6.6], PI]],
-    [[0, [-7.9, 9.2, -6.6], PI], [0.3, [-7.4, 9.4, 3.2], PI * 0.5], [1, [-7.4, 9.4, 3.2], PI * 0.5]],
-    [[0, [-7.4, 9.4, 3.2], PI * 0.5], [0.12, [-3.6, 7.2, -7.6], PI * 0.5], [0.22, [3, 7.1, -8.2], PI * 0.5], [0.32, [8, 7.3, -4], 0],
-     [0.45, [9.6, 7.6, -0.6], 0], [0.56, [11.9, 8.1, 1.9], -PI * 0.5], [1, [11.9, 8.1, 1.9], -PI * 0.5]],
-    [[0, [11.9, 8.1, 1.9], -PI * 0.5], [0.15, [9.5, 7.5, 6.4], 0], [0.3, [9.5, 7.6, 12], 0], [0.45, [6.2, 8.2, 17.5], 0], [1, [6.2, 8.2, 17.5], 0]],
+    [0.0, L(0, 3.4, 4.2), -PI / 2],
+    [0.95, L(0, 3.45, 4.2), -PI / 2 + 0.25],
+    [1.12, L(0, 3.45, 4.1), -PI / 2 + 0.1],
+    [1.22, L(0, 3.5, 4.0), -PI / 2],
+    [1.3, L(0, 3.75, 2.6), -PI / 2],
+    [1.37, L(0.9, 5.0, 5.4), -PI / 2],
+    [1.43, L(1.25, 7.4, 9.4), -PI / 2],
+    [1.47, L(1.3, 10, 16), -PI / 2],
+    [1.51, L(2, 32, 62), -PI / 2],
+    [1.56, F(2700, 110, 1460), -PI / 2],
+    [1.61, F(1900, 150, 1320), -PI / 2],
+    [1.655, F(1000, 165, 1220), -PI / 2],
+    [1.7, F(150, 150, 1170), -PI / 2],
+    [1.745, F(-370, 108, 1235), -0.4],
+    [1.79, F(-414, 96, 1262), 0],
+    [1.99, F(-415, 96.6, 1263.5), 0],
+    [2.04, F(-300, 108, 1140), PI * 0.6],
+    [2.09, F(100, 175, 720), PI * 0.62],
+    [2.135, F(650, 185, 250), PI * 0.62],
+    [2.175, F(1120, 120, -25), PI * 0.56],
+    [2.21, F(1500, 62, -33), PI * 0.53],
+    [2.25, F(2200, 62, 26), PI * 0.53],
+    [2.29, F(2950, 64, 92), PI * 0.6],
+    [2.33, F(3230, 58, 640), PI],
+    [2.365, L(330, 30, 36), PI / 2 + PI / 2],
+    [2.39, L(110, 12, 35), PI],
+    [2.415, L(25, 4, 32), PI],
+    [2.44, L(4.2, 2.3, 27.5), PI / 2],
+    [2.46, L(4.2, 2.1, 27.5), PI / 2],
+    [2.48, L(1.5, 2.2, 24), PI / 2],
+    [2.52, L(0, 2.2, 13), PI / 2],
+    [2.555, L(0, 2.3, 7.5), PI / 2],
+    [2.59, L(0, 2.8, 0.6), PI / 2],
+    [2.63, L(0, 5.2, -5), PI / 2],
+    [2.665, L(-2.8, 6.7, -8.6), PI],
+    [2.7, L(-7.6, 7.1, -7.4), PI],
+    [2.745, L(-8.4, 7.6, 3.8), PI * 1.5],
+    [2.79, L(-10.9, 7.0, 7.9), PI * 1.65],
+    [3.0, L(-10.9, 7.0, 7.9), PI * 1.65],
+    [3.3, L(-11.2, 8.3, 2.2), PI],
+    [4.0, L(-11.2, 8.3, 2.2), PI],
+    [4.3, L(-7.9, 9.2, -6.6), PI / 2],
+    [5.0, L(-7.9, 9.2, -6.6), PI / 2],
+    [5.3, L(-7.4, 9.4, 3.2), 0],
+    [5.95, L(-7.4, 9.4, 3.2), 0],
+    [6.06, L(-6.4, 7.6, -8.0), PI / 4],
+    [6.13, L(-3.6, 7.2, -8.2), 0],
+    [6.22, L(3, 7.1, -8.2), 0],
+    [6.32, L(8, 7.3, -4), -PI / 2],
+    [6.45, L(9.6, 7.6, -0.6), -PI / 2],
+    [6.56, L(10.6, 8.3, 2.6), -PI],
+    [7.0, L(10.6, 8.3, 2.6), -PI],
+    [7.15, L(9.5, 7.5, 6.4), -PI / 2],
+    [7.28, L(9.5, 7.7, 11.6), -PI / 2],
+    [7.4, L(9.8, 12, 16.5), -PI / 2 + 0.3],
+    [7.55, L(10.25, 19.75, 18.9), -PI / 2 + 0.52],
+    [8.0, L(10.25, 19.8, 18.95), -PI / 2 + 0.52],
   ];
-
-  // centripetal Catmull–Rom through the keys of one scene
-  function cr(p0, p1, p2, p3, t) {
-    const d = (a, b) => Math.max(1e-4, Math.pow(a.distanceTo(b), 0.5));
-    const t0 = 0, t1 = d(p0, p1), t2 = t1 + d(p1, p2), t3 = t2 + d(p2, p3);
-    const tt = t1 + (t2 - t1) * t;
-    const L = (a, b, ta, tb) => a.clone().multiplyScalar((tb - tt) / (tb - ta)).add(b.clone().multiplyScalar((tt - ta) / (tb - ta)));
-    const A1 = L(p0, p1, t0, t1), A2 = L(p1, p2, t1, t2), A3 = L(p2, p3, t2, t3);
-    const B1 = L(A1, A2, t0, t2), B2 = L(A2, A3, t1, t3);
-    return L(B1, B2, t1, t2);
+  // yaws are world headings (0 = grid south; the house's front door faces -PI/2).
+  // Unwrap so the drone always turns the short way.
+  for (let i = 1; i < DRONE.length; i++) {
+    let y = DRONE[i][2];
+    while (y - DRONE[i - 1][2] > PI) y -= 2 * PI;
+    while (y - DRONE[i - 1][2] < -PI) y += 2 * PI;
+    DRONE[i][2] = y;
   }
-  function sampleVec(keys, u, idx) {
-    if (u <= keys[0][0]) return V3(keys[0][idx]);
-    for (let i = 0; i < keys.length - 1; i++) {
-      const a = keys[i], b = keys[i + 1];
-      if (u <= b[0]) {
-        const t = (u - a[0]) / (b[0] - a[0] || 1);
-        const P1 = V3(a[idx]), P2 = V3(b[idx]);
-        if (P1.distanceTo(P2) < 1e-4) return P1;
-        const P0 = V3((keys[i - 1] || a)[idx]), P3 = V3((keys[i + 2] || b)[idx]);
-        const p0 = P0.distanceTo(P1) < 1e-4 ? P1.clone().multiplyScalar(2).sub(P2) : P0;
-        const p3 = P3.distanceTo(P2) < 1e-4 ? P2.clone().multiplyScalar(2).sub(P1) : P3;
-        return cr(p0, P1, P2, p3, t);
+
+  function hermiteTrack(keys) {
+    // keys: [[s, number[]], ...]
+    const n = keys.length, dim = keys[0][1].length;
+    const s = keys.map((k) => k[0]), v = keys.map((k) => k[1]);
+    const m = keys.map(() => new Array(dim).fill(0));
+    const len = (a, b) => Math.sqrt(a.reduce((acc, x, i) => acc + (x - b[i]) ** 2, 0));
+    for (let i = 1; i < n - 1; i++) {
+      const ds = s[i + 1] - s[i - 1];
+      for (let d = 0; d < dim; d++) m[i][d] = (v[i + 1][d] - v[i - 1][d]) / ds;
+      // keep it from overshooting: cap the speed by what each neighboring segment can carry
+      const mag = Math.sqrt(m[i].reduce((a, x) => a + x * x, 0));
+      if (mag > 0) {
+        const cap = Math.min(2.4 * len(v[i], v[i - 1]) / (s[i] - s[i - 1]), 2.4 * len(v[i + 1], v[i]) / (s[i + 1] - s[i]));
+        if (mag > cap) m[i] = m[i].map((x) => (x * cap) / mag);
       }
     }
-    return V3(keys[keys.length - 1][idx]);
+    const out = new Array(dim);
+    return (t) => {
+      if (t <= s[0]) return v[0].slice();
+      if (t >= s[n - 1]) return v[n - 1].slice();
+      let i = 0;
+      while (i < n - 2 && t > s[i + 1]) i++;
+      const h = s[i + 1] - s[i], u = (t - s[i]) / h, u2 = u * u, u3 = u2 * u;
+      const h00 = 2 * u3 - 3 * u2 + 1, h10 = u3 - 2 * u2 + u, h01 = -2 * u3 + 3 * u2, h11 = u3 - u2;
+      for (let d = 0; d < dim; d++) out[d] = h00 * v[i][d] + h10 * h * m[i][d] + h01 * v[i + 1][d] + h11 * h * m[i + 1][d];
+      return out.slice();
+    };
   }
-  function sampleNum(keys, u) {
-    if (u <= keys[0][0]) return keys[0][2];
-    for (let i = 0; i < keys.length - 1; i++) {
-      const a = keys[i], b = keys[i + 1];
-      if (u <= b[0]) return lerp(a[2], b[2], ease((u - a[0]) / (b[0] - a[0] || 1)));
-    }
-    return keys[keys.length - 1][2];
+  const camPosT = hermiteTrack(CAM.map((k) => [k[0], k[1]]));
+  const camLookT = hermiteTrack(CAM.map((k) => [k[0], k[2]]));
+  const dronePosT = hermiteTrack(DRONE.map((k) => [k[0], k[1]]));
+  const droneYawT = hermiteTrack(DRONE.map((k) => [k[0], [k[2]]]));
+  const V3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+  const smooth01 = (t) => { t = clamp01(t); return t * t * t * (t * (t * 6 - 15) + 10); };
+  const band = (s, a0, a1, b0, b1) => smooth01((s - a0) / (a1 - a0)) * (1 - smooth01((s - b0) / (b1 - b0)));
+  function droneDir(s) {
+    const a = V3(dronePosT(s - 0.004)), b = V3(dronePosT(s + 0.004));
+    const d = b.sub(a);
+    return d.lengthSq() < 1e-8 ? null : d.normalize();
   }
+  const wrapPI = (x) => Math.atan2(Math.sin(x), Math.cos(x));
 
   // ---------- scroll position → scene + local progress
   let sceneI = 0, sceneU = 0;
@@ -405,8 +509,8 @@ function runMovie() {
   const ndc = new THREE.Vector2();
   const parts = O.builds.flatMap((b) => b.userData.parts);
   const targets = () => {
-    if (sceneI === 2 && sceneU > 0.72) return [O.letter];
-    if (sceneI === 3 && sceneU > 0.2) return O.book.children;
+    if (sceneI === 2 && sceneU > 0.78) return [O.letter];
+    if (sceneI === 3 && sceneU > 0.2) return O.book.children.length ? O.book.children : [O.book];
     if (sceneI === 4 && sceneU > 0.22) return [O.sketch, ...parts];
     if (sceneI === 5 && sceneU > 0.22) return O.certFrames.map((f) => f.userData.face);
     if (sceneI === 6 && sceneU > 0.5) return [O.screen, ...O.laptop.children];
@@ -417,17 +521,18 @@ function runMovie() {
     const r = canvas.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(targets(), false)[0];
+    const hit = ray.intersectObjects(targets(), true)[0];
     return hit ? hit.object : null;
   }
+  const isIn = (obj, root) => { for (let p = obj; p; p = p.parent) if (p === root) return true; return false; };
   const kindOf = (obj) => {
     if (!obj) return null;
     if (obj === O.letter) return "letter";
-    if (O.book.children.includes(obj)) return "book";
+    if (isIn(obj, O.book)) return "book";
     if (obj === O.sketch) return "sketch";
     if (obj.userData.build) return "part";
     if (O.certFrames.some((f) => f.userData.face === obj)) return "cert";
-    if (obj === O.screen || O.laptop.children.includes(obj)) return "laptop";
+    if (obj === O.screen || isIn(obj, O.laptop)) return "laptop";
     return null;
   };
 
@@ -437,8 +542,7 @@ function runMovie() {
   canvas.addEventListener("pointerdown", (e) => {
     const obj = pick(e);
     if (kindOf(obj) === "part") {
-      const g = obj.parent;
-      drag = { obj, g, x: e.clientX, y: e.clientY, moved: false };
+      drag = { obj, g: obj.parent, x: e.clientX, y: e.clientY, moved: false };
       canvas.setPointerCapture(e.pointerId);
       e.preventDefault();
     } else drag = { obj, x: e.clientX, y: e.clientY, moved: false, click: true };
@@ -469,7 +573,7 @@ function runMovie() {
       canvas.style.cursor = obj ? (kindOf(obj) === "part" ? "grab" : "pointer") : "";
     }
   });
-  canvas.addEventListener("pointerup", (e) => {
+  canvas.addEventListener("pointerup", () => {
     if (!drag) return;
     const d = drag;
     drag = null;
@@ -508,24 +612,25 @@ function runMovie() {
     $("#btn-build").setAttribute("aria-pressed", String(!on));
   };
 
-  // camera focus for close-ups
+  // camera focus for close-ups (house-local, converted to world)
   let focus = null, focusAmt = 0;
   const FOCUS = {
-    letter: { pos: [-8.95, 6.85, 6.7], look: [-9.05, 5.95, 7.05] },
-    laptop: { pos: [10.72, 6.62, 1.05], look: [10.22, 6.18, 0.58] },
+    letter: { pos: L(-8.95, 6.85, 6.7), look: L(-9.05, 5.95, 7.05) },
+    laptop: { pos: L(12.75, 6.95, 1.15), look: L(11.95, 6.15, 0.6) },
   };
   focusOn = (k) => { focus = FOCUS[k] || null; };
   releaseFocus = () => { focus = null; bookPulled = false; };
   let bookPulled = false;
   pullBook = () => { bookPulled = true; };
   const bookHome = O.book.position.clone();
+  const ladderHome = O.ladder.position.clone();
 
   // ---------- HUD
   const root = document.documentElement;
   const hint = $("#hint");
   const HINTS = [
     "Scroll to fly",
-    "Keep scrolling: follow the drone",
+    "Keep scrolling: fly with the drone",
     "Click the letter on the desk",
     "Click the glowing book on the shelf",
     "Drag the builds · click the sketch paper",
@@ -534,8 +639,8 @@ function runMovie() {
     "Say hello ↓",
   ];
   function hintText() {
-    if (sceneI === 1 && sceneU > 0.74) return "Keep scrolling: back to the house";
-    if (sceneI === 2 && sceneU < 0.72) return "Keep scrolling: follow the drone home";
+    if (sceneI === 1 && sceneU > 0.8) return "Keep scrolling: fly home over the bridge";
+    if (sceneI === 2 && sceneU < 0.78) return "Keep scrolling: follow the drone home";
     if (sceneI === 3 && sceneU < 0.2) return "Keep scrolling";
     if (sceneI === 6 && sceneU < 0.5) return "Keep scrolling: to my room";
     if (sceneI === 7 && sceneU < 0.45) return "Keep scrolling";
@@ -553,12 +658,17 @@ function runMovie() {
 
   // ---------- loop
   let lastT = performance.now();
-  const tmpPos = new THREE.Vector3(), tmpLook = new THREE.Vector3();
   const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
+  const prevDrone = new THREE.Vector3();
   let first = true;
   function resize() { W.resize(innerWidth, innerHeight); }
   window.addEventListener("resize", resize);
   resize();
+  const houseInv = new THREE.Matrix4().copy(W.houseRoot.matrixWorld).invert();
+  const toHouse = (v) => v.clone().applyMatrix4(houseInv);
+  const fromHouse = (v) => v.clone().applyMatrix4(W.houseRoot.matrixWorld);
+  const UP = new THREE.Vector3(0, 1, 0);
+  let lastDir = new THREE.Vector3(-1, 0, 0);
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -567,54 +677,95 @@ function runMovie() {
     const t = now / 1000;
     readScroll();
     const target = sceneI + sceneU;
-    smoothS = first || reduceMotion || STILL ? target : lerp(smoothS, target, 1 - Math.pow(0.0015, dt));
-    if (Math.abs(target - smoothS) > 1.5) smoothS = target; // big jumps (nav clicks) cut instead of crawling
-    const si = Math.min(CAM.length - 1, Math.floor(smoothS + 1e-6));
-    const su = clamp01(smoothS - si);
+    // the movie glides after the scroll instead of snapping to it
+    smoothS = first || reduceMotion || STILL ? target : lerp(smoothS, target, 1 - Math.pow(0.012, dt));
+    if (Math.abs(target - smoothS) > 1.2) smoothS = target; // nav jumps cut instead of crawling
+    const s = smoothS;
     const portrait = camera.aspect < 0.9;
 
-    // camera path
-    tmpPos.copy(sampleVec(CAM[si], su, 1));
-    tmpLook.copy(sampleVec(CAM[si], su, 2));
+    // drone on its path, heading where it's going during the long flights
+    const dp = V3(dronePosT(s));
+    let yaw = droneYawT(s)[0];
+    const dir = droneDir(s);
+    if (dir && Math.hypot(dir.x, dir.z) > 0.2) lastDir.copy(dir);
+    const fly = Math.max(band(s, 1.45, 1.5, 1.76, 1.8), band(s, 2.0, 2.05, 2.37, 2.42));
+    if (fly > 0 && dir) {
+      const vy = Math.atan2(lastDir.x, lastDir.z);
+      yaw = yaw + wrapPI(vy - yaw) * fly;
+    }
+
+    // camera: the scripted path, blended into the drone's own camera (scene 1) and a chase cam (scene 2)
+    camPos.copy(V3(camPosT(s)));
+    camLook.copy(V3(camLookT(s)));
+    const pov = band(s, 1.33, 1.39, 1.75, 1.81);
+    if (pov > 0) {
+      const d = lastDir.clone();
+      d.y = THREE.MathUtils.clamp(d.y, -0.3, 0.12); d.normalize(); // keep the horizon in view while climbing
+      const p = dp.clone().addScaledVector(d, 0.3).add(new THREE.Vector3(0, 0.08, 0));
+      const lk = dp.clone().addScaledVector(d, 120).add(new THREE.Vector3(0, -Math.min(40, Math.max(0, dp.y - 20) * 0.35), 0));
+      camPos.lerp(p, pov);
+      camLook.lerp(lk, pov);
+    }
+    const chase = band(s, 2.0, 2.05, 2.36, 2.41);
+    if (chase > 0) {
+      const d = lastDir.clone(); d.y *= 0.3; d.normalize();
+      const p = dp.clone().addScaledVector(d, -7.5).add(new THREE.Vector3(0, 2.2, 0));
+      const lk = dp.clone().addScaledVector(d, 16);
+      camPos.lerp(p, chase);
+      camLook.lerp(lk, chase);
+    }
     if (portrait) {
-      // pan across wide walls on narrow screens
-      if (si === 4) { const k = seg(su, 0.35, 0.95); tmpPos.x = lerp(-12.0, -7.6, k); tmpLook.x = tmpPos.x; tmpPos.z += 0.6; }
-      if (si === 5) { const k = seg(su, 0.35, 0.95); tmpPos.z = lerp(-3, 3, k); tmpLook.z = tmpPos.z; tmpPos.x = -11.2; }
-      if (si === 3) { tmpPos.x += 0.4; }
-      if (si === 0) { tmpLook.x = 0; }
+      // pan across the wide walls on narrow screens
+      const si = Math.floor(s), su = s - si;
+      if (si === 4 || si === 5 || si === 3) {
+        const lp = toHouse(camPos), ll = toHouse(camLook);
+        if (si === 4) { const k = seg(su, 0.35, 0.95); lp.x = lerp(-12.0, -8.4, k); ll.x = lp.x; lp.z += 0.6; }
+        if (si === 5) { const k = seg(su, 0.35, 0.95); lp.z = lerp(-3, 3, k); ll.z = lp.z; lp.x = -10.4; }
+        if (si === 3) lp.x += 0.4;
+        camPos.copy(fromHouse(lp)); camLook.copy(fromHouse(ll));
+      }
     }
     // close-up focus
     focusAmt = STILL ? (focus ? 1 : 0) : lerp(focusAmt, focus ? 1 : 0, 1 - Math.pow(0.002, dt));
-    if (focus || focusAmt > 0.001) {
-      const f = focus || FOCUS.letter;
-      tmpPos.lerp(V3(f.pos), focus ? focusAmt : 0);
-      tmpLook.lerp(V3(f.look), focus ? focusAmt : 0);
+    if (focus && focusAmt > 0.001) {
+      camPos.lerp(V3(focus.pos), focusAmt);
+      camLook.lerp(V3(focus.look), focusAmt);
     }
-    camPos.copy(tmpPos);
-    camLook.copy(tmpLook);
     if (shake > 0) { camPos.x += (Math.random() - 0.5) * shake; camPos.y += (Math.random() - 0.5) * shake; shake *= 0.86; if (shake < 0.002) shake = 0; }
     camera.position.copy(camPos);
+    camera.up.copy(UP);
     camera.lookAt(camLook);
+    // a gentle bank while the drone camera turns
+    if (pov > 0.5) camera.rotateZ(THREE.MathUtils.clamp(wrapPI(droneYawT(s + 0.01)[0] - droneYawT(s)[0]) * -2, -0.12, 0.12) * pov);
 
-    // drone
-    const dp = sampleVec(DRONE[si], su, 1);
-    const yaw = sampleNum(DRONE[si], su);
-    const prev = drone.position.clone();
-    drone.position.copy(dp);
-    drone.position.y += reduceMotion ? 0 : Math.sin(t * 2.1) * 0.05;
-    drone.rotation.set(0, yaw, 0);
-    const vel = dp.clone().sub(prev);
-    const loc = vel.applyAxisAngle(new THREE.Vector3(0, 1, 0), -yaw);
-    drone.rotation.x = THREE.MathUtils.clamp(loc.z * 2.2, -0.35, 0.35);
-    drone.rotation.z = THREE.MathUtils.clamp(-loc.x * 2.2, -0.35, 0.35);
+    // drone pose: hover bob, tilt into the direction of travel
+    const hover = reduceMotion ? 0 : Math.sin(t * 2.1) * 0.04 * (1 - fly);
+    drone.position.copy(dp).add(new THREE.Vector3(0, hover, 0));
+    const vel = dp.clone().sub(prevDrone);
+    prevDrone.copy(dp);
+    const sp = Math.min(1, vel.length() / Math.max(dt, 1e-3) / 40);
+    const loc = vel.clone().applyAxisAngle(UP, -yaw).normalize();
+    drone.rotation.y = yaw;
+    drone.rotation.x = lerp(drone.rotation.x, THREE.MathUtils.clamp(loc.z * sp * 0.4, -0.35, 0.35) || 0, 0.15);
+    drone.rotation.z = lerp(drone.rotation.z, THREE.MathUtils.clamp(-loc.x * sp * 0.4, -0.35, 0.35) || 0, 0.15);
     drone.userData.rotors.forEach((r, i) => (r.rotation.y += (i % 2 ? 1 : -1) * dt * 40));
     drone.userData.led.material.color.setHex(Math.sin(t * 6) > 0 ? 0x7dffb4 : 0x2c6b4c);
-    // hide the drone when the camera is basically inside it
-    drone.visible = camera.position.distanceTo(drone.position) > 0.45;
+    drone.visible = camera.position.distanceTo(drone.position) > 0.6;
+
+    // the house reacts to the drone: windows swing open, the front doors open, the mailbox flag goes up
+    const swing = (o, k) => o && o.leaves.forEach((h) => (h.rotation.y = (h.userData.left ? -1 : 1) * 1.25 * smooth01(k)));
+    swing(O.opening.arch, seg(s, 1.33, 1.41) * (1 - seg(s, 1.56, 1.62)));
+    swing(O.opening.bedroom, seg(s, 7.08, 7.2));
+    swing(O.opening.study, 0.25 + 0.03 * Math.sin(t * 0.7)); // a crack of fresh air
+    const doorK = smooth01(seg(s, 2.47, 2.53)) * (1 - smooth01(seg(s, 2.66, 2.72)));
+    O.doors.forEach((d, i) => (d.rotation.y = (i === 0 ? 1 : -1) * 1.45 * doorK));
+    O.flag.rotation.x = s > 2.43 ? 0 : Math.PI / 2;
+    // the rolling library ladder slides over to the experience book
+    O.ladder.position.z = lerp(ladderHome.z, O.book.position.z - 0.9, smooth01(seg(s, 3.04, 3.3)));
 
     // glow on clickable things
     const pulse = 0.5 + 0.5 * Math.sin(t * 3);
-    O.letter.material.emissiveIntensity = sceneI === 2 && sceneU > 0.72 ? 0.12 + pulse * 0.25 : 0;
+    O.letter.material.emissiveIntensity = sceneI === 2 && sceneU > 0.78 ? 0.12 + pulse * 0.25 : 0;
     O.bookMat.emissiveIntensity = sceneI === 3 && sceneU > 0.2 ? 0.35 + pulse * 0.65 : 0;
     O.bookHalo.visible = sceneI === 3 && sceneU > 0.2 && !bookPulled;
     O.bookHalo.material.opacity = 0.35 + pulse * 0.45;
@@ -625,7 +776,7 @@ function runMovie() {
     const bp = bookPulled ? 1 : 0;
     O.book.position.x = lerp(O.book.position.x, bookHome.x + bp * 0.75, 0.12);
     O.book.rotation.y = lerp(O.book.rotation.y, bp * 0.5, 0.12);
-    // build parts animate between built and taken-apart
+    // build parts animate between built and taken apart
     parts.forEach((p) => {
       const ud = p.userData;
       if (!ud.to || ud.free) return;
@@ -634,31 +785,25 @@ function runMovie() {
       p.position.y += Math.sin(k * Math.PI) * 0.35;
       p.rotation.x = lerp(ud.fromR || 0, ud.toR || 0, k);
     });
-    // mailbox flag pops when the drone visits
-    O.flag.rotation.z = sceneI === 2 && sceneU > 0.08 ? -1.4 : 0;
-    // chandelier sway
-    O.chand.rotation.y = Math.sin(t * 0.3) * 0.08;
+    if (O.chand) O.chand.rotation.y = Math.sin(t * 0.3) * 0.08;
 
     // HUD state
     root.dataset.scene = sceneI;
     root.style.setProperty("--u", sceneU.toFixed(3));
-    sections.forEach((s, i) => s.classList.toggle("active", i === sceneI));
+    sections.forEach((sct, i) => sct.classList.toggle("active", i === sceneI));
     $$("#scene-nav button").forEach((b, i) => b.classList.toggle("on", i === sceneI));
-    // fade between Manhattan and the mansion
-    const fade = Math.max(si === 1 ? seg(su, 0.93, 1) : 0, si === 2 ? 1 - seg(su, 0, 0.06) : 0);
-    $("#fade").style.opacity = fade.toFixed(3);
     // newspaper
-    const wantPaper = sceneI === 1 && sceneU > 0.75 && sceneU < 0.97;
+    const wantPaper = sceneI === 1 && sceneU > 0.83 && sceneU < 0.985;
     if (wantPaper && !slapped) { slapped = true; paper.classList.add("in"); if (!reduceMotion) setTimeout(() => (shake = 0.5), 260); }
     if (!wantPaper && slapped) { slapped = false; paper.classList.remove("in"); }
     // interactive cues
-    root.classList.toggle("ready", (sceneI === 2 && sceneU > 0.78) || (sceneI === 3 && sceneU > 0.25) || (sceneI === 4 && sceneU > 0.25) || (sceneI === 5 && sceneU > 0.25) || (sceneI === 6 && sceneU > 0.55));
+    root.classList.toggle("ready", (sceneI === 2 && sceneU > 0.8) || (sceneI === 3 && sceneU > 0.25) || (sceneI === 4 && sceneU > 0.25) || (sceneI === 5 && sceneU > 0.25) || (sceneI === 6 && sceneU > 0.55));
     // contacts hologram + lasers
     const showHolo = sceneI === 7 && sceneU > 0.42;
     holo.classList.toggle("in", showHolo);
-    O.lasers.visible = showHolo;
     O.beams.forEach((b) => (b.visible = showHolo));
     if (showHolo) {
+      camera.updateMatrixWorld();
       const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
       const right = new THREE.Vector3().crossVectors(fwd, camera.up).normalize();
       const up = new THREE.Vector3().crossVectors(right, fwd).normalize();
@@ -668,6 +813,7 @@ function runMovie() {
       const hR = portrait ? wR * 1.2 : wR * 0.8;
       const C = camera.position.clone().add(fwd.clone().multiplyScalar(dist)).add(right.clone().multiplyScalar(portrait ? 0 : -visW * 0.18)).add(up.clone().multiplyScalar(portrait ? -1.1 : -0.3));
       const corners = [[-1, 1], [1, 1], [1, -1], [-1, -1]].map(([a, b]) => C.clone().add(right.clone().multiplyScalar(a * wR / 2)).add(up.clone().multiplyScalar(b * hR / 2)));
+      drone.updateMatrixWorld(true);
       const src = drone.userData.gimbal.getWorldPosition(new THREE.Vector3());
       O.beams.forEach((b, i) => {
         const c = corners[Math.floor(i / 2)];
@@ -680,9 +826,9 @@ function runMovie() {
       });
       const sc = corners.map((c) => c.clone().project(camera));
       const xs = sc.map((p) => (p.x * 0.5 + 0.5) * innerWidth), ys = sc.map((p) => (-p.y * 0.5 + 0.5) * innerHeight);
-      const L = Math.min(...xs), T = Math.min(...ys);
-      holo.style.left = L + "px"; holo.style.top = T + "px";
-      holo.style.width = Math.max(...xs) - L + "px"; holo.style.minHeight = Math.max(...ys) - T + "px";
+      const Lx = Math.min(...xs), T = Math.min(...ys);
+      holo.style.left = Lx + "px"; holo.style.top = T + "px";
+      holo.style.width = Math.max(...xs) - Lx + "px"; holo.style.minHeight = Math.max(...ys) - T + "px";
     }
     // cursor hint
     hint.textContent = hintText();
@@ -693,7 +839,8 @@ function runMovie() {
       hint.style.visibility = seenMouse && !document.querySelector("dialog[open]") ? "" : "hidden";
     }
 
-    renderer.render(scene, camera);
+    W.update(t, dt);
+    W.render();
     if (first) { first = false; $("#loader").classList.add("done"); setTimeout(() => $("#loader")?.remove(), 900); }
   }
   requestAnimationFrame(frame);
