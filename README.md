@@ -1,52 +1,52 @@
 # Shiqi Lin — Portfolio
 
-Personal portfolio site. Plain HTML, CSS and JavaScript, with no build step.
+A scroll-driven 3D movie set in a New York mansion. Plain HTML, CSS and JavaScript with three.js bundled in `vendor/`. There is no build step.
+
+## The eight scenes
+
+1. **Foyer**: a drone hovers in a Forest Hills / Dyker Heights style mansion.
+2. **Headlines**: the camera circles the drone, takes its point of view, flies out the window to a Central Park view of Billionaires' Row, and *The Shiqi York Times* slaps onto the screen.
+3. **Letter**: back through the front door and up the stairs to the study, where a half-written letter sits on the desk (About me).
+4. **Experience book**: a glowing book on the shelf opens into a flippable book, with one page per role and photo and video slots.
+5. **Workshop**: the tool wall and the bench builds. Drag the parts, use Take apart / Build, click the sketch paper for the toolbox, or open the project files.
+6. **Certificates & honors**: framed on the study wall. Click a frame for details and its verification link.
+7. **Hobbies**: in the bedroom, Photos on the laptop holds clickable hobby videos.
+8. **Contact**: the drone lasers a hologram with email, LinkedIn and GitHub.
 
 ## Files
 
-- `index.html` – all page content (edit text here)
-- `styles.css` – colors, fonts and layout (palette variables are at the top)
-- `script.js` – interactions: mailbox letter, keep-scrolling note, lights switch, "Shiqi Times" front page, project pinboard and pop-ups, cursor-following scroll note, timeline, skills filter, copy email
-- `garment.js` – the full-screen shirt story: a needle threads the top button, the screen frays open to show the heart, brain, eyes and muscle sewn inside, then stitches itself shut
-- `needle.js` – the needle-and-yarn cursor (mouse only; off with reduced motion)
-- `cad.js` – the CAD lab 3D viewer (three.js)
-- `vendor/` – bundled three.js, so the site has no outside script dependencies
-- `favicon.svg` – browser tab icon
+- `index.html` – page structure, scene overlays and dialogs (the letter text lives here)
+- `data.js` – **all content**: projects, experience, certificates and honors, skills, builds, hobbies, contacts and photos
+- `world.js` – the 3D world: mansion, rooms, furniture, Manhattan, drone, Shiqi
+- `app.js` – scroll camera, drone path, interactions and dialogs
+- `styles.css` – overlays and dialogs
+- `vendor/` – three.js and helpers
 
-Project pop-up text lives in the `projects` object in `script.js`, and experience pop-ups in the `experience` object.
+## Adding photos, videos and links
 
-### Adding photos, videos and links
-
-Put files in `media/`, then add to any project or experience entry in `script.js`:
+Put files in `media/`, then add them to the matching entry in `data.js`:
 
 ```js
 media: [
-  { type: "image", src: "media/robot.jpg", alt: "Robot on the field", caption: "2023 season" },
+  { type: "image", src: "media/robot.jpg", alt: "Robot on the field" },
   { type: "video", src: "media/demo.mp4" },
   { type: "youtube", id: "VIDEO_ID" },
 ],
 links: [{ label: "Visit the site", href: "https://example.com" }],
 ```
 
-Entries without media show "coming soon" placeholders.
-
-### Photos of me
-
-Put pictures in `media/me/` and list them in `ME_PHOTOS` at the bottom of `script.js`. The first one goes in the About polaroid, and the second (or first) is hidden in the shirt pocket for visitors to drag out.
-
-### CAD models
-
-Export from Fusion 360 as `.stl` into `cad/`. File names and descriptions are listed at the top of `cad.js`.
+- **Experience pages** use `experience` entries: images fill the polaroids, and videos play from "Watch the video".
+- **Hobby videos** use `HOBBIES`.
+- **Your photo** on the letter is the first item in `ME_PHOTOS`.
+- **Certificate scans** go in the `media` of a `CERTS` item.
 
 ## Preview locally
-
-The CAD viewer needs a local server (opening the file directly won't load it). Run:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-then visit http://localhost:8000.
+then visit http://localhost:8000. Add `?still` to the URL to turn off camera smoothing, which is handy for screenshots.
 
 ## Deploy on Cloudflare
 
