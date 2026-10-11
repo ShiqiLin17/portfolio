@@ -297,6 +297,7 @@
   function start() {
     score = 0; timeLeft = ROUND; pile = []; kibble = []; floor = []; playing = true;
     overlay.hidden = true;
+    const real = document.getElementById("kb-real"); if (real) real.hidden = true;
     stage.classList.add("playing");
     stage.focus({ preventScroll: true });
   }
@@ -308,6 +309,9 @@
     overlay.querySelector(".kb-title").textContent = isBest && score > 0 ? `New best: ${score}!` : `Domi got ${score} kibble`;
     overlay.querySelector(".kb-text").textContent = score > 60 ? "She's so full she's purring. You're hired (by Domi)." : score > 25 ? "Happy kitten! Think you can fill it up more?" : "Domi is still a little hungry…";
     startBtn.textContent = "Play again ▶";
+    // the reveal: the real corner the game was drawn from
+    const real = document.getElementById("kb-real");
+    if (real) { real.hidden = false; real.classList.remove("dev"); void real.offsetWidth; requestAnimationFrame(() => real.classList.add("dev")); }
     showBest();
     overlay.hidden = false;
   }

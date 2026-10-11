@@ -1278,7 +1278,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .polaroid.dev img { filter: none; opacity: 1; }
 .hero-photo { width: min(360px, 80vw); transform: rotate(-2.5deg); margin-bottom: 40px; }
 .hero-photo .tape { position: absolute; top: -12px; left: 50%; width: 110px; height: 28px; transform: translateX(-50%) rotate(3deg); background: var(--tape, rgba(150,190,168,.45)); }
-.gallery-domi { list-style: none; padding: 0; margin: 0 auto; max-width: 1000px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.gallery-domi { list-style: none; padding: 0; margin: 0 auto; max-width: 1180px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
 .gallery-domi li { display: grid; justify-items: center; gap: 10px; }
 .gallery-domi li:nth-child(odd) .polaroid { transform: rotate(-2deg); } .gallery-domi li:nth-child(even) .polaroid { transform: rotate(2.4deg); }
 .gallery-domi .polaroid { width: 100%; padding: 9px 9px 38px; }
@@ -1307,3 +1307,12 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .kb-best { font-family: var(--hand); font-weight: 700; font-size: 1.2rem; margin: 8px 0 0; color: var(--muted); }
 .kb-cap { font-family: var(--hand); font-weight: 700; font-size: 1.3rem; color: var(--muted); margin: 16px 0 0; transform: rotate(-1deg); }
 @media (max-width: 760px) { .kb-stage { aspect-ratio: 1 / 1.12; } .kb-overlay { inset: 12% 6% auto; } }
+
+/* the real photo of Domi's corner appears when a round ends */
+.kb-overlay { max-height: 90%; overflow: auto; }
+.kb-real { margin: 4px auto 12px; width: min(170px, 46%); background: #fff; padding: 7px 7px 26px; box-shadow: 0 8px 18px rgba(0,0,0,.18); transform: rotate(-3deg); position: relative; }
+.kb-real[hidden] { display: none; }
+.kb-real img { width: 100%; aspect-ratio: 619 / 1100; object-fit: cover; display: block; filter: sepia(1) brightness(.25); opacity: .2; transition: filter 2.4s ease, opacity 1.6s ease; }
+.kb-real.dev img { filter: none; opacity: 1; }
+.kb-real figcaption { position: absolute; left: 0; right: 0; bottom: 4px; font-family: var(--hand); font-weight: 700; font-size: 1rem; color: #33302b; }
+.kb-overlay:has(.kb-real:not([hidden])) { inset: 4% 10% auto; }
