@@ -54,6 +54,7 @@
     <radialGradient id="domi-patch" cx=".5" cy=".45" r=".55"><stop offset="0" stop-color="#f1c792"/><stop offset=".62" stop-color="#f1ca98" stop-opacity=".95"/><stop offset="1" stop-color="#f4d6ae" stop-opacity="0"/></radialGradient>
     <radialGradient id="domi-cap" cx=".5" cy=".35" r=".6"><stop offset="0" stop-color="#eebd85"/><stop offset=".55" stop-color="#f1c994" stop-opacity=".9"/><stop offset="1" stop-color="#f6dcb8" stop-opacity="0"/></radialGradient>
     <filter id="domi-plush" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="1.7"/></filter>
+    <filter id="domi-plush-u" filterUnits="userSpaceOnUse" x="-300" y="-300" width="600" height="600"><feGaussianBlur stdDeviation="1.7"/></filter>
     <radialGradient id="domi-nose" cx=".4" cy=".3" r=".7"><stop offset="0" stop-color="#f8b6b1"/><stop offset="1" stop-color="#e5867f"/></radialGradient>
   </defs>`;
   const WH = "url(#domi-white)", CR = "url(#domi-cream)", PATCH = "url(#domi-patch)", CAP = "url(#domi-cap)";
@@ -103,35 +104,46 @@
     }
     return s + "Z";
   }
+  // a tail that keeps curving: the control points sway, so the whole tail flows (not a stiff stick)
   const tail = (p0, p1, p2, p3, wb, wm, seed) => {
-    const inner = [p0, p1, p2, p3];
-    return `${P(plume(p0, p1, p2, p3, wb + 1, wm + 2, seed), CR)}
-      ${P(plume(inner[0], inner[1], inner[2], inner[3], wb * 0.4, wm * 0.45, seed + 2), "#f7dfbd", 'opacity=".7"')}`;
+    const data = esc(JSON.stringify({ p: [p0, p1, p2, p3], wb, wm, seed }));
+    return `<path class="anim-tail" data-c="${data}" d="${plume(p0, p1, p2, p3, wb + 1, wm + 2, seed)}" fill="${CR}" filter="url(#domi-plush)"/>
+      <path class="anim-tail sheen" data-c="${data}" d="${plume(p0, p1, p2, p3, wb * 0.4, wm * 0.45, seed + 2)}" fill="#f7dfbd" opacity=".7" filter="url(#domi-plush)"/>`;
   };
+  const esc = (s) => s.replace(/"/g, "&quot;");
+  function swayTail(c, t, amp = 1) {
+    const [p0, p1, p2, p3] = c.p;
+    const w1 = Math.sin(t * 1.5 + c.seed), w2 = Math.sin(t * 1.5 + c.seed - 0.9), w3 = Math.sin(t * 1.5 + c.seed - 1.8);
+    const dx = p3[0] - p0[0], dy = p3[1] - p0[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+    const off = (p, k, w) => [p[0] + nx * k * w * amp, p[1] + ny * k * w * amp];
+    return [p0, off(p1, 3, w1), off(p2, 7, w2), off(p3, 11, w3)];
+  }
 
   // ------------------------------------------------------------ side view of a 5-month-old kitten (faces right): big head, small round body, stubby legs
-  const LEG = "M-10 0 Q-12 14 -10 22 Q-11 30 1 30 Q12 30 10 22 Q12 14 10 0 Z";
-  const leg = (beans, fill = WH) => `${P(LEG, fill)}
-    <ellipse cx="1" cy="27" rx="11.5" ry="6.5" fill="${fill}"/><path d="M-3 25 v4 M2 25 v5 M7 25 v4" stroke="${C.shade}" stroke-width="1.2"/>
-    ${beans ? `<g class="beans"><ellipse cx="1" cy="30" rx="5" ry="3.8" fill="${C.pink}"/><circle cx="-6" cy="25" r="2.2" fill="${C.pink}"/><circle cx="-1" cy="23" r="2.2" fill="${C.pink}"/><circle cx="4" cy="23" r="2.2" fill="${C.pink}"/><circle cx="8.5" cy="25.5" r="2" fill="${C.pink}"/></g>` : ""}`;
+  // legs are drawn every frame from hip to knee to paw, so they bend at the joints
+  const legEl = (name, col, w, beans) => `<g data-p="${name}">
+      <path class="thigh" fill="none" stroke="${col}" stroke-width="${w + 7}" stroke-linecap="round" filter="url(#domi-plush-u)"/>
+      <path class="lg" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" filter="url(#domi-plush-u)"/>
+      <ellipse class="pw" rx="10.5" ry="6.2" fill="${col}" filter="url(#domi-plush-u)"/>
+      <path class="toes" stroke="${C.shade}" stroke-width="1.1" fill="none"/>
+      ${beans ? `<g class="beans"><ellipse class="b0" rx="4.6" ry="3.6" fill="${C.pink}"/><circle class="b1" r="2.1" fill="${C.pink}"/><circle class="b2" r="2.1" fill="${C.pink}"/><circle class="b3" r="2.1" fill="${C.pink}"/></g>` : ""}
+    </g>`;
   const SIDE = `${DEFS}
     <ellipse class="d-shadow" cx="0" cy="3" rx="66" ry="7" fill="#2a1d10" opacity=".13"/>
-    <g data-p="tail" transform="translate(-48 -50)">
-      ${tail([4, 4], [-30, -4], [-46, -46], [-24, -84], 5, 19, 1)}
-    </g>
-    <g data-p="legBF" transform="translate(-28 -26)"><g data-p="legBFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
-    <g data-p="legFF" transform="translate(28 -26)"><g data-p="legFFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
+    <g data-p="tail"><path class="t-main" fill="${CR}" filter="url(#domi-plush-u)"/><path class="t-sheen" fill="#f7dfbd" opacity=".45" filter="url(#domi-plush-u)"/></g>
+    ${legEl("legBF", "#ebe0cf", 13, false)}
+    ${legEl("legFF", "#ebe0cf", 12, false)}
     <g data-p="upper">
       <g data-p="body">
         ${P(fluff(0, -42, 58, 35, 28, 0.13), WH)}${wisps(0, -42, 58, 35, 34, "#efe4d4", 3, 0.2, 3.0, 12)}
         ${P(fluff(-8, -62, 40, 15, 20, 0.2, -0.05), PATCH)}
+        ${P(fluff(-30, -36, 24, 22, 14, 0.2), WH)}
         ${P(fluff(-36, -46, 17, 19, 12, 0.22), PATCH)}
         ${strands(-8, -60, 34, 10, 9, C.creamDk, 7)}
         ${strands(0, -30, 44, 12, 10, "#e3d6c4", 11)}
         ${P(fluff(38, -42, 26, 32, 16, 0.2), WH)}${wisps(38, -42, 26, 32, 22, "#efe4d4", 14, -1.2, 2.4, 12)}
         ${strands(36, -40, 14, 20, 7, "#e3d6c4", 5)}
       </g>
-      <g data-p="legBN" transform="translate(-24 -24)"><g data-p="legBNi">${P(fluff(-2, 6, 22, 19, 14, 0.22), WH)}${wisps(-2, 6, 22, 19, 16, "#efe4d4", 15, 0.2, 2.9, 10)}${leg(false)}</g></g>
       <g data-p="head" transform="translate(50 -62)">
         <g data-p="headi">
           ${P("M-12 -50 L-10 -100 L22 -70 Z", CR)}${P("M-6 -56 L-6 -88 L14 -70 Z", C.pink)}${earTufts(-2, -66, -1.9)}
@@ -154,8 +166,9 @@
           <path d="M12 -14 L-16 -18 M12 -11 L-15 -8 M13 -8 L-12 1 M46 -14 L76 -18 M46 -11 L75 -8 M45 -8 L72 1" stroke="${C.whisker}" stroke-width=".8" opacity=".8"/>
         </g>
       </g>
-      <g data-p="legFN" transform="translate(36 -26)"><g data-p="legFNi">${leg(true)}</g></g>
-    </g>`;
+    </g>
+    ${legEl("legBN", "#fbf6ee", 15, false)}
+    ${legEl("legFN", "#fbf6ee", 13, true)}`;
 
   function rig(parent) {
     const g = document.createElementNS(NS, "g");
@@ -164,27 +177,79 @@
     parent.appendChild(g);
     const q = (n) => g.querySelector(`[data-p="${n}"]`);
     const parts = {};
-    ["tail", "legBFi", "legFFi", "upper", "legBNi", "legFNi", "head", "headi", "open", "closed", "pupils", "body"].forEach((n) => (parts[n] = q(n)));
-    parts.beans = g.querySelector(".beans");
+    ["tail", "upper", "head", "headi", "open", "closed", "pupils", "body"].forEach((n) => (parts[n] = q(n)));
+    const legs = {
+      legBF: { hip: [-30, -28], off: Math.PI, back: true }, legFF: { hip: [26, -28], off: 0 },
+      legBN: { hip: [-24, -26], off: 0, back: true }, legFN: { hip: [34, -28], off: Math.PI, swat: true },
+    };
+    Object.keys(legs).forEach((k) => {
+      const el = q(k), L = legs[k];
+      L.el = el; L.thigh = el.querySelector(".thigh"); L.lg = el.querySelector(".lg"); L.pw = el.querySelector(".pw"); L.toes = el.querySelector(".toes");
+      L.beans = el.querySelector(".beans"); if (L.beans) L.b = [...L.beans.children];
+    });
+    const tMain = parts.tail.querySelector(".t-main"), tSheen = parts.tail.querySelector(".t-sheen");
     const st = { x: 0, y: 0, s: 1, flip: false, phase: 0, speed: 0, swat: 0, crouch: 0, pet: 0, sleep: 0, blink: 0, lookX: 0, lookY: 0, tilt: 0, wag: 0, t: 0 };
+    const L1 = 17, L2 = 17;
+    function ik(H, P) {
+      let dx = P[0] - H[0], dy = P[1] - H[1], dd = Math.hypot(dx, dy) || 1;
+      const max = L1 + L2 - 0.5;
+      if (dd > max) { P = [H[0] + dx / dd * max, H[1] + dy / dd * max]; dx = P[0] - H[0]; dy = P[1] - H[1]; dd = max; }
+      const ux = dx / dd, uy = dy / dd, a = (L1 * L1 - L2 * L2 + dd * dd) / (2 * dd), h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+      return { K: [H[0] + ux * a - uy * h, H[1] + uy * a + ux * h], P };
+    }
     function apply() {
-      const { phase, speed, swat, crouch, pet, sleep } = st;
+      const { phase, speed, swat, crouch, pet, sleep, t } = st;
       g.setAttribute("transform", `translate(${r1(st.x)} ${r1(st.y)}) scale(${r1(st.flip ? -st.s * 100 : st.s * 100) / 100} ${r1(st.s * 100) / 100})`);
-      const sw = (o) => Math.sin(phase + o) * 24 * speed;
-      const legK = 1 - 0.35 * crouch - 0.85 * sleep;
-      const legT = (deg) => `rotate(${r1(deg)}) scale(1 ${r1(legK * 100) / 100})`;
-      parts.legBFi.setAttribute("transform", legT(sw(Math.PI)));
-      parts.legFFi.setAttribute("transform", legT(sw(0)));
-      parts.legBNi.setAttribute("transform", legT(sw(0)));
-      parts.legFNi.setAttribute("transform", `rotate(${r1(sw(Math.PI) * (1 - swat) - 115 * swat)}) scale(1 ${r1(lerp(legK, 1, swat) * 100) / 100})`);
-      const bob = -Math.abs(Math.sin(phase)) * 3 * speed + 10 * crouch + 18 * sleep - 4 * swat;
-      const wiggle = crouch * Math.sin(st.t * 22) * 2;
-      parts.upper.setAttribute("transform", `translate(${r1(wiggle)} ${r1(bob)}) rotate(${r1(-6 * swat + 4 * crouch)})`);
-      const purr = pet > 0.5 && !reduce ? Math.sin(st.t * 40) * 0.6 : 0;
-      parts.head.setAttribute("transform", `translate(${r1(50 - 4 * sleep)} ${r1(-62 + 14 * sleep + 4 * crouch + purr)}) rotate(${r1(st.tilt + 10 * pet + 16 * sleep - 10 * swat)})`);
-      const wagA = reduce ? 0 : Math.sin(st.t * (2 + 6 * st.wag)) * (6 + 16 * st.wag);
-      parts.tail.setAttribute("transform", `translate(-48 ${r1(-50 + 16 * sleep)}) rotate(${r1(wagA + 40 * sleep - 10 * crouch)})`);
-      if (parts.beans) parts.beans.setAttribute("opacity", swat > 0.3 ? 1 : 0);
+      // body: a soft bounce in step, low when crouching, flat when asleep
+      const bob = -7 - Math.abs(Math.sin(phase)) * 2.5 * speed + 12 * crouch + 22 * sleep - 3 * swat;
+      const wiggle = crouch * Math.sin(t * 22) * 2;
+      const lean = -5 * swat + 3 * crouch;
+      parts.upper.setAttribute("transform", `translate(${r1(wiggle)} ${r1(bob)}) rotate(${r1(lean)})`);
+      const purr = pet > 0.5 && !reduce ? Math.sin(t * 40) * 0.6 : 0;
+      const nod = Math.sin(phase * 2) * 1.5 * speed;
+      parts.head.setAttribute("transform", `translate(${r1(50 - 4 * sleep)} ${r1(-62 + 14 * sleep + 4 * crouch + purr + nod)}) rotate(${r1(st.tilt + 10 * pet + 16 * sleep - 10 * swat)})`);
+      // legs: each paw steps in a little arc; the knee finds its own bend
+      for (const k in legs) {
+        const Lg = legs[k];
+        const H = [Lg.hip[0] + wiggle, Lg.hip[1] + bob];
+        const c = phase + Lg.off;
+        let P = [Lg.hip[0] + (Lg.back ? 4 : 2) + Math.cos(c) * 11 * speed, -4 - Math.max(0, Math.sin(c)) * 8 * speed];
+        if (sleep > 0) P = [lerp(P[0], Lg.hip[0] + (Lg.back ? 10 : 14), sleep), lerp(P[1], -4, sleep)];
+        if (Lg.swat && swat > 0) {
+          const reach = [Lg.hip[0] + 20 + Math.sin(t * 9) * 3 * swat, Lg.hip[1] + bob - 24];
+          P = [lerp(P[0], reach[0], swat), lerp(P[1], reach[1], swat)];
+        }
+        const { K, P: Pp } = ik(H, P);
+        const cx = 2 * K[0] - (H[0] + Pp[0]) / 2, cy = 2 * K[1] - (H[1] + Pp[1]) / 2;
+        Lg.lg.setAttribute("d", `M${r1(H[0])} ${r1(H[1])} Q${r1(cx)} ${r1(cy)} ${r1(Pp[0])} ${r1(Pp[1])}`);
+        Lg.thigh.setAttribute("d", `M${r1(H[0])} ${r1(H[1] - 2)} L${r1((H[0] + K[0]) / 2)} ${r1((H[1] + K[1]) / 2)}`);
+        const ang = Lg.swat ? -60 * swat : 0;
+        Lg.pw.setAttribute("cx", r1(Pp[0] + 2)); Lg.pw.setAttribute("cy", r1(Pp[1] + 1));
+        Lg.pw.setAttribute("transform", `rotate(${r1(ang)} ${r1(Pp[0] + 2)} ${r1(Pp[1] + 1)})`);
+        Lg.toes.setAttribute("d", `M${r1(Pp[0] - 3)} ${r1(Pp[1] - 1)} v4 M${r1(Pp[0] + 2)} ${r1(Pp[1] - 1)} v5 M${r1(Pp[0] + 7)} ${r1(Pp[1] - 1)} v4`);
+        Lg.toes.setAttribute("opacity", Lg.swat && swat > 0.3 ? 0 : 1);
+        if (Lg.beans) {
+          const bx = Pp[0] + 2, by = Pp[1] + 1;
+          Lg.beans.setAttribute("opacity", swat > 0.3 ? 1 : 0);
+          Lg.beans.setAttribute("transform", `rotate(${r1(ang)} ${r1(bx)} ${r1(by)})`);
+          const spots = [[0, 3], [-6, -2], [0, -4], [6, -2]];
+          Lg.b.forEach((el, i) => { el.setAttribute(i ? "cx" : "cx", r1(bx + spots[i][0])); el.setAttribute("cy", r1(by + spots[i][1])); });
+        }
+        Lg.el.setAttribute("opacity", Lg.back || !k.endsWith("F") ? 1 : 1 - sleep);
+      }
+      // the tail flows: its curve sways like a ribbon, wraps round her when she sleeps
+      const w = reduce ? 0 : st.wag, base = [-46 + wiggle, -48 + bob];
+      const sp = 1.6 + 3 * w, A = reduce ? 0 : 1;
+      let c1 = [-38 + 4 * Math.sin(t * sp) * A, 8 + 3 * Math.sin(t * 1.1) * A];
+      let c2 = [-74 + (6 + 8 * w) * Math.sin(t * sp - 0.8) * A, -46 + 5 * Math.sin(t * 1.3 + 0.5) * A];
+      let c3 = [-34 + (12 + 16 * w) * Math.sin(t * sp - 1.6) * A, -88 + 6 * Math.cos(t * 1.4) * A];
+      const mix = (p, q2, k) => [lerp(p[0], q2[0], k), lerp(p[1], q2[1], k)];
+      c1 = mix(c1, [-26, 8], sleep); c2 = mix(c2, [-6, 18], sleep); c3 = mix(c3, [34, 14], sleep);
+      c1 = mix(c1, [-30, -2], crouch * 0.6); c2 = mix(c2, [-56, -10], crouch * 0.6); c3 = mix(c3, [-80, -14 + 4 * Math.sin(t * 9)], crouch * 0.6);
+      const T = (p) => [p[0] + base[0], p[1] + base[1]];
+      const P0 = T([2, 2]), P1 = T(c1), P2 = T(c2), P3 = T(c3);
+      tMain.setAttribute("d", plume(P0, P1, P2, P3, 6, 15, 1));
+      tSheen.setAttribute("d", plume(P0, P1, P2, P3, 1.6, 5, 3));
       const closed = Math.max(pet, sleep, st.blink);
       parts.open.setAttribute("opacity", closed > 0.5 ? 0 : 1);
       parts.closed.setAttribute("opacity", closed > 0.5 ? 1 : 0);
@@ -378,6 +443,20 @@
     if (md) md.innerHTML = stand();
     const sl = document.getElementById("sleepy");
     if (sl) sl.innerHTML = `<svg viewBox="0 0 420 540" role="img" aria-label="Drawing of Shiqi and Domi asleep">${sleepy()}</svg>`;
+
+    // static Domis' tails sway too
+    if (!reduce) (function sway(now) {
+      requestAnimationFrame(sway);
+      const t = now / 1000;
+      document.querySelectorAll(".anim-tail").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) return;
+        const c = el._c || (el._c = JSON.parse(el.dataset.c));
+        const [a, b2, c2, d2] = swayTail(c, t);
+        const sheen = el.classList.contains("sheen");
+        el.setAttribute("d", plume(a, b2, c2, d2, sheen ? c.wb * 0.4 : c.wb + 1, sheen ? c.wm * 0.45 : c.wm + 2, c.seed + (sheen ? 2 : 0)));
+      });
+    })(0);
 
     // the photos at the end develop like instant film when they scroll into view
     const io = new IntersectionObserver((ens) => ens.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("dev"); io.unobserve(en.target); } }), { threshold: 0.45 });
