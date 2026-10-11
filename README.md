@@ -3,6 +3,7 @@
 A handmade, scrapbook-style portfolio starring Domi, my cream-and-white British longhair. Plain HTML, CSS and JavaScript, no build step.
 
 - **The yarn cursor**: your pointer is a little ball of yarn, and a tiny Domi trots along the bottom of the screen chasing it. Rub her to pet her (she purrs), click her to say hi, leave her alone and she naps. The 🐾 button in the header sends her away or calls her back.
+- **Feed Domi**: a mini game in the hero, set in Domi's real corner (bamboo shelf, cans, the Domi mat, her talking buttons). A Kibble-O-Matic sprays kibble and you catch it in her bowl for 30 seconds; the score is written on the shelf. Code in `game.js`.
 - **Pull the yarn**: the screen becomes a knitted sweater. Domi bats the loose strand hanging from the top button, pulls it, and the sweater unravels to show the robot parts knitted inside.
 - **Domi is real**: every drawing of Domi is based on a real photo (the washing-machine porthole, the toilet inspection, the blinds cord, our naps). The end of the page reveals the photos, which develop like instant film.
 

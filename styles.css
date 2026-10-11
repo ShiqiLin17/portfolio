@@ -1287,3 +1287,23 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .reveal-end { font-family: var(--hand); font-weight: 700; font-size: 1.8rem; color: var(--yarn); margin-top: 40px; }
 @media (max-width: 760px) { .gallery-domi { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { .polaroid img { transition: none; } }
+
+/* ---------- Feed Domi: the kibble game in the hero ---------- */
+.hero-side { display: block; }
+.kibble { position: relative; }
+.kb-stage { position: relative; width: 100%; aspect-ratio: 1 / 1.05; max-height: 72svh; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 34px rgba(40,55,48,.18), 0 0 0 8px #fffdf8; transform: rotate(1deg); touch-action: pan-y; outline: none; }
+.kb-stage.playing { touch-action: none; cursor: none; }
+.kb-stage:focus-visible { box-shadow: 0 0 0 8px #fffdf8, 0 0 0 11px var(--yarn); }
+#kb-canvas { display: block; width: 100%; height: 100%; }
+.kb-domi { position: absolute; left: 2%; bottom: 4px; width: 22%; pointer-events: none; }
+.kb-domi svg { width: 100%; display: block; overflow: visible; }
+.kb-domi .df-closed { opacity: 0; }
+.kb-overlay { position: absolute; inset: 18% 12% auto; background: rgba(255,253,248,.95); border-radius: 12px; padding: 18px 20px 16px; text-align: center; box-shadow: 0 10px 26px rgba(0,0,0,.18); }
+.kb-overlay[hidden] { display: none; }
+.kb-title { font-family: var(--hand); font-weight: 700; font-size: 2.2rem; line-height: 1; margin: 0 0 6px; color: var(--yarn); }
+.kb-text { margin: 0 0 12px; font-size: .95rem; }
+.kb-start { border: 0; border-radius: 999px; padding: 10px 22px; font-weight: 700; background: var(--yarn); color: #fff; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 color-mix(in srgb, var(--yarn) 60%, #000); }
+.kb-start:hover { transform: translateY(-1px); }
+.kb-best { font-family: var(--hand); font-weight: 700; font-size: 1.2rem; margin: 8px 0 0; color: var(--muted); }
+.kb-cap { font-family: var(--hand); font-weight: 700; font-size: 1.3rem; color: var(--muted); margin: 16px 0 0; transform: rotate(-1deg); }
+@media (max-width: 760px) { .kb-stage { aspect-ratio: 1 / 1.12; } .kb-overlay { inset: 12% 6% auto; } }
