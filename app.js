@@ -1,6 +1,7 @@
-// The movie: scroll drives a camera and a drone through eight scenes.
-// Content lives in data.js; the 3D world is built in world.js.
-import { createWorld } from "./world.js";
+// The storybook: scroll opens a book, steps into its painted pages, and back out.
+// Content lives in data.js; the paintings are in scenes.js and art.js.
+import { SCENES, NARRATION } from "./scenes.js";
+import { DEFS, DRONE } from "./art.js";
 import { projects, experience, CERTS, HONORS, SKILLS, LANGUAGES, BUILDS, HOBBIES, CONTACT, ME_PHOTOS } from "./data.js";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -195,16 +196,19 @@ $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
   setTimeout(() => (b.textContent = "Copy email"), 2200);
 }));
 
-// ---------------------------------------------------------------- the movie
+// ---------------------------------------------------------------- the storybook
 const sections = $$(".scene");
-const canvas = $("#world");
-const mobile = !finePointer || Math.min(innerWidth, innerHeight) < 700;
+const mobileish = !finePointer || Math.min(innerWidth, innerHeight) < 700;
+const STILL = new URLSearchParams(location.search).has("still");
 
-// Opening overlays and buttons work with or without 3D.
-const openLetter = (opener) => { focusOn("letter"); setTimeout(() => openDialog($("#letterDlg"), opener), reduceMotion ? 0 : 650); };
-const openBook = (opener) => { pullBook(); setTimeout(() => openDialog($("#bookDlg"), opener), reduceMotion ? 0 : 700); };
+// narration text on each chapter card
+$$(".scene").forEach((sec, i) => { const n = $(".narr", sec); if (n) n.textContent = NARRATION[i]; });
+
+// buttons that work everywhere
+const openLetter = (opener) => openDialog($("#letterDlg"), opener);
+const openBook = (opener) => { $(".expbook")?.classList.add("pulled"); setTimeout(() => openDialog($("#bookDlg"), opener), reduceMotion ? 0 : 450); };
 const openTools = (opener) => openDialog($("#toolsDlg"), opener);
-const openPhotos = (opener) => { focusOn("laptop"); setTimeout(() => openDialog($("#photosDlg"), opener), reduceMotion ? 0 : 650); };
+const openPhotos = (opener) => openDialog($("#photosDlg"), opener);
 $("#btn-letter").addEventListener("click", (e) => openLetter(e.currentTarget));
 $("#btn-book").addEventListener("click", (e) => openBook(e.currentTarget));
 $("#btn-tools").addEventListener("click", (e) => openTools(e.currentTarget));
@@ -212,636 +216,293 @@ $("#btn-certs").addEventListener("click", (e) => openDialog($("#certsDlg"), e.cu
 $("#btn-photos").addEventListener("click", (e) => openPhotos(e.currentTarget));
 $("#btn-apart").addEventListener("click", () => setApart(true));
 $("#btn-build").addEventListener("click", () => setApart(false));
+function releaseFocus() { $(".expbook")?.classList.remove("pulled"); }
 
-// scene nav
-const NAMES = ["Home", "Headlines", "Letter", "Experience", "Workshop", "Honors", "Hobbies", "Contact"];
-const READY = [0, 0.88, 0.85, 0.5, 0.45, 0.45, 0.65, 0.6];
+// chapter nav
+const NAMES = ["Once upon a time", "Byte flies to the city", "A letter", "The experience book", "The workshop", "Honors", "Off the clock", "The end"];
+const READY = [0.5, 0.86, 0.9, 0.6, 0.5, 0.5, 0.7, 0.45];
 $("#scene-nav").innerHTML = NAMES.map((n, i) => `<li><button type="button" data-go="${i}" aria-label="Go to ${n}"><span>${n}</span></button></li>`).join("");
 $$("#scene-nav button").forEach((b) => b.addEventListener("click", () => {
   const i = +b.dataset.go, s = sections[i];
-  const y = s.offsetTop + (s.offsetHeight - innerHeight) * READY[i];
+  const y = i === 0 && b.closest("[data-goto]") ? 0 : s.offsetTop + (s.offsetHeight - innerHeight) * READY[i];
   window.scrollTo({ top: y, behavior: reduceMotion ? "auto" : "smooth" });
 }));
-$$("[data-goto]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); $(`#scene-nav [data-go="${a.dataset.goto}"]`).click(); }));
+$$("[data-goto]").forEach((a) => a.addEventListener("click", (e) => {
+  e.preventDefault();
+  const i = +a.dataset.goto;
+  if (i === 0) window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  else $(`#scene-nav [data-go="${i}"]`).click();
+}));
 
-function focusOn() {}
-function releaseFocus() {}
-function pullBook() {}
-function setApart() {}
-
-let W;
-(async () => {
-  try {
-    const { createWorld } = await import("./world.js");
-    W = await createWorld(canvas, {
-      mobile,
-      onProgress: (p, msg) => { $("#loader-bar") && ($("#loader-bar").style.width = Math.round(p * 100) + "%"); $("#loader-msg") && ($("#loader-msg").textContent = msg); },
-    });
-  } catch (e) {
-    console.warn("3D unavailable, showing the flat version", e);
-    document.documentElement.classList.add("flat");
-    $("#loader")?.remove();
-    return;
-  }
-  if (new URLSearchParams(location.search).has("still")) window.__W = W;
-  runMovie();
-})();
-
-// ================================================================= 3D
-function runMovie() {
-  const { THREE, camera, drone, objects: O, fromLocal, fromFrame } = W;
-  const PI = Math.PI;
-  drone.rotation.order = "YXZ";
-
-  // ---------- one continuous path for the whole movie.
-  // Global time s = scene index + progress in that scene. Every track is a C1 Hermite spline in s,
-  // so the camera never jerks between scenes; it only comes to rest where you're meant to click.
-  // L = house-local coords (x right, y up, z out the front door), F = Manhattan grid (a east, y, n north).
-  const L = (x, y, z) => fromLocal(x, y, z);
-  const F = (a, y, n) => fromFrame(a, y, n);
-  const toward = [380, 30, 660]; // house-local direction toward Midtown
-  const CAM = [
-    // 0 · the foyer
-    [0.0, L(1.6, 2.1, 9.4), L(-1.0, 3.2, 4.2)],
-    [0.95, L(1.3, 2.5, 8.4), L(-0.6, 3.3, 4.2)],
-    // 1 · orbit the drone, become the drone, out the arched window, over the East River to Central Park
-    [1.12, L(3.8, 3.0, 5.8), L(0, 3.4, 4.2)],
-    [1.22, L(3.0, 3.7, 1.6), L(0, 3.6, 4.4)],
-    [1.3, L(0.2, 3.95, 1.0), L(0, 4.4, 10)],
-    [1.37, L(0.8, 4.7, 3.9), L(1.2, 6.3, 14)],
-    [1.76, F(-400, 100, 1250), F(-385, 140, -140)],
-    [1.81, F(-416.4, 97.2, 1265.6), F(-382, 150, -140)],
-    [1.99, F(-417.6, 97.7, 1267.6), F(-382, 152, -140)],
-    // 2 · back home over the Queensboro Bridge, mailbox, front door, up the stairs, to the desk
-    [2.03, F(-405, 100, 1262), F(-250, 95, 1100)],
-    [2.4, L(25, 5.5, 34.6), L(4, 2, 30)],
-    [2.44, L(10, 4, 42), L(4.2, 1.5, 27.5)],
-    [2.48, L(8, 3.2, 36), L(1.6, 1.7, 26)],
-    [2.52, L(3.6, 2.8, 31), L(0.5, 2.2, 18)],
-    [2.555, L(0, 2.6, 18.5), L(0, 2.3, 8)],
-    [2.59, L(0, 2.4, 11.6), L(0, 2.6, 2)],
-    [2.63, L(0, 2.8, 4.6), L(0, 3.8, -3)],
-    [2.665, L(0, 4.4, -1.6), L(0, 6.4, -8)],
-    [2.7, L(0, 6.6, -7.3), L(-6, 6.6, -8.4)],
-    [2.745, L(-4.4, 7.0, -8.1), L(-9, 7, -5.5)],
-    [2.79, L(-9.0, 7.9, 1.6), L(-9.1, 6.2, 7)],
-    [2.84, L(-8.3, 7.15, 5.05), L(-9.0, 5.95, 7.05)],
-    [3.0, L(-8.3, 7.15, 5.05), L(-9.0, 5.95, 7.05)],
-    // 3 · the library
-    [3.14, L(-9.0, 7.5, 3.2), L(-12, 7.0, 2.4)],
-    [3.3, L(-9.2, 7.6, 1.4), L(-13.4, 7.4, 0.4)],
-    [4.0, L(-9.25, 7.6, 1.35), L(-13.4, 7.4, 0.4)],
-    // 4 · the workshop corner
-    [4.3, L(-10.3, 7.9, -2.7), L(-10.3, 6.45, -9.4)],
-    [5.0, L(-10.3, 7.9, -2.8), L(-10.3, 6.45, -9.4)],
-    // 5 · the wall of frames
-    [5.3, L(-11.0, 7.6, -1.2), L(-5.2, 7.5, -1.2)],
-    [6.0, L(-10.9, 7.6, -0.8), L(-5.2, 7.5, -0.8)],
-    // 6 · across the landing to the bedroom
-    [6.12, L(-6.6, 7.0, -6.6), L(0, 7, -8.6)],
-    [6.22, L(0, 7.0, -8.4), L(6, 7, -8.0)],
-    [6.32, L(6.4, 7.2, -7.0), L(10, 6.5, 0)],
-    [6.45, L(9.0, 7.7, -1.2), L(12.0, 6.3, 0.6)],
-    [6.56, L(13.0, 7.75, 2.2), L(11.5, 6.0, 0.3)],
-    [7.0, L(13.0, 7.75, 2.2), L(11.5, 6.0, 0.3)],
-    // 7 · out the bedroom window; the skyline behind the hologram
-    [7.15, L(9.5, 7.4, 3.5), L(9.5, 7.5, 10)],
-    [7.3, L(9.5, 7.6, 7.6), L(9.5, 7.8, 16)],
-    [7.4, L(9.3, 9.2, 12.0), L(9, 12, 30)],
-    [7.55, L(8, 21, 15), L(...toward)],
-    [8.0, L(8, 21.3, 15.4), L(...toward)],
-  ];
-  const DRONE = [
-    [0.0, L(0, 3.4, 4.2), -PI / 2],
-    [0.95, L(0, 3.45, 4.2), -PI / 2 + 0.25],
-    [1.12, L(0, 3.45, 4.1), -PI / 2 + 0.1],
-    [1.22, L(0, 3.5, 4.0), -PI / 2],
-    [1.3, L(0, 3.75, 2.6), -PI / 2],
-    [1.37, L(0.9, 5.0, 5.4), -PI / 2],
-    [1.43, L(1.25, 7.4, 9.4), -PI / 2],
-    [1.47, L(1.3, 10, 16), -PI / 2],
-    [1.51, L(2, 32, 62), -PI / 2],
-    [1.56, F(2700, 110, 1460), -PI / 2],
-    [1.61, F(1900, 150, 1320), -PI / 2],
-    [1.655, F(1000, 165, 1220), -PI / 2],
-    [1.7, F(150, 150, 1170), -PI / 2],
-    [1.745, F(-370, 108, 1235), -0.4],
-    [1.79, F(-414, 96, 1262), 0],
-    [1.99, F(-415, 96.6, 1263.5), 0],
-    [2.04, F(-300, 108, 1140), PI * 0.6],
-    [2.09, F(100, 175, 720), PI * 0.62],
-    [2.135, F(650, 185, 250), PI * 0.62],
-    [2.175, F(1120, 120, -25), PI * 0.56],
-    [2.21, F(1500, 62, -33), PI * 0.53],
-    [2.25, F(2200, 62, 26), PI * 0.53],
-    [2.29, F(2950, 64, 92), PI * 0.6],
-    [2.33, F(3230, 58, 640), PI],
-    [2.365, L(330, 30, 36), PI / 2 + PI / 2],
-    [2.39, L(110, 12, 35), PI],
-    [2.415, L(25, 4, 32), PI],
-    [2.44, L(4.2, 2.3, 27.5), PI / 2],
-    [2.46, L(4.2, 2.1, 27.5), PI / 2],
-    [2.48, L(1.5, 2.2, 24), PI / 2],
-    [2.52, L(0, 2.2, 13), PI / 2],
-    [2.555, L(0, 2.3, 7.5), PI / 2],
-    [2.59, L(0, 2.8, 0.6), PI / 2],
-    [2.63, L(0, 5.2, -5), PI / 2],
-    [2.665, L(-2.8, 6.7, -8.6), PI],
-    [2.7, L(-7.6, 7.1, -7.4), PI],
-    [2.745, L(-8.4, 7.6, 3.8), PI * 1.5],
-    [2.79, L(-10.9, 7.0, 7.9), PI * 1.65],
-    [3.0, L(-10.9, 7.0, 7.9), PI * 1.65],
-    [3.3, L(-11.2, 8.3, 2.2), PI],
-    [4.0, L(-11.2, 8.3, 2.2), PI],
-    [4.3, L(-7.9, 9.2, -6.6), PI / 2],
-    [5.0, L(-7.9, 9.2, -6.6), PI / 2],
-    [5.3, L(-7.4, 9.4, 3.2), 0],
-    [5.95, L(-7.4, 9.4, 3.2), 0],
-    [6.06, L(-6.4, 7.6, -8.0), PI / 4],
-    [6.13, L(-3.6, 7.2, -8.2), 0],
-    [6.22, L(3, 7.1, -8.2), 0],
-    [6.32, L(8, 7.3, -4), -PI / 2],
-    [6.45, L(9.6, 7.6, -0.6), -PI / 2],
-    [6.56, L(10.6, 8.3, 2.6), -PI],
-    [7.0, L(10.6, 8.3, 2.6), -PI],
-    [7.15, L(9.5, 7.5, 6.4), -PI / 2],
-    [7.28, L(9.5, 7.7, 11.6), -PI / 2],
-    [7.4, L(9.8, 12, 16.5), -PI / 2 + 0.3],
-    [7.55, L(10.25, 19.75, 18.9), -PI / 2 + 0.52],
-    [8.0, L(10.25, 19.8, 18.95), -PI / 2 + 0.52],
-  ];
-  // yaws are world headings (0 = grid south; the house's front door faces -PI/2).
-  // Unwrap so the drone always turns the short way.
-  for (let i = 1; i < DRONE.length; i++) {
-    let y = DRONE[i][2];
-    while (y - DRONE[i - 1][2] > PI) y -= 2 * PI;
-    while (y - DRONE[i - 1][2] < -PI) y += 2 * PI;
-    DRONE[i][2] = y;
-  }
-
-  function hermiteTrack(keys) {
-    // keys: [[s, number[]], ...]
-    const n = keys.length, dim = keys[0][1].length;
-    const s = keys.map((k) => k[0]), v = keys.map((k) => k[1]);
-    const m = keys.map(() => new Array(dim).fill(0));
-    const len = (a, b) => Math.sqrt(a.reduce((acc, x, i) => acc + (x - b[i]) ** 2, 0));
-    for (let i = 1; i < n - 1; i++) {
-      const ds = s[i + 1] - s[i - 1];
-      for (let d = 0; d < dim; d++) m[i][d] = (v[i + 1][d] - v[i - 1][d]) / ds;
-      // keep it from overshooting: cap the speed by what each neighboring segment can carry
-      const mag = Math.sqrt(m[i].reduce((a, x) => a + x * x, 0));
-      if (mag > 0) {
-        const cap = Math.min(2.4 * len(v[i], v[i - 1]) / (s[i] - s[i - 1]), 2.4 * len(v[i + 1], v[i]) / (s[i + 1] - s[i]));
-        if (mag > cap) m[i] = m[i].map((x) => (x * cap) / mag);
-      }
-    }
-    const out = new Array(dim);
-    return (t) => {
-      if (t <= s[0]) return v[0].slice();
-      if (t >= s[n - 1]) return v[n - 1].slice();
-      let i = 0;
-      while (i < n - 2 && t > s[i + 1]) i++;
-      const h = s[i + 1] - s[i], u = (t - s[i]) / h, u2 = u * u, u3 = u2 * u;
-      const h00 = 2 * u3 - 3 * u2 + 1, h10 = u3 - 2 * u2 + u, h01 = -2 * u3 + 3 * u2, h11 = u3 - u2;
-      for (let d = 0; d < dim; d++) out[d] = h00 * v[i][d] + h10 * h * m[i][d] + h01 * v[i + 1][d] + h11 * h * m[i + 1][d];
-      return out.slice();
-    };
-  }
-  const camPosT = hermiteTrack(CAM.map((k) => [k[0], k[1]]));
-  const camLookT = hermiteTrack(CAM.map((k) => [k[0], k[2]]));
-  const dronePosT = hermiteTrack(DRONE.map((k) => [k[0], k[1]]));
-  const droneYawT = hermiteTrack(DRONE.map((k) => [k[0], [k[2]]]));
-  const V3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
-  const smooth01 = (t) => { t = clamp01(t); return t * t * t * (t * (t * 6 - 15) + 10); };
-  const band = (s, a0, a1, b0, b1) => smooth01((s - a0) / (a1 - a0)) * (1 - smooth01((s - b0) / (b1 - b0)));
-  function droneDir(s) {
-    const a = V3(dronePosT(s - 0.004)), b = V3(dronePosT(s + 0.004));
-    const d = b.sub(a);
-    return d.lengthSq() < 1e-8 ? null : d.normalize();
-  }
-  const wrapPI = (x) => Math.atan2(Math.sin(x), Math.cos(x));
-
-  // ---------- scroll position → scene + local progress
-  let sceneI = 0, sceneU = 0;
-  function readScroll() {
-    const y = window.scrollY;
-    let i = 0;
-    for (let k = 0; k < sections.length; k++) if (y >= sections[k].offsetTop - 2) i = k;
-    const s = sections[i];
-    const len = Math.max(1, s.offsetHeight - innerHeight);
-    sceneI = i;
-    sceneU = clamp01((y - s.offsetTop) / len);
-  }
-  let smoothS = 0;
-  const STILL = new URLSearchParams(location.search).has("still");
-
-  // ---------- textures drawn in 2D
-  function drawLetter() {
-    const c = O.letterCanvas, g = c.getContext("2d"), w = c.width, h = c.height;
-    g.fillStyle = "#fbf6ea"; g.fillRect(0, 0, w, h);
-    g.strokeStyle = "rgba(85,124,159,.28)"; g.lineWidth = 2;
-    for (let y = 120; y < h - 30; y += 38) { g.beginPath(); g.moveTo(30, y); g.lineTo(w - 30, y); g.stroke(); }
-    g.strokeStyle = "rgba(198,70,60,.35)"; g.beginPath(); g.moveTo(70, 0); g.lineTo(70, h); g.stroke();
-    g.fillStyle = "#24304a"; g.font = "700 46px Caveat, cursive"; g.fillText("Dear reader,", 90, 105);
-    g.font = "34px Caveat, cursive";
-    const lines = ["I'm a Computer Engineering student", "at Boston University, passionate", "about AI, robotics, and building", "things that make life easier,", "smarter, or more fun…"];
-    lines.forEach((l, i) => g.fillText(l, 90, 152 + i * 38));
-    g.strokeStyle = "#24304a"; g.lineWidth = 2.5; g.beginPath(); g.moveTo(330, 334); g.quadraticCurveTo(360, 320, 390, 336); g.stroke();
-    g.font = "26px Caveat, cursive"; g.fillStyle = "rgba(79,138,116,.9)"; g.fillText("(click to read the rest ♡)", 120, h - 60);
-    O.letterTex.needsUpdate = true;
-  }
-  function drawScreen() {
-    const c = O.screenCanvas, g = c.getContext("2d"), w = c.width, h = c.height;
-    g.fillStyle = "#f4f2ee"; g.fillRect(0, 0, w, h);
-    g.fillStyle = "#e7e3dc"; g.fillRect(0, 0, 150, h);
-    g.fillStyle = "#e9e6e1"; g.fillRect(0, 0, w, 34);
-    ["#ff5f57", "#febc2e", "#28c840"].forEach((col, i) => { g.fillStyle = col; g.beginPath(); g.arc(18 + i * 18, 17, 6, 0, 7); g.fill(); });
-    g.fillStyle = "#333"; g.font = "600 15px system-ui, sans-serif"; g.fillText("Photos", w / 2 - 22, 22);
-    g.font = "13px system-ui, sans-serif"; g.fillStyle = "#555";
-    ["Library", "Memories", "Hobbies", "Robotics", "NYC"].forEach((t, i) => g.fillText(t, 18, 64 + i * 26));
-    HOBBIES.forEach((hb, i) => {
-      const col = i % 4, row = Math.floor(i / 4);
-      const x = 166 + col * 116, y = 50 + row * 150;
-      g.fillStyle = hb.tone; g.fillRect(x, y, 106, 106);
-      g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.moveTo(x + 45, y + 38); g.lineTo(x + 66, y + 53); g.lineTo(x + 45, y + 68); g.fill();
-      g.fillStyle = "#333"; g.font = "12px system-ui, sans-serif"; g.fillText(hb.title, x, y + 124);
-    });
-    O.screenTex.needsUpdate = true;
-  }
-  function wrap(g, text, x, y, maxW, lh) {
-    const words = text.split(" ");
-    let line = "", lines = [];
-    words.forEach((w) => { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; });
-    if (line) lines.push(line);
-    lines.forEach((l, i) => g.fillText(l, x, y + i * lh));
-    return lines.length;
-  }
-  function drawCerts() {
-    ALL_CERTS.forEach((cert, i) => {
-      const f = O.certFrames[i];
-      if (!f) return;
-      const c = f.userData.canvas, g = c.getContext("2d"), w = c.width, h = c.height;
-      g.fillStyle = "#fdfaf2"; g.fillRect(0, 0, w, h);
-      g.strokeStyle = cert.honor ? "#b8914a" : "#7aa592"; g.lineWidth = 6; g.strokeRect(14, 14, w - 28, h - 28);
-      g.lineWidth = 1.5; g.strokeRect(24, 24, w - 48, h - 48);
-      g.textAlign = "center"; g.fillStyle = "#69716b"; g.font = "600 15px 'DM Sans', sans-serif";
-      g.fillText(cert.kind.toUpperCase(), w / 2, 58);
-      g.font = "italic 15px 'Libre Caslon Text', serif"; g.fillText("presented to", w / 2, 82);
-      g.fillStyle = "#3f7a64"; g.font = "700 38px Caveat, cursive"; g.fillText("Shiqi Lin", w / 2, 118);
-      g.fillStyle = "#1d2430"; g.font = "700 22px 'Playfair Display', serif";
-      const n = wrap(g, cert.title, w / 2, 152, w - 90, 25);
-      g.fillStyle = "#69716b"; g.font = "14px 'DM Sans', sans-serif";
-      wrap(g, cert.issuer, w / 2, Math.min(h - 46, 152 + n * 25 + 14), w - 140, 17);
-      g.fillStyle = cert.honor ? "#c9a35b" : "#9cc7b2";
-      g.beginPath(); g.arc(w - 58, h - 58, 24, 0, 7); g.fill();
-      g.fillStyle = "#1d2430"; g.font = "700 14px 'Playfair Display', serif"; g.fillText(cert.abbr, w - 58, h - 53);
-      if (cert.links) { g.fillStyle = "#3f7a64"; g.font = "700 20px Caveat, cursive"; g.fillText("✓ verified", 72, h - 40); }
-      f.userData.tex.needsUpdate = true;
-      f.userData.cert = cert;
-    });
-  }
-  const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
-  fontsReady.then(() => Promise.all(["700 20px Caveat", "700 20px 'Playfair Display'", "15px 'DM Sans'"].map((f) => document.fonts.load(f).catch(() => {})))).then(() => { drawLetter(); drawScreen(); drawCerts(); });
-  drawLetter(); drawScreen(); drawCerts();
-
-  // ---------- interactions in 3D
-  const ray = new THREE.Raycaster();
-  const ndc = new THREE.Vector2();
-  const parts = O.builds.flatMap((b) => b.userData.parts);
-  const targets = () => {
-    if (sceneI === 2 && sceneU > 0.78) return [O.letter];
-    if (sceneI === 3 && sceneU > 0.2) return O.book.children.length ? O.book.children : [O.book];
-    if (sceneI === 4 && sceneU > 0.22) return [O.sketch, ...parts];
-    if (sceneI === 5 && sceneU > 0.22) return O.certFrames.map((f) => f.userData.face);
-    if (sceneI === 6 && sceneU > 0.5) return [O.screen, ...O.laptop.children];
-    return [];
-  };
-  let hovered = null;
-  function pick(e) {
-    const r = canvas.getBoundingClientRect();
-    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(targets(), true)[0];
-    return hit ? hit.object : null;
-  }
-  const isIn = (obj, root) => { for (let p = obj; p; p = p.parent) if (p === root) return true; return false; };
-  const kindOf = (obj) => {
-    if (!obj) return null;
-    if (obj === O.letter) return "letter";
-    if (isIn(obj, O.book)) return "book";
-    if (obj === O.sketch) return "sketch";
-    if (obj.userData.build) return "part";
-    if (O.certFrames.some((f) => f.userData.face === obj)) return "cert";
-    if (obj === O.screen || isIn(obj, O.laptop)) return "laptop";
-    return null;
-  };
-
-  // dragging build parts across the bench
-  const benchPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(W.anchors.benchTop + 0.05));
-  let drag = null;
-  canvas.addEventListener("pointerdown", (e) => {
-    const obj = pick(e);
-    if (kindOf(obj) === "part") {
-      drag = { obj, g: obj.parent, x: e.clientX, y: e.clientY, moved: false };
-      canvas.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    } else drag = { obj, x: e.clientX, y: e.clientY, moved: false, click: true };
+// take apart / build (the painted parts fly off the bench)
+function setApart(on) {
+  $$("#world .part").forEach((p, k) => {
+    const { ax, ay, ar } = p.dataset;
+    p.style.transitionDelay = on ? `${(k % 5) * 40}ms` : "0ms";
+    p.style.transform = on ? `translate(${ax * 0.55}px, ${ay * 0.35}px) rotate(${ar * 0.7}deg)` : "";
   });
-  canvas.addEventListener("pointermove", (e) => {
-    if (drag && drag.g) {
-      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 4) drag.moved = true;
-      if (drag.moved) {
-        const r = canvas.getBoundingClientRect();
-        ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-        ray.setFromCamera(ndc, camera);
-        const p = new THREE.Vector3();
-        if (ray.ray.intersectPlane(benchPlane, p)) {
-          drag.g.worldToLocal(p);
-          const tgt = drag.obj.userData;
-          tgt.free = true;
-          drag.obj.position.x = Math.max(-1.6, Math.min(1.6, p.x));
-          drag.obj.position.z = Math.max(-0.6, Math.min(0.75, p.z));
-          drag.obj.position.y = (apart ? tgt.apart.y : tgt.home.y) + 0.12;
-        }
-      }
-      return;
-    }
-    if (drag && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6) drag.moved = true;
-    const obj = pick(e);
-    if (hovered !== obj) {
-      hovered = obj;
-      canvas.style.cursor = obj ? (kindOf(obj) === "part" ? "grab" : "pointer") : "";
-    }
-  });
-  canvas.addEventListener("pointerup", () => {
-    if (!drag) return;
-    const d = drag;
-    drag = null;
-    if (d.g) {
-      if (d.moved) { d.obj.position.y = apart ? d.obj.userData.apart.y : d.obj.userData.home.y; return; }
-      const b = BUILDS.find((x) => x.key === d.obj.userData.build);
-      openDetail({ ...b, placeholder: "Photos and a video of the real build coming soon" }, canvas);
-      return;
-    }
-    if (d.moved) return;
-    const k = kindOf(d.obj);
-    if (k === "letter") openLetter(canvas);
-    else if (k === "book") openBook(canvas);
-    else if (k === "sketch") openTools(canvas);
-    else if (k === "laptop") openPhotos(canvas);
-    else if (k === "cert") {
-      const f = O.certFrames.find((x) => x.userData.face === d.obj);
-      openDetail(certDetail(f.userData.cert), canvas);
-    }
-  });
-
-  // take apart / build
-  let apart = false;
-  setApart = (on) => {
-    apart = on;
-    parts.forEach((p) => {
-      const ud = p.userData;
-      ud.free = false;
-      ud.from = p.position.clone();
-      ud.fromR = p.rotation.x;
-      ud.to = on ? ud.apart.clone() : ud.home.clone();
-      ud.toR = on && ud.lay ? Math.PI / 2 : 0;
-      ud.t0 = performance.now() + Math.random() * 180;
-    });
-    $("#btn-apart").setAttribute("aria-pressed", String(on));
-    $("#btn-build").setAttribute("aria-pressed", String(!on));
-  };
-
-  // camera focus for close-ups (house-local, converted to world)
-  let focus = null, focusAmt = 0;
-  const FOCUS = {
-    letter: { pos: L(-8.95, 6.85, 6.7), look: L(-9.05, 5.95, 7.05) },
-    laptop: { pos: L(12.75, 6.95, 1.15), look: L(11.95, 6.15, 0.6) },
-  };
-  focusOn = (k) => { focus = FOCUS[k] || null; };
-  releaseFocus = () => { focus = null; bookPulled = false; };
-  let bookPulled = false;
-  pullBook = () => { bookPulled = true; };
-  const bookHome = O.book.position.clone();
-  const ladderHome = O.ladder.position.clone();
-
-  // ---------- HUD
-  const root = document.documentElement;
-  const hint = $("#hint");
-  const HINTS = [
-    "Scroll to fly",
-    "Keep scrolling: fly with the drone",
-    "Click the letter on the desk",
-    "Click the glowing book on the shelf",
-    "Drag the builds · click the sketch paper",
-    "Click any frame on the wall",
-    "Click the laptop",
-    "Say hello ↓",
-  ];
-  function hintText() {
-    if (sceneI === 1 && sceneU > 0.8) return "Keep scrolling: fly home over the bridge";
-    if (sceneI === 2 && sceneU < 0.78) return "Keep scrolling: follow the drone home";
-    if (sceneI === 3 && sceneU < 0.2) return "Keep scrolling";
-    if (sceneI === 6 && sceneU < 0.5) return "Keep scrolling: to my room";
-    if (sceneI === 7 && sceneU < 0.45) return "Keep scrolling";
-    return HINTS[sceneI];
-  }
-  let mx = innerWidth * 0.7, my = innerHeight * 0.6, hx = mx, hy = my, seenMouse = false;
-  window.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") { mx = e.clientX; my = e.clientY; seenMouse = true; } }, { passive: true });
-  if (finePointer) hint.classList.add("follow");
-  else hint.classList.add("docked");
-
-  // ---------- newspaper slap + contacts hologram
-  const paper = $("#paper");
-  let slapped = false, shake = 0;
-  const holo = $("#holo");
-
-  // ---------- loop
-  let lastT = performance.now();
-  const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
-  const prevDrone = new THREE.Vector3();
-  let first = true;
-  function resize() { W.resize(innerWidth, innerHeight); }
-  window.addEventListener("resize", resize);
-  resize();
-  const houseInv = new THREE.Matrix4().copy(W.houseRoot.matrixWorld).invert();
-  const toHouse = (v) => v.clone().applyMatrix4(houseInv);
-  const fromHouse = (v) => v.clone().applyMatrix4(W.houseRoot.matrixWorld);
-  const UP = new THREE.Vector3(0, 1, 0);
-  let lastDir = new THREE.Vector3(-1, 0, 0);
-
-  function frame(now) {
-    requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - lastT) / 1000);
-    lastT = now;
-    const t = now / 1000;
-    readScroll();
-    const target = sceneI + sceneU;
-    // the movie glides after the scroll instead of snapping to it
-    smoothS = first || reduceMotion || STILL ? target : lerp(smoothS, target, 1 - Math.pow(0.012, dt));
-    if (Math.abs(target - smoothS) > 1.2) smoothS = target; // nav jumps cut instead of crawling
-    const s = smoothS;
-    const portrait = camera.aspect < 0.9;
-
-    // drone on its path, heading where it's going during the long flights
-    const dp = V3(dronePosT(s));
-    let yaw = droneYawT(s)[0];
-    const dir = droneDir(s);
-    if (dir && Math.hypot(dir.x, dir.z) > 0.2) lastDir.copy(dir);
-    const fly = Math.max(band(s, 1.45, 1.5, 1.76, 1.8), band(s, 2.0, 2.05, 2.37, 2.42));
-    if (fly > 0 && dir) {
-      const vy = Math.atan2(lastDir.x, lastDir.z);
-      yaw = yaw + wrapPI(vy - yaw) * fly;
-    }
-
-    // camera: the scripted path, blended into the drone's own camera (scene 1) and a chase cam (scene 2)
-    camPos.copy(V3(camPosT(s)));
-    camLook.copy(V3(camLookT(s)));
-    const pov = band(s, 1.33, 1.39, 1.75, 1.81);
-    if (pov > 0) {
-      const d = lastDir.clone();
-      d.y = THREE.MathUtils.clamp(d.y, -0.3, 0.12); d.normalize(); // keep the horizon in view while climbing
-      const p = dp.clone().addScaledVector(d, 0.3).add(new THREE.Vector3(0, 0.08, 0));
-      const lk = dp.clone().addScaledVector(d, 120).add(new THREE.Vector3(0, -Math.min(40, Math.max(0, dp.y - 20) * 0.35), 0));
-      camPos.lerp(p, pov);
-      camLook.lerp(lk, pov);
-    }
-    const chase = band(s, 2.0, 2.05, 2.36, 2.41);
-    if (chase > 0) {
-      const d = lastDir.clone(); d.y *= 0.3; d.normalize();
-      const p = dp.clone().addScaledVector(d, -7.5).add(new THREE.Vector3(0, 2.2, 0));
-      const lk = dp.clone().addScaledVector(d, 16);
-      camPos.lerp(p, chase);
-      camLook.lerp(lk, chase);
-    }
-    if (portrait) {
-      // pan across the wide walls on narrow screens
-      const si = Math.floor(s), su = s - si;
-      if (si === 4 || si === 5 || si === 3) {
-        const lp = toHouse(camPos), ll = toHouse(camLook);
-        if (si === 4) { const k = seg(su, 0.35, 0.95); lp.x = lerp(-12.0, -8.4, k); ll.x = lp.x; lp.z += 0.6; }
-        if (si === 5) { const k = seg(su, 0.35, 0.95); lp.z = lerp(-3, 3, k); ll.z = lp.z; lp.x = -10.4; }
-        if (si === 3) lp.x += 0.4;
-        camPos.copy(fromHouse(lp)); camLook.copy(fromHouse(ll));
-      }
-    }
-    // close-up focus
-    focusAmt = STILL ? (focus ? 1 : 0) : lerp(focusAmt, focus ? 1 : 0, 1 - Math.pow(0.002, dt));
-    if (focus && focusAmt > 0.001) {
-      camPos.lerp(V3(focus.pos), focusAmt);
-      camLook.lerp(V3(focus.look), focusAmt);
-    }
-    if (shake > 0) { camPos.x += (Math.random() - 0.5) * shake; camPos.y += (Math.random() - 0.5) * shake; shake *= 0.86; if (shake < 0.002) shake = 0; }
-    camera.position.copy(camPos);
-    camera.up.copy(UP);
-    camera.lookAt(camLook);
-    // a gentle bank while the drone camera turns
-    if (pov > 0.5) camera.rotateZ(THREE.MathUtils.clamp(wrapPI(droneYawT(s + 0.01)[0] - droneYawT(s)[0]) * -2, -0.12, 0.12) * pov);
-
-    // drone pose: hover bob, tilt into the direction of travel
-    const hover = reduceMotion ? 0 : Math.sin(t * 2.1) * 0.04 * (1 - fly);
-    drone.position.copy(dp).add(new THREE.Vector3(0, hover, 0));
-    const vel = dp.clone().sub(prevDrone);
-    prevDrone.copy(dp);
-    const sp = Math.min(1, vel.length() / Math.max(dt, 1e-3) / 40);
-    const loc = vel.clone().applyAxisAngle(UP, -yaw).normalize();
-    drone.rotation.y = yaw;
-    drone.rotation.x = lerp(drone.rotation.x, THREE.MathUtils.clamp(loc.z * sp * 0.4, -0.35, 0.35) || 0, 0.15);
-    drone.rotation.z = lerp(drone.rotation.z, THREE.MathUtils.clamp(-loc.x * sp * 0.4, -0.35, 0.35) || 0, 0.15);
-    drone.userData.rotors.forEach((r, i) => (r.rotation.y += (i % 2 ? 1 : -1) * dt * 40));
-    drone.userData.led.material.color.setHex(Math.sin(t * 6) > 0 ? 0x7dffb4 : 0x2c6b4c);
-    drone.visible = camera.position.distanceTo(drone.position) > 0.6;
-
-    // the house reacts to the drone: windows swing open, the front doors open, the mailbox flag goes up
-    const swing = (o, k) => o && o.leaves.forEach((h) => (h.rotation.y = (h.userData.left ? -1 : 1) * 1.25 * smooth01(k)));
-    swing(O.opening.arch, seg(s, 1.33, 1.41) * (1 - seg(s, 1.56, 1.62)));
-    swing(O.opening.bedroom, seg(s, 7.08, 7.2));
-    swing(O.opening.study, 0.25 + 0.03 * Math.sin(t * 0.7)); // a crack of fresh air
-    const doorK = smooth01(seg(s, 2.47, 2.53)) * (1 - smooth01(seg(s, 2.66, 2.72)));
-    O.doors.forEach((d, i) => (d.rotation.y = (i === 0 ? 1 : -1) * 1.45 * doorK));
-    O.flag.rotation.x = s > 2.43 ? 0 : Math.PI / 2;
-    // the rolling library ladder slides over to the experience book
-    O.ladder.position.z = lerp(ladderHome.z, O.book.position.z - 0.9, smooth01(seg(s, 3.04, 3.3)));
-
-    // glow on clickable things
-    const pulse = 0.5 + 0.5 * Math.sin(t * 3);
-    O.letter.material.emissiveIntensity = sceneI === 2 && sceneU > 0.78 ? 0.12 + pulse * 0.25 : 0;
-    O.bookMat.emissiveIntensity = sceneI === 3 && sceneU > 0.2 ? 0.35 + pulse * 0.65 : 0;
-    O.bookHalo.visible = sceneI === 3 && sceneU > 0.2 && !bookPulled;
-    O.bookHalo.material.opacity = 0.35 + pulse * 0.45;
-    O.bookHalo.scale.setScalar(1 + pulse * 0.12);
-    O.sketch.material.emissiveIntensity = sceneI === 4 && sceneU > 0.22 ? 0.08 + pulse * 0.18 : 0;
-    O.certFrames.forEach((f) => (f.userData.face.material.emissiveIntensity = hovered === f.userData.face ? 0.4 : 0.12));
-    // book slides out when pulled
-    const bp = bookPulled ? 1 : 0;
-    O.book.position.x = lerp(O.book.position.x, bookHome.x + bp * 0.75, 0.12);
-    O.book.rotation.y = lerp(O.book.rotation.y, bp * 0.5, 0.12);
-    // build parts animate between built and taken apart
-    parts.forEach((p) => {
-      const ud = p.userData;
-      if (!ud.to || ud.free) return;
-      const k = ease(clamp01((now - ud.t0) / 700));
-      p.position.lerpVectors(ud.from, ud.to, k);
-      p.position.y += Math.sin(k * Math.PI) * 0.35;
-      p.rotation.x = lerp(ud.fromR || 0, ud.toR || 0, k);
-    });
-    if (O.chand) O.chand.rotation.y = Math.sin(t * 0.3) * 0.08;
-
-    // HUD state
-    root.dataset.scene = sceneI;
-    root.style.setProperty("--u", sceneU.toFixed(3));
-    sections.forEach((sct, i) => sct.classList.toggle("active", i === sceneI));
-    $$("#scene-nav button").forEach((b, i) => b.classList.toggle("on", i === sceneI));
-    // newspaper
-    const wantPaper = sceneI === 1 && sceneU > 0.83 && sceneU < 0.985;
-    if (wantPaper && !slapped) { slapped = true; paper.classList.add("in"); if (!reduceMotion) setTimeout(() => (shake = 0.5), 260); }
-    if (!wantPaper && slapped) { slapped = false; paper.classList.remove("in"); }
-    // interactive cues
-    root.classList.toggle("ready", (sceneI === 2 && sceneU > 0.8) || (sceneI === 3 && sceneU > 0.25) || (sceneI === 4 && sceneU > 0.25) || (sceneI === 5 && sceneU > 0.25) || (sceneI === 6 && sceneU > 0.55));
-    // contacts hologram + lasers
-    const showHolo = sceneI === 7 && sceneU > 0.42;
-    holo.classList.toggle("in", showHolo);
-    O.beams.forEach((b) => (b.visible = showHolo));
-    if (showHolo) {
-      camera.updateMatrixWorld();
-      const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
-      const right = new THREE.Vector3().crossVectors(fwd, camera.up).normalize();
-      const up = new THREE.Vector3().crossVectors(right, fwd).normalize();
-      const dist = 10;
-      const visW = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
-      const wR = Math.min(5.6, visW * (portrait ? 0.86 : 0.5));
-      const hR = portrait ? wR * 1.2 : wR * 0.8;
-      const C = camera.position.clone().add(fwd.clone().multiplyScalar(dist)).add(right.clone().multiplyScalar(portrait ? 0 : -visW * 0.18)).add(up.clone().multiplyScalar(portrait ? -1.1 : -0.3));
-      const corners = [[-1, 1], [1, 1], [1, -1], [-1, -1]].map(([a, b]) => C.clone().add(right.clone().multiplyScalar(a * wR / 2)).add(up.clone().multiplyScalar(b * hR / 2)));
-      drone.updateMatrixWorld(true);
-      const src = drone.userData.gimbal.getWorldPosition(new THREE.Vector3());
-      O.beams.forEach((b, i) => {
-        const c = corners[Math.floor(i / 2)];
-        const mid = src.clone().add(c).multiplyScalar(0.5);
-        const len = src.distanceTo(c);
-        b.position.copy(mid);
-        b.scale.set(1, len, 1);
-        b.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), c.clone().sub(src).normalize());
-        b.material.opacity = (0.55 + 0.35 * Math.sin(t * 9 + i)) * (b.userData.glow ? 0.35 : 1);
-      });
-      const sc = corners.map((c) => c.clone().project(camera));
-      const xs = sc.map((p) => (p.x * 0.5 + 0.5) * innerWidth), ys = sc.map((p) => (-p.y * 0.5 + 0.5) * innerHeight);
-      const Lx = Math.min(...xs), T = Math.min(...ys);
-      holo.style.left = Lx + "px"; holo.style.top = T + "px";
-      holo.style.width = Math.max(...xs) - Lx + "px"; holo.style.minHeight = Math.max(...ys) - T + "px";
-    }
-    // cursor hint
-    hint.textContent = hintText();
-    if (!hint.classList.contains("follow")) hint.style.visibility = document.querySelector("dialog[open]") ? "hidden" : "";
-    if (hint.classList.contains("follow")) {
-      hx = lerp(hx, mx + 22, 0.18); hy = lerp(hy, my + 26, 0.18);
-      hint.style.transform = `translate(${Math.min(innerWidth - hint.offsetWidth - 10, hx).toFixed(1)}px, ${Math.min(innerHeight - 40, hy).toFixed(1)}px)`;
-      hint.style.visibility = seenMouse && !document.querySelector("dialog[open]") ? "" : "hidden";
-    }
-
-    W.update(t, dt);
-    W.render();
-    if (first) { first = false; $("#loader").classList.add("done"); setTimeout(() => $("#loader")?.remove(), 900); }
-  }
-  requestAnimationFrame(frame);
+  $("#btn-apart").setAttribute("aria-pressed", String(on));
+  $("#btn-build").setAttribute("aria-pressed", String(!on));
 }
+
+// ---------------------------------------------------------------- narrator voice
+let narrating = false, spokenFor = -1;
+const synth = window.speechSynthesis;
+function pickVoice() {
+  const vs = synth ? synth.getVoices() : [];
+  const pref = ["Samantha", "Google US English", "Microsoft Aria", "Microsoft Jenny", "Karen", "Moira", "Serena", "Ava"];
+  for (const p of pref) { const v = vs.find((x) => x.name.includes(p)); if (v) return v; }
+  return vs.find((x) => /^en/i.test(x.lang)) || null;
+}
+function speak(i) {
+  if (!synth || !narrating) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(NARRATION[i]);
+  const v = pickVoice();
+  if (v) u.voice = v;
+  u.rate = 0.92; u.pitch = 1.05;
+  synth.speak(u);
+  spokenFor = i;
+}
+if (!synth) $("#narrate").hidden = true;
+$("#narrate").addEventListener("click", (e) => {
+  narrating = !narrating;
+  e.currentTarget.setAttribute("aria-pressed", String(narrating));
+  if (narrating) speak(curSec); else synth.cancel();
+});
+let curSec = 0;
+
+// ---------------------------------------------------------------- build the book and the world
+const cam = $("#cam"), bookEl = $("#book"), win = $("#window"), world = $("#world"), cover = $("#cover");
+world.insertAdjacentHTML("beforeend", DEFS);
+$("#byte").innerHTML = DRONE;
+const scenes = SCENES.map((make, i) => {
+  const sc = make();
+  const root = document.createElement("div");
+  root.className = "sc";
+  root.style.display = "none";
+  root.innerHTML = sc.layers.map((l) => {
+    const [x0, y0, w, h] = l.box;
+    return `<svg class="layer" viewBox="${x0} ${y0} ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${l.inner}</svg>`;
+  }).join("");
+  world.appendChild(root);
+  sc.root = root;
+  sc.els = [...root.children].map((el, k) => ({ el, d: sc.layers[k].d, x0: sc.layers[k].box[0], y0: sc.layers[k].box[1] }));
+  sc.shown = false;
+  return sc;
+});
+
+// paper grain, painted once
+{
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const g = c.getContext("2d"), img = g.createImageData(256, 256);
+  for (let i = 0; i < img.data.length; i += 4) { const v = 170 + Math.random() * 85; img.data[i] = v; img.data[i + 1] = v * 0.97; img.data[i + 2] = v * 0.9; img.data[i + 3] = 255; }
+  g.putImageData(img, 0, 0);
+  $("#window .grain").style.backgroundImage = `url(${c.toDataURL()})`;
+}
+
+// clicks inside the paintings
+world.addEventListener("click", (e) => {
+  const hot = e.target.closest("[data-hot]");
+  if (!hot) return;
+  const [kind, arg] = hot.dataset.hot.split(":");
+  if (kind === "letter") openLetter(document.activeElement);
+  else if (kind === "book") openBook(document.activeElement);
+  else if (kind === "sketch") openTools(document.activeElement);
+  else if (kind === "laptop") openPhotos(document.activeElement);
+  else if (kind === "build") { const b = BUILDS.find((x) => x.key === arg); openDetail({ ...b, placeholder: "Photos and a video of the real build coming soon" }); }
+  else if (kind === "cert") openDetail(certDetail(ALL_CERTS[+arg]));
+});
+
+// ---------------------------------------------------------------- geometry
+let VW = innerWidth, VH = innerHeight, G = {};
+function layout() {
+  VW = innerWidth; VH = innerHeight;
+  const W = VW, H = VH, portrait = W / H < 1.05;
+  const m = Math.round(Math.min(W, H) * 0.05), b = Math.round(m * 0.55);
+  const P = portrait ? W + 2 * m : W / 2 + m, Ph = H + 2 * m;
+  const wx = portrait ? m : -W / 2;
+  G = { W, H, m, b, P, Ph, wx, portrait };
+  const px = (el, x, y, w, h) => Object.assign(el.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
+  px($("#book .board.l"), -P - b, -b, P + b, Ph + 2 * b);
+  px($("#book .board.r"), 0, -b, P + b, Ph + 2 * b);
+  px($("#book .pg.l"), -P, 0, P, Ph);
+  px($("#book .pg.r"), 0, 0, P, Ph);
+  px(win, wx, m, W, H);
+  px(cover, 0, -b, P + b, Ph + 2 * b);
+  bookEl.style.setProperty("--P", P + "px");
+  win.style.setProperty("--W", W + "px");
+}
+const BOOK = {
+  closed: () => ({ cx: (G.P + G.b) / 2, cy: G.Ph / 2, s: Math.min((0.8 * VW) / (G.P + 2 * G.b), (0.74 * VH) / (G.Ph + 2 * G.b)) }),
+  open: () => G.portrait
+    ? { cx: G.P / 2, cy: G.Ph / 2, s: Math.min((0.9 * VW) / (G.P + G.b), (0.78 * VH) / (G.Ph + 2 * G.b)) }
+    : { cx: 0, cy: G.Ph / 2, s: Math.min((0.9 * VW) / (2 * G.P + 2 * G.b), (0.8 * VH) / (G.Ph + 2 * G.b)) },
+  dive: () => ({ cx: G.wx + G.W / 2, cy: G.m + G.H / 2, s: 1 }),
+  end: () => { const c = BOOK.closed(); return { cx: c.cx, cy: c.cy + (G.Ph + 2 * G.b) * 0.2, s: c.s * 0.72 }; },
+};
+const smooth = (t) => { t = clamp01(t); return t * t * t * (t * (t * 6 - 15) + 10); };
+const camMix = (a, b, k) => ({ cx: lerp(a.cx, b.cx, k), cy: lerp(a.cy, b.cy, k), s: a.s * Math.pow(b.s / a.s, k) });
+
+// ---------------------------------------------------------------- scroll → story time
+function readScroll() {
+  const y = window.scrollY;
+  let i = 0;
+  for (let k = 0; k < sections.length; k++) if (y >= sections[k].offsetTop - 2) i = k;
+  const s = sections[i];
+  return i + clamp01((y - s.offsetTop) / Math.max(1, s.offsetHeight - innerHeight));
+}
+const T = 0.14; // share of each chapter spent on the transition into it
+function storyState(s) {
+  const sec = Math.min(7, Math.floor(s + 1e-6)), u = clamp01(s - sec);
+  // the book camera and cover angle
+  let bc, ang = -180;
+  if (sec === 0) {
+    const k1 = smooth(seg(u, 0.05, 0.3));
+    ang = -180 * k1;
+    if (u < 0.3) bc = camMix(BOOK.closed(), BOOK.open(), k1);
+    else if (u < 0.5) bc = BOOK.open();
+    else bc = camMix(BOOK.open(), BOOK.dive(), smooth(seg(u, 0.5, 0.88)));
+  } else if (sec === 7 && u > 0.62) {
+    if (u < 0.84) bc = camMix(BOOK.dive(), BOOK.open(), smooth(seg(u, 0.62, 0.84)));
+    else { const k = smooth(seg(u, 0.84, 0.97)); bc = camMix(BOOK.open(), BOOK.end(), k); ang = -180 * (1 - k); }
+  } else bc = BOOK.dive();
+  // which painted scenes are showing
+  let shots;
+  if (sec === 0) shots = [{ i: 0, t: seg(u, 0.5, 1), o: 1, w: 1, dz: 1 }];
+  else if (u < T) {
+    const k = smooth(u / T);
+    // a storybook iris: the next picture opens in a circle around Byte
+    shots = [{ i: sec - 1, t: 1, o: 1, w: 1 - k, dz: 1 + 0.35 * k }, { i: sec, t: 0, o: 1, w: k, dz: 1.12 - 0.12 * k, iris: k }];
+  } else shots = [{ i: sec, t: clamp01((u - T) / ((sec === 7 ? 0.62 : 1) - T)), o: 1, w: 1, dz: 1 }];
+  return { sec, u, bc, ang, shots };
+}
+
+// ---------------------------------------------------------------- the frame loop
+const root = document.documentElement;
+const hint = $("#hint");
+let mx = innerWidth * 0.7, my = innerHeight * 0.6, hx = mx, hy = my, seenMouse = false;
+window.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") { mx = e.clientX; my = e.clientY; seenMouse = true; } }, { passive: true });
+if (finePointer) hint.classList.add("follow"); else hint.classList.add("docked");
+const HINTS = ["Scroll to open the book", "Keep scrolling: fly with Byte", "Click the letter on the desk", "Click the wiggling book", "Click a build or the sketch paper", "Click any frame", "Click the laptop", "Keep scrolling"];
+function hintText(sec, u) {
+  if (sec === 0) return u < 0.3 ? "Scroll to open the book" : "Keep scrolling: step into the story";
+  if (sec === 1 && u > 0.8) return "Keep scrolling: home again";
+  if (u < T + 0.04) return "Keep scrolling";
+  if (sec === 7) return u > 0.9 ? "The End ♡" : "Keep scrolling";
+  return HINTS[sec];
+}
+const iris = $("#iris");
+const paper = $("#paper"), holo = $("#holo"), lasers = $("#lasers"), byte = $("#byte"), snow = $(".snow");
+let slapped = false, smoothS = 0, first = true, last = performance.now();
+let byteX = 0, byteY = 0, byteTilt = 0, rasterS = 1, stableFrames = 0, lastBs = 0;
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  const time = now / 1000;
+  const target = readScroll();
+  smoothS = first || reduceMotion || STILL ? target : lerp(smoothS, target, 1 - Math.pow(0.008, dt));
+  if (Math.abs(target - smoothS) > 1.2) smoothS = target;
+  const st = storyState(smoothS);
+  const { sec, u, bc, ang } = st;
+
+  // book camera + cover
+  cam.style.transform = `translate(${VW / 2}px, ${VH / 2}px) scale(${bc.s}) translate(${-bc.cx}px, ${-bc.cy}px)`;
+  cover.style.transform = `rotateY(${ang}deg)`;
+  cover.style.zIndex = ang < -90 ? -1 : 5;
+  const leftVisible = ang < -90;
+  bookEl.classList.toggle("closed", !leftVisible);
+  ["#book .board.l", "#book .pg.l"].forEach((q) => ($(q).style.visibility = leftVisible ? "" : "hidden"));
+  win.style.clipPath = !leftVisible && !G.portrait ? `inset(0 0 0 ${-G.wx}px)` : "none";
+  // re-raster the paintings sharply once the book camera settles
+  if (Math.abs(bc.s - lastBs) < 1e-4) stableFrames++; else stableFrames = 0;
+  lastBs = bc.s;
+  if (stableFrames === 6 && Math.abs(bc.s - rasterS) / rasterS > 0.04) { world.classList.add("rr"); rasterS = bc.s; requestAnimationFrame(() => world.classList.remove("rr")); }
+
+  // the painted scenes
+  const W = G.W, H = G.H, k0 = Math.max(W / 1600, H / 1250);
+  const want = new Set(st.shots.map((x) => x.i));
+  if (st.shots.length === 1) iris.style.display = "none";
+  scenes.forEach((sc, i) => { const on = want.has(i); if (on !== sc.shown) { sc.root.style.display = on ? "" : "none"; sc.shown = on; } });
+  let bx = 0, by = 0, bs = 0, bw = 0, snowy = 0;
+  st.shots.forEach((shot) => {
+    const sc = scenes[shot.i];
+    const c = sc.cam(shot.t, G.portrait);
+    sc.root.style.opacity = shot.o.toFixed(3);
+    sc.root.style.zIndex = shot.iris !== undefined ? 2 : 1;
+    if (shot.iris !== undefined) {
+      const r = Math.max(1, shot.iris * Math.hypot(W, H) * 1.05);
+      sc.root.style.clipPath = `circle(${r.toFixed(1)}px at ${byteX.toFixed(1)}px ${byteY.toFixed(1)}px)`;
+      Object.assign(iris.style, { display: shot.iris < 0.99 ? "block" : "none", width: 2 * r + "px", height: 2 * r + "px", transform: `translate(${(byteX - r).toFixed(1)}px, ${(byteY - r).toFixed(1)}px)` });
+    } else sc.root.style.clipPath = "";
+    sc.els.forEach(({ el, d, x0, y0 }) => {
+      const zl = (1 + (c.z - 1) * d) * (1 + (shot.dz - 1) * Math.min(1.2, d));
+      const cx = 800 + (c.x - 800) * d, cy = 450 + (c.y - 450) * d;
+      el.style.transform = `translate(${(W / 2).toFixed(1)}px, ${(H / 2).toFixed(1)}px) scale(${(k0 * zl).toFixed(5)}) translate(${(x0 - cx).toFixed(2)}px, ${(y0 - cy).toFixed(2)}px)`;
+    });
+    if (sc.tick) sc.tick(sc.root, shot.t, time);
+    const dr = sc.drone(shot.t, G.portrait);
+    const z1 = c.z * shot.dz;
+    bx += (W / 2 + k0 * z1 * (dr.x - c.x)) * shot.w;
+    by += (H / 2 + k0 * z1 * (dr.y - c.y)) * shot.w;
+    bs += k0 * z1 * dr.s * shot.w;
+    bw += shot.w;
+    if (sc.snow) snowy += shot.w;
+  });
+  snow.classList.toggle("on", snowy > 0.5);
+  bx /= bw; by /= bw; bs /= bw;
+  const vx = (bx - byteX) / Math.max(dt, 1e-3);
+  byteTilt = lerp(byteTilt, clamp01(Math.abs(vx) / 900) * Math.sign(vx) * 14, 0.1);
+  byteX = bx; byteY = by;
+  const bob = reduceMotion ? 0 : Math.sin(time * 2.2) * 6 * bs;
+  byte.style.transform = `translate(${(bx - 100).toFixed(1)}px, ${(by - 65 + bob).toFixed(1)}px) scale(${bs.toFixed(4)}) rotate(${byteTilt.toFixed(2)}deg)`;
+
+  // story text on the page
+  $("#pagetext").style.opacity = sec === 0 ? (seg(u, 0.24, 0.32) * (1 - seg(u, 0.5, 0.58))).toFixed(3) : 0;
+  $("#endtext").style.opacity = sec === 7 ? (seg(u, 0.7, 0.78) * (1 - seg(u, 0.86, 0.9))).toFixed(3) : 0;
+  $("#cue").classList.toggle("show", sec === 0 && u < 0.08);
+
+  // HUD
+  if (sec !== curSec) { curSec = sec; if (narrating) speak(sec); }
+  root.dataset.scene = sec;
+  sections.forEach((s, i) => s.classList.toggle("active", i === sec));
+  $$("#scene-nav button").forEach((b, i) => b.classList.toggle("on", i === sec));
+  const showCard = sec >= 1 && u > T + 0.04 && (sec !== 1 || u < 0.8) && (sec !== 7 || u < 0.4);
+  $$(".act").forEach((a) => a.classList.toggle("show", showCard && a.closest(".scene") === sections[sec]));
+  $("#fin").classList.toggle("show", sec === 7 && u > 0.9);
+  // newspaper
+  const wantPaper = sec === 1 && u > 0.84 && u < 0.985;
+  if (wantPaper && !slapped) { slapped = true; paper.classList.add("in"); }
+  if (!wantPaper && slapped) { slapped = false; paper.classList.remove("in"); }
+  // hologram and lasers from Byte
+  const showHolo = sec === 7 && u > 0.42 && u < 0.62;
+  holo.classList.toggle("in", showHolo);
+  if (showHolo) {
+    const scr = (x, y) => [VW / 2 + bc.s * (G.wx + x - bc.cx), VH / 2 + bc.s * (G.m + y - bc.cy)];
+    const [sx, sy] = scr(bx, by + 6 * bs);
+    const hw = G.portrait ? Math.min(VW - 32, 420) : Math.min(520, VW * 0.4), hh = G.portrait ? 340 : 360;
+    const hl = G.portrait ? (VW - hw) / 2 : Math.min(VW - hw - 70, sx + VW * 0.12), ht = G.portrait ? Math.max(70, sy - hh - 70) : Math.max(70, VH * 0.5 - hh / 2 - 40);
+    Object.assign(holo.style, { left: hl + "px", top: ht + "px", width: hw + "px", minHeight: hh + "px" });
+    const cs = [[hl, ht], [hl + hw, ht], [hl + hw, ht + hh], [hl, ht + hh]];
+    const pulse = 0.5 + 0.5 * Math.sin(time * 6);
+    lasers.innerHTML = `<polygon points="${sx},${sy} ${cs[0]} ${cs[3]}" fill="#7dffd0" opacity="${(0.06 + 0.04 * pulse).toFixed(3)}"/><polygon points="${sx},${sy} ${cs[0]} ${cs[1]}" fill="#7dffd0" opacity=".05"/>` +
+      cs.map((p) => `<line x1="${sx}" y1="${sy}" x2="${p[0]}" y2="${p[1]}" stroke="#a8ffe0" stroke-width="1.4" opacity=".85"/>`).join("");
+  } else if (lasers.innerHTML) lasers.innerHTML = "";
+
+  // cursor hint
+  hint.textContent = hintText(sec, u);
+  const dlgOpen = !!document.querySelector("dialog[open]");
+  if (hint.classList.contains("follow")) {
+    hx = lerp(hx, mx + 22, 0.18); hy = lerp(hy, my + 26, 0.18);
+    hint.style.transform = `translate(${Math.min(innerWidth - hint.offsetWidth - 10, hx).toFixed(1)}px, ${Math.min(innerHeight - 40, hy).toFixed(1)}px)`;
+    hint.style.visibility = seenMouse && !dlgOpen ? "" : "hidden";
+  } else hint.style.visibility = dlgOpen ? "hidden" : "";
+  first = false;
+}
+layout();
+window.addEventListener("resize", layout);
+requestAnimationFrame(frame);
+if (STILL) window.__story = { storyState, scenes };

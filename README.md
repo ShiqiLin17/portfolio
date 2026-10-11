@@ -1,33 +1,28 @@
 # Shiqi Lin — Portfolio
 
-A scroll-driven 3D movie through real New York: a Forest Hills Gardens style Tudor in Queens, dressed in Dyker Heights holiday lights, and a Manhattan built from OpenStreetMap streets and real building footprints. Plain HTML, CSS and JavaScript with three.js bundled in `vendor/`. There is no build step.
+A scroll-driven storybook, like the opening of an animated fairy-tale film: a book on the table opens, the narrator begins "Once upon a time…", the camera steps into the painted page, and the story plays out inside it before the book closes again. Plain HTML, CSS and JavaScript, no libraries and no build step. Every painting is drawn in SVG and split into layers that slide at different speeds (2.5D parallax).
 
-## The eight scenes
+## The story
 
-1. **Foyer**: a drone hovers in a Forest Hills / Dyker Heights style mansion.
-2. **Headlines**: the camera circles the drone, becomes its camera, and flies out the arched window, over Queens, the East River and Roosevelt Island, the Upper East Side and into Central Park, stopping over the Lake facing Billionaires' Row. Then *The Shiqi York Times* slaps onto the screen.
-3. **Letter**: a chase-cam flight home alongside the Queensboro Bridge, a stop at the mailbox, through the front doors and up the grand stair to the study, where a half-written letter sits on the desk (About me).
-4. **Experience book**: a glowing book on the shelf opens into a flippable book, with one page per role and photo and video slots.
-5. **Workshop**: the tool wall and the bench builds. Drag the parts, use Take apart / Build, click the sketch paper for the toolbox, or open the project files.
-6. **Certificates & honors**: framed on the study wall. Click a frame for details and its verification link.
-7. **Hobbies**: in the bedroom, Photos on the laptop holds clickable hobby videos.
-8. **Contact**: the drone flies out the bedroom window and lasers a hologram against the Manhattan skyline.
+0. **Once upon a time**: the cover opens on a Forest Hills Gardens style Tudor in Queens, lit up Dyker Heights style, and we step into the picture.
+1. **Byte flies to the city**: Shiqi's drone, Byte, flies over Queens rooftops, the East River and the Queensboro Bridge to a snowy Central Park facing Billionaires' Row, and *The Shiqi York Times* slaps onto the screen.
+2. **A letter on the desk**: Shiqi writes at her desk (About me). Click the letter.
+3. **The experience book**: the rolling ladder slides to a wiggling book on the shelf. Click it to flip through every role.
+4. **The workshop**: pegboard tools, a live oscilloscope, a 3D printer, and three builds you can click or take apart. The sketch paper opens the toolbox.
+5. **Honors**: a wall of framed certificates and honors, each clickable with its verification link.
+6. **Off the clock**: Shiqi on her bed with her laptop and cat. The laptop opens Photos with hobby videos.
+7. **The end**: Byte beams a hologram with her contacts across the skyline, the camera steps back out, and the book closes.
 
-The whole movie is one continuous camera path (a smooth spline over the scroll), so it never cuts between scenes. Extras along the way: Wollman Rink skaters, the Roosevelt Island tram, the 7 train, yellow cabs on the real avenues, jets landing at LaGuardia, helicopters, pigeons, nutcrackers, a grandfather clock showing New York time, a cat on the bed, and more.
+Scenes change with a storybook iris that opens around Byte. "Read it to me" turns on a narrator voice (the browser's built-in speech).
 
 ## Files
 
-- `index.html` – page structure, scene overlays and dialogs (the letter text lives here)
+- `index.html` – the book, the chapter cards, the newspaper, the hologram and the dialogs (the letter text lives here)
 - `data.js` – **all content**: projects, experience, certificates and honors, skills, builds, hobbies, contacts and photos
-- `app.js` – the camera and drone path (keyframes), interactions and dialogs
-- `world.js` – renderer, sky, lighting, bloom; puts the city and the house together
-- `city.js` – Manhattan, Central Park, Roosevelt Island, the bridge, Queens, traffic (reads `assets/city.json`)
-- `house.js` – the Tudor mansion, its yard, the neighborhood and every room
-- `props.js` – the drone, Shiqi, the cat and furniture pieces
-- `textures.js`, `util.js` – painted textures and shared helpers
-- `assets/city.json` – street, park and building data (from OpenStreetMap via deck.gl-data, © OpenStreetMap contributors)
-- `styles.css` – overlays and dialogs
-- `vendor/` – three.js and helpers
+- `scenes.js` – the eight paintings, their camera moves and the narrator's lines
+- `art.js` – painting helpers: the Tudor house, trees, the skyline and landmarks, the bridge, Shiqi, the cat, Byte
+- `app.js` – scroll timeline, book camera, parallax, interactions and dialogs
+- `styles.css` – the book, cards and dialogs
 
 ## Adding photos, videos and links
 

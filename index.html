@@ -12,43 +12,66 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip" href="#s7">Skip to contact</a>
 
-  <canvas id="world" aria-hidden="true"></canvas>
-  <div id="fade" aria-hidden="true"></div>
-
-  <div id="loader" aria-hidden="true">
-    <div class="loader-drone"><i></i><i></i><i></i><i></i></div>
-    <p id="loader-msg">Opening the house…</p>
-    <div class="loader-bar"><i id="loader-bar"></i></div>
+  <!-- The storybook stage: a book that opens, and a painted world inside its pages -->
+  <div id="stage" aria-hidden="true">
+    <div id="cam">
+      <div id="book">
+        <div class="board l"></div><div class="board r"></div>
+        <div class="pg l"></div><div class="pg r"></div>
+        <div id="window">
+          <div id="world"></div>
+          <div id="iris"></div>
+          <div id="byte"></div>
+          <div class="snow"></div>
+          <div class="grain"></div>
+          <div id="pagetext" class="pagetext"><p class="once"><span class="drop">O</span>nce upon a time, in a Tudor house on a snowy street in Queens, there lived a girl named Shiqi&hellip;</p></div>
+          <div id="endtext" class="pagetext end"><p class="the-end">The End</p><p class="once">&hellip;or rather, the beginning of the next chapter.</p></div>
+        </div>
+        <div id="cover">
+          <div class="cv-front">
+            <div class="cv-frame">
+              <p class="cv-eyebrow">A New York Story</p>
+              <p class="cv-title">Shiqi<br>Lin</p>
+              <svg class="cv-orn" viewBox="0 0 200 24"><path d="M0 12 H80 M120 12 H200" stroke="currentColor" stroke-width="1.5"/><path d="M100 2 L110 12 L100 22 L90 12 Z" fill="currentColor"/><circle cx="84" cy="12" r="3" fill="currentColor"/><circle cx="116" cy="12" r="3" fill="currentColor"/></svg>
+              <svg class="cv-sky" viewBox="0 0 220 90"><path fill="currentColor" d="M0 90 V70 H14 V58 H24 V66 H34 V40 H40 V30 H44 V40 H50 V62 H62 V54 H70 V72 H80 V20 H84 V10 H86 V2 H88 V10 H90 V20 H94 V60 H104 V48 H112 V64 H120 V34 Q126 22 132 34 V66 H142 V50 H150 V8 H154 V50 H160 V70 H172 V44 H180 V62 H192 V56 H204 V72 H220 V90 Z"/></svg>
+              <p class="cv-sub">Computer Engineering · Boston University &rsquo;28</p>
+            </div>
+          </div>
+          <div class="cv-back"></div>
+        </div>
+      </div>
+    </div>
+    <svg id="lasers" aria-hidden="true"></svg>
   </div>
 
   <header class="topbar">
     <a class="mono" href="#" data-goto="0" aria-label="Shiqi Lin, back to the start">SL</a>
-    <a class="hire" data-mail href="#">Hire me</a>
+    <div class="top-r">
+      <button type="button" class="narrate" id="narrate" aria-pressed="false"><span aria-hidden="true">♪</span> Read it to me</button>
+      <a class="hire" data-mail href="#">Hire me</a>
+    </div>
   </header>
 
-  <nav class="scene-nav" aria-label="Scenes"><ol id="scene-nav"></ol></nav>
-  <p id="hint" class="hint" aria-hidden="true">Scroll to fly</p>
+  <nav class="scene-nav" aria-label="Chapters"><ol id="scene-nav"></ol></nav>
+  <p id="hint" class="hint" aria-hidden="true">Scroll to open the book</p>
 
   <main>
-    <!-- 1. The foyer: a drone hovers inside the mansion -->
-    <section class="scene" id="s0" style="--len:150" aria-label="Introduction">
-      <div class="panel hero">
-        <p class="eyebrow-script">hi, I'm</p>
+    <section class="scene" id="s0" style="--len:280" aria-label="Introduction">
+      <div class="sr-only">
         <h1>Shiqi Lin</h1>
-        <p class="role">Computer Engineering · Boston University '28</p>
-        <p class="lede">A New Yorker who builds robots, embedded systems and the web. Captain of a World Championship robotics team, now teaching Arduino and motor control at BU.</p>
-        <p class="cue">Scroll to follow the drone <span aria-hidden="true">↓</span></p>
+        <p>Computer Engineering · Boston University '28. A New Yorker who builds robots, embedded systems and the web. Captain of a World Championship robotics team, now teaching Arduino and motor control at BU.</p>
       </div>
+      <p class="cue panel" id="cue">Scroll to open the book <span aria-hidden="true">↓</span></p>
     </section>
 
-    <!-- 2. Out the window to Manhattan; the paper lands -->
-    <section class="scene" id="s1" style="--len:440" aria-label="Headlines">
+    <section class="scene" id="s1" style="--len:420" aria-label="Headlines">
+      <div class="panel act"><p class="act-no">Chapter One</p><h2>Byte flies to the city</h2><p class="narr"></p></div>
       <article id="paper" class="paper" aria-label="The Shiqi York Times">
         <header class="paper-head">
           <p class="paper-meta"><span>Late Edition</span><span id="paper-date">Today</span><span>New York · $0.00</span></p>
@@ -69,32 +92,16 @@
       </article>
     </section>
 
-    <!-- 3. Home through the front door, up to the study; the letter -->
-    <section class="scene" id="s2" style="--len:480" aria-label="About me">
-      <div class="panel act">
-        <p class="act-no">Scene 3</p>
-        <h2>A letter on the desk</h2>
-        <p>Half-written, waiting for you.</p>
-        <button type="button" class="pill" id="btn-letter">Read the letter</button>
-      </div>
+    <section class="scene" id="s2" style="--len:260" aria-label="About me">
+      <div class="panel act"><p class="act-no">Chapter Two</p><h2>A letter on the desk</h2><p class="narr"></p><button type="button" class="pill" id="btn-letter">Read the letter</button></div>
     </section>
 
-    <!-- 4. The bookshelf: experience book -->
-    <section class="scene" id="s3" style="--len:200" aria-label="Experience">
-      <div class="panel act">
-        <p class="act-no">Scene 4</p>
-        <h2>The experience book</h2>
-        <p>Every job and internship, one page at a time.</p>
-        <button type="button" class="pill" id="btn-book">Open the book</button>
-      </div>
+    <section class="scene" id="s3" style="--len:220" aria-label="Experience">
+      <div class="panel act"><p class="act-no">Chapter Three</p><h2>The experience book</h2><p class="narr"></p><button type="button" class="pill" id="btn-book">Open the book</button></div>
     </section>
 
-    <!-- 5. Tool wall, builds and the sketch paper -->
     <section class="scene" id="s4" style="--len:260" aria-label="Workshop and projects">
-      <div class="panel act workshop">
-        <p class="act-no">Scene 5</p>
-        <h2>The workshop</h2>
-        <p>Drag the builds around the bench, take them apart, put them back together.</p>
+      <div class="panel act workshop"><p class="act-no">Chapter Four</p><h2>The workshop</h2><p class="narr"></p>
         <div class="row">
           <button type="button" class="pill" id="btn-apart" aria-pressed="false">Take apart</button>
           <button type="button" class="pill ghost" id="btn-build" aria-pressed="true">Build</button>
@@ -107,28 +114,16 @@
       </div>
     </section>
 
-    <!-- 6. Certificates & honors on the wall -->
-    <section class="scene" id="s5" style="--len:220" aria-label="Certificates and honors">
-      <div class="panel act">
-        <p class="act-no">Scene 6</p>
-        <h2>Certificates &amp; honors</h2>
-        <p>Framed on my wall. Click any frame for details and proof.</p>
-        <button type="button" class="pill ghost" id="btn-certs">See them as a list</button>
-      </div>
+    <section class="scene" id="s5" style="--len:240" aria-label="Certificates and honors">
+      <div class="panel act"><p class="act-no">Chapter Five</p><h2>Certificates &amp; honors</h2><p class="narr"></p><button type="button" class="pill ghost" id="btn-certs">See them as a list</button></div>
     </section>
 
-    <!-- 7. Bedroom, laptop, hobbies -->
-    <section class="scene" id="s6" style="--len:260" aria-label="Hobbies">
-      <div class="panel act">
-        <p class="act-no">Scene 7</p>
-        <h2>Off the clock</h2>
-        <p>Golf, dance, fashion, photography and more, saved on my laptop.</p>
-        <button type="button" class="pill" id="btn-photos">Open Photos</button>
-      </div>
+    <section class="scene" id="s6" style="--len:240" aria-label="Hobbies">
+      <div class="panel act"><p class="act-no">Chapter Six</p><h2>Off the clock</h2><p class="narr"></p><button type="button" class="pill" id="btn-photos">Open Photos</button></div>
     </section>
 
-    <!-- 8. The drone lasers out the contacts -->
-    <section class="scene" id="s7" style="--len:180" aria-label="Contact">
+    <section class="scene" id="s7" style="--len:360" aria-label="Contact">
+      <div class="panel act"><p class="act-no">Chapter Seven</p><h2>A message across the sky</h2><p class="narr"></p></div>
       <div id="holo" class="holo">
         <p class="holo-kicker">Incoming transmission</p>
         <h2>Let's build something together</h2>
@@ -138,8 +133,12 @@
           <li><a data-linkedin href="#" target="_blank" rel="noopener">in LinkedIn</a></li>
           <li><a data-github href="#" target="_blank" rel="noopener">⌥ GitHub</a></li>
         </ul>
-        <p class="holo-row"><button type="button" class="pill" data-copy>Copy email</button><a class="pill ghost" href="#" data-goto="0">Fly again ↑</a></p>
-        <p class="credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
+        <p class="holo-row"><button type="button" class="pill" data-copy>Copy email</button><a class="pill ghost" href="#" data-goto="0">Read again ↑</a></p>
+      </div>
+      <div class="fin panel" id="fin">
+        <p class="fin-k">The End</p>
+        <h2>Let's write the next chapter together</h2>
+        <p class="fin-links"><a class="pill" data-mail href="#">✉ Email Shiqi</a><a class="pill ghost" data-linkedin href="#" target="_blank" rel="noopener">LinkedIn</a><a class="pill ghost" data-github href="#" target="_blank" rel="noopener">GitHub</a><a class="pill ghost" href="#" data-goto="0">Read again ↑</a></p>
       </div>
     </section>
   </main>
