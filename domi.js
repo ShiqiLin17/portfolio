@@ -42,7 +42,8 @@
     }
     return `<path d="${s}" stroke="${col}" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".7"/>`;
   }
-  const P = (d, fill, extra = "") => `<path d="${d}" fill="${fill}" ${extra}/>`;
+  const FUR = new Set(["url(#domi-white)", "url(#domi-cream)", "url(#domi-patch)", "url(#domi-cap)", "#fffaf3", "#efe5d6", "#f7dfbd"]);
+  const P = (d, fill, extra = "") => `<path d="${d}" fill="${fill}" ${extra}${FUR.has(fill) && !/filter=/.test(extra) ? ' filter="url(#domi-plush)"' : ""}/>`;
 
   // ------------------------------------------------------------ side view (faces right)
   // shared gradients (the same ids in every Domi; the first one wins, they're identical)
@@ -52,7 +53,7 @@
     <linearGradient id="domi-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5d5aa"/><stop offset="1" stop-color="#e4b27c"/></linearGradient>
     <radialGradient id="domi-patch" cx=".5" cy=".45" r=".55"><stop offset="0" stop-color="#f1c792"/><stop offset=".62" stop-color="#f1ca98" stop-opacity=".95"/><stop offset="1" stop-color="#f4d6ae" stop-opacity="0"/></radialGradient>
     <radialGradient id="domi-cap" cx=".5" cy=".35" r=".6"><stop offset="0" stop-color="#eebd85"/><stop offset=".55" stop-color="#f1c994" stop-opacity=".9"/><stop offset="1" stop-color="#f6dcb8" stop-opacity="0"/></radialGradient>
-    <filter id="domi-plush" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <filter id="domi-plush" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="1.7"/></filter>
     <radialGradient id="domi-nose" cx=".4" cy=".3" r=".7"><stop offset="0" stop-color="#f8b6b1"/><stop offset="1" stop-color="#e5867f"/></radialGradient>
   </defs>`;
   const WH = "url(#domi-white)", CR = "url(#domi-cream)", PATCH = "url(#domi-patch)", CAP = "url(#domi-cap)";
@@ -104,8 +105,7 @@
   }
   const tail = (p0, p1, p2, p3, wb, wm, seed) => {
     const inner = [p0, p1, p2, p3];
-    return `${P(plume(p0, p1, p2, p3, wb + 2, wm + 4, seed), CR, 'opacity=".8" filter="url(#domi-plush)"')}
-      ${P(plume(p0, p1, p2, p3, wb, wm, seed), CR)}
+    return `${P(plume(p0, p1, p2, p3, wb + 1, wm + 2, seed), CR)}
       ${P(plume(inner[0], inner[1], inner[2], inner[3], wb * 0.4, wm * 0.45, seed + 2), "#f7dfbd", 'opacity=".7"')}`;
   };
 
@@ -123,7 +123,6 @@
     <g data-p="legFF" transform="translate(28 -26)"><g data-p="legFFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
     <g data-p="upper">
       <g data-p="body">
-        ${P(fluff(0, -44, 64, 40, 30, 0.16), WH, 'opacity=".9" filter="url(#domi-plush)"')}${wisps(0, -44, 64, 40, 44, "#f3eadc", 12, 0, 6.28, 15)}
         ${P(fluff(0, -42, 58, 35, 28, 0.13), WH)}${wisps(0, -42, 58, 35, 34, "#efe4d4", 3, 0.2, 3.0, 12)}
         ${P(fluff(-8, -62, 40, 15, 20, 0.2, -0.05), PATCH)}
         ${P(fluff(-36, -46, 17, 19, 12, 0.22), PATCH)}
@@ -199,7 +198,6 @@
     return `<g class="domi-front">${DEFS}
       <ellipse cx="0" cy="6" rx="70" ry="9" fill="#2a1d10" opacity=".12"/>
       <g class="df-tail">${tail([30, -14], [70, -4], [96, -16], [86, -64], 7, 21, 3)}</g>
-      ${P(fluff(0, -44, 68, 56, 30, 0.16), WH, 'opacity=".9" filter="url(#domi-plush)"')}${wisps(0, -44, 68, 56, 46, "#f3eadc", 16, 0, 6.28, 16)}
       ${P(fluff(0, -44, 60, 50, 30, 0.12), WH)}${wisps(0, -44, 60, 50, 40, "#efe4d4", 4, 0.3, 2.85, 13)}
       ${P(fluff(-38, -50, 20, 28, 14, 0.2), PATCH)}${P(fluff(40, -52, 18, 26, 14, 0.2), PATCH)}
       ${P(fluff(0, -54, 42, 48, 24, 0.16), WH)}${wisps(0, -54, 42, 48, 30, "#e9dfcf", 18, 0.4, 2.7, 14)}
@@ -270,7 +268,6 @@
     return `<g class="domi-stand">${DEFS}
       <ellipse cx="2" cy="3" rx="40" ry="5" fill="#2a1d10" opacity=".12"/>
       <g class="ds-tail">${tail([16, -12], [44, 0], [70, -4], [72, -36], 5, 15, 5)}</g>
-      ${P(fluff(2, -40, 38, 45, 26, 0.16), WH, 'opacity=".9" filter="url(#domi-plush)"')}${wisps(2, -40, 38, 45, 34, "#f3eadc", 19, 0, 6.28, 13)}
       ${P(fluff(2, -40, 33, 41, 26, 0.14), WH)}${wisps(2, -40, 33, 41, 28, "#efe4d4", 2, -0.6, 3.6, 11)}
       ${P(fluff(12, -54, 17, 16, 14, 0.22), PATCH)}${P(fluff(17, -30, 11, 10, 12, 0.24), PATCH)}
       ${strands(2, -40, 22, 28, 10, "#e2d5c2", 6)}
