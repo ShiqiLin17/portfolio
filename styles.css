@@ -1316,3 +1316,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .kb-real.dev img { filter: none; opacity: 1; }
 .kb-real figcaption { position: absolute; left: 0; right: 0; bottom: 4px; font-family: var(--hand); font-weight: 700; font-size: 1rem; color: #33302b; }
 .kb-overlay:has(.kb-real:not([hidden])) { inset: 4% 10% auto; }
+
+.social-row { margin-top: 14px; }
+.email.linkedin { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(1.4rem, 3.4vw, 2.2rem); }
+.email.linkedin .in { display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; border-radius: 6px; background: #0a66c2; color: #fff; font-family: var(--body, sans-serif); font-weight: 700; font-size: .7em; line-height: 1; }
