@@ -4,216 +4,475 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shiqi Lin · Computer Engineering</title>
-  <meta name="description" content="Shiqi Lin is a Brooklyn-raised Computer Engineering student at Boston University who builds robots, embedded systems and websites.">
+  <meta name="description" content="Shiqi Lin is a Computer Engineering student at Boston University who builds robots, embedded systems and websites.">
   <meta property="og:title" content="Shiqi Lin">
-  <meta property="og:description" content="Computer Engineering at Boston University. Robotics, embedded systems and web development.">
+  <meta property="og:description" content="Computer Engineering student at Boston University. Robotics, embedded systems and web development.">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#1d2b4a">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Caveat:wght@500;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@1,900&family=Special+Elite&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
 </head>
 <body>
-  <a class="skip" href="#s7">Skip to contact</a>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <!-- The storybook stage: a book that opens, and a painted world inside its pages -->
-  <div id="stage" aria-hidden="true">
-    <div id="cam">
-      <div id="book">
-        <div class="board l"></div><div class="board r"></div>
-        <div class="pg l"></div><div class="pg r"></div>
-        <div id="window">
-          <div id="world"></div>
-          <div id="iris"></div>
-          <div id="byte"></div>
-          <div class="snow"></div>
-          <div class="grain"></div>
-          <div id="pagetext" class="pagetext"><p class="once"><span class="drop">O</span>nce upon a time, in a Tudor house on a snowy street in Queens, there lived a girl named Shiqi&hellip;</p></div>
-          <div id="endtext" class="pagetext end"><p class="the-end">The End</p><p class="once">&hellip;or rather, the beginning of the next chapter.</p></div>
-        </div>
-        <div id="cover">
-          <div class="cv-front">
-            <div class="cv-frame">
-              <p class="cv-eyebrow">A New York Story</p>
-              <p class="cv-title">Shiqi<br>Lin</p>
-              <svg class="cv-orn" viewBox="0 0 200 24"><path d="M0 12 H80 M120 12 H200" stroke="currentColor" stroke-width="1.5"/><path d="M100 2 L110 12 L100 22 L90 12 Z" fill="currentColor"/><circle cx="84" cy="12" r="3" fill="currentColor"/><circle cx="116" cy="12" r="3" fill="currentColor"/></svg>
-              <svg class="cv-sky" viewBox="0 0 220 90"><path fill="currentColor" d="M0 90 V70 H14 V58 H24 V66 H34 V40 H40 V30 H44 V40 H50 V62 H62 V54 H70 V72 H80 V20 H84 V10 H86 V2 H88 V10 H90 V20 H94 V60 H104 V48 H112 V64 H120 V34 Q126 22 132 34 V66 H142 V50 H150 V8 H154 V50 H160 V70 H172 V44 H180 V62 H192 V56 H204 V72 H220 V90 Z"/></svg>
-              <p class="cv-sub">Computer Engineering · Boston University &rsquo;28</p>
-            </div>
-          </div>
-          <div class="cv-back"></div>
-        </div>
-      </div>
-    </div>
-    <svg id="lasers" aria-hidden="true"></svg>
-  </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+    </defs>
+  </svg>
 
-  <header class="topbar">
-    <a class="mono" href="#" data-goto="0" aria-label="Shiqi Lin, back to the start">SL</a>
-    <div class="top-r">
-      <button type="button" class="narrate" id="narrate" aria-pressed="false"><span aria-hidden="true">♪</span> Read it to me</button>
-      <a class="hire" data-mail href="#">Hire me</a>
-    </div>
+  <header class="site-header">
+    <a class="mark" href="#top" aria-label="Shiqi Lin, back to top"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></a>
+    <nav aria-label="Sections">
+      <a href="#about">About</a>
+      <a href="#build">Inside</a>
+      <a href="#cad">CAD</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#certs">Honors</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="domi-toggle" id="domi-toggle" type="button" aria-pressed="true"><i aria-hidden="true">🐾</i><span>Domi is roaming</span></button>
+    <button class="power" id="power" type="button" aria-pressed="false" aria-label="Lights off (dark mode)">
+      <span class="power-track" aria-hidden="true"><span class="power-knob"></span></span>
+      <span class="power-label">Lights</span>
+    </button>
   </header>
 
-  <nav class="scene-nav" aria-label="Chapters"><ol id="scene-nav"></ol></nav>
-  <p id="hint" class="hint" aria-hidden="true">Scroll to open the book</p>
-
-  <main>
-    <section class="scene" id="s0" style="--len:280" aria-label="Introduction">
-      <div class="sr-only">
-        <h1>Shiqi Lin</h1>
-        <p>Computer Engineering · Boston University '28. A New Yorker who builds robots, embedded systems and the web. Captain of a World Championship robotics team, now teaching Arduino and motor control at BU.</p>
-      </div>
-      <p class="cue panel" id="cue">Scroll to open the book <span aria-hidden="true">↓</span></p>
-    </section>
-
-    <section class="scene" id="s1" style="--len:420" aria-label="Headlines">
-      <div class="panel act"><p class="act-no">Chapter One</p><h2>Byte flies to the city</h2><p class="narr"></p></div>
-      <article id="paper" class="paper" aria-label="The Shiqi York Times">
-        <header class="paper-head">
-          <p class="paper-meta"><span>Late Edition</span><span id="paper-date">Today</span><span>New York · $0.00</span></p>
-          <p class="masthead">The Shiqi York Times</p>
-          <p class="paper-rule">ALL THE ENGINEERING THAT'S FIT TO BUILD</p>
-        </header>
-        <p class="extra">Extra! Extra!</p>
-        <h2 class="headline">SHIQI LIN: HIRE WANTED</h2>
-        <p class="deck">Brooklyn-raised robotics captain and Boston University engineer seeks internship in robotics, embedded systems and software. Recruiters urged to act fast.</p>
-        <div class="paper-cols">
-          <div><h3>Takes team to World Championship</h3><p>As captain of FTC Team 3371, she led design and C++ programming of autonomous robots with AprilTag vision, reaching the 2023 FIRST Championship and winning the Think Award.</p></div>
-          <div><h3>$50K+ raised for robotics</h3><p>On FRC Team 333's business side, she secured sponsorships from BrioTech and managed the team's annual budget.</p></div>
-          <div><h3>Now teaching at BU</h3><p>As a College of Engineering TA, she runs labs on Arduino, MOSFET switching and servo and stepper motor control.</p></div>
-          <div><h3>Startup in the works</h3><p>VibeWake blends smart hardware, an app and behavioral science to change how people wake up.</p></div>
-        </div>
-        <ul class="paper-stats"><li><b>7</b> roles &amp; internships</li><li><b>17</b> certificates &amp; honors</li><li><b>4</b> websites shipped</li></ul>
-        <p class="paper-cta"><a data-mail href="#">Hire Shiqi</a><a href="#" data-goto="2">Read her letter</a></p>
-      </article>
-    </section>
-
-    <section class="scene" id="s2" style="--len:260" aria-label="About me">
-      <div class="panel act"><p class="act-no">Chapter Two</p><h2>A letter on the desk</h2><p class="narr"></p><button type="button" class="pill" id="btn-letter">Read the letter</button></div>
-    </section>
-
-    <section class="scene" id="s3" style="--len:220" aria-label="Experience">
-      <div class="panel act"><p class="act-no">Chapter Three</p><h2>The experience book</h2><p class="narr"></p><button type="button" class="pill" id="btn-book">Open the book</button></div>
-    </section>
-
-    <section class="scene" id="s4" style="--len:260" aria-label="Workshop and projects">
-      <div class="panel act workshop"><p class="act-no">Chapter Four</p><h2>The workshop</h2><p class="narr"></p>
-        <div class="row">
-          <button type="button" class="pill" id="btn-apart" aria-pressed="false">Take apart</button>
-          <button type="button" class="pill ghost" id="btn-build" aria-pressed="true">Build</button>
-          <button type="button" class="pill ghost" id="btn-tools">My toolbox</button>
-        </div>
-        <details class="files-box">
-          <summary>Project files <span>(6)</span></summary>
-          <ul class="files" id="project-files"></ul>
-        </details>
-      </div>
-    </section>
-
-    <section class="scene" id="s5" style="--len:240" aria-label="Certificates and honors">
-      <div class="panel act"><p class="act-no">Chapter Five</p><h2>Certificates &amp; honors</h2><p class="narr"></p><button type="button" class="pill ghost" id="btn-certs">See them as a list</button></div>
-    </section>
-
-    <section class="scene" id="s6" style="--len:240" aria-label="Hobbies">
-      <div class="panel act"><p class="act-no">Chapter Six</p><h2>Off the clock</h2><p class="narr"></p><button type="button" class="pill" id="btn-photos">Open Photos</button></div>
-    </section>
-
-    <section class="scene" id="s7" style="--len:360" aria-label="Contact">
-      <div class="panel act"><p class="act-no">Chapter Seven</p><h2>A message across the sky</h2><p class="narr"></p></div>
-      <div id="holo" class="holo">
-        <p class="holo-kicker">Incoming transmission</p>
-        <h2>Let's build something together</h2>
-        <p>Open to internships in robotics, embedded systems and software.</p>
-        <ul class="holo-links">
-          <li><a data-mail href="#">✉ shiqilin17@gmail.com</a></li>
-          <li><a data-linkedin href="#" target="_blank" rel="noopener">in LinkedIn</a></li>
-          <li><a data-github href="#" target="_blank" rel="noopener">⌥ GitHub</a></li>
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="scribble">hi, I'm</p>
+        <h1 class="hero-name" aria-label="Shiqi Lin">
+          <span class="split" aria-hidden="true">Shiqi</span>
+          <span class="split" aria-hidden="true">Lin</span>
+        </h1>
+        <p class="hi-note" aria-hidden="true">spot the <b>hi</b> in my name? ♡</p>
+        <p class="role"><span class="tape-label">Computer Engineering</span> Boston University, class of 2028</p>
+        <p class="intro">I build robots, embedded systems and websites. I captained a FIRST Tech Challenge team to the World Championship, shipped sites for small businesses in Brooklyn, and now teach Arduino and motor control to engineering students at BU.</p>
+        <ul class="pads" aria-label="Links">
+          <li><a href="#projects">See my work</a></li>
+          <li><a href="https://www.linkedin.com/in/shiqi017" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://github.com/ShiqiLin17" target="_blank" rel="noopener">GitHub</a></li>
         </ul>
-        <p class="holo-row"><button type="button" class="pill" data-copy>Copy email</button><a class="pill ghost" href="#" data-goto="0">Read again ↑</a></p>
       </div>
-      <div class="fin panel" id="fin">
-        <p class="fin-k">The End</p>
-        <h2>Let's write the next chapter together</h2>
-        <p class="fin-links"><a class="pill" data-mail href="#">✉ Email Shiqi</a><a class="pill ghost" data-linkedin href="#" target="_blank" rel="noopener">LinkedIn</a><a class="pill ghost" data-github href="#" target="_blank" rel="noopener">GitHub</a><a class="pill ghost" href="#" data-goto="0">Read again ↑</a></p>
+
+      <div class="hero-side">
+      <aside class="clipping times" aria-label="Shiqi at a glance">
+        <span class="tape tape-tl" aria-hidden="true"></span>
+        <span class="tape tape-br" aria-hidden="true"></span>
+        <p class="masthead">The Shiqi Times</p>
+        <p class="dateline"><span id="live-date">Today's edition</span> · Boston, MA</p>
+        <h2 class="lead-headline">Brooklyn robotics captain takes team to the World Championship</h2>
+        <p class="lead-dek">Now a BU engineer teaching Arduino and motor control, and building the startup VibeWake.</p>
+        <div class="times-cols">
+          <div>
+            <p class="col-head">Now</p>
+            <p>Teaching Assistant, BU College of Engineering</p>
+          </div>
+          <div>
+            <p class="col-head">Seeking</p>
+            <p>Internships in robotics, embedded systems &amp; software</p>
+          </div>
+        </div>
+        <ul class="stats" aria-label="Quick stats">
+          <li><b>$50K+</b><span>in sponsorships raised</span></li>
+          <li><b>7</b><span>roles &amp; internships</span></li>
+          <li><b>4</b><span>sites shipped</span></li>
+        </ul>
+        <p class="times-links"><a href="#about">Read the full story</a><a href="mailto:shiqilin17@gmail.com">Hire me</a></p>
+      </aside>
+      <figure class="porthole-wrap">
+        <div class="porthole"><div class="drum"></div><div id="hero-domi" class="hero-domi" tabindex="0" role="button" aria-label="Domi, Shiqi's cat. Rub her to pet her, or click to say hi"></div><span class="glass" aria-hidden="true"></span></div>
+        <figcaption class="domi-tag">this is <b>Domi</b>, my cat. pet her! <span aria-hidden="true">↖</span></figcaption>
+      </figure>
       </div>
+    </section>
+
+    <!-- SCROLL STORY: the screen is a knitted sweater. Domi pulls a loose
+         strand of yarn, it unravels open, and the story is knitted inside. -->
+    <section class="story" id="build" aria-label="What I work with">
+      <div class="story-sticky garment" id="garment">
+        <!-- inside the sweater -->
+        <div class="lining">
+          <div class="inside">
+            <div class="part-frame">
+              <svg id="part-art" viewBox="-120 -120 240 240" aria-hidden="true"></svg>
+              <span class="part-tag" id="part-tag">the heart</span>
+            </div>
+            <div class="inside-text">
+              <article class="step" data-step="1">
+                <h3>The heart</h3>
+                <p class="note">AI · robotics · real-world impact</p>
+                <p>What keeps it all running: building things that make life easier, smarter or more fun, and using AI and robotics ethically in education, health and everyday life.</p>
+                <p><a class="step-link" href="#about">Read my story</a></p>
+              </article>
+              <article class="step" data-step="2">
+                <h3>The brain</h3>
+                <p class="note">C++ · Python · Java · JavaScript</p>
+                <p>I write firmware and autonomous OpModes as comfortably as web frontends and Node.js backends.</p>
+              </article>
+              <article class="step" data-step="3">
+                <h3>The eyes</h3>
+                <p class="note">AprilTags · UVC cameras · IMU</p>
+                <p>Computer vision fused with color, ultrasonic and inertial sensors so a robot knows where it is.</p>
+              </article>
+              <article class="step" data-step="4">
+                <h3>The muscle</h3>
+                <p class="note">servos · steppers · PIDF</p>
+                <p>Motor control with PIDF loops and encoders. I now teach these labs to BU engineering students.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <!-- the two knitted front panels -->
+        <div class="panel panel-l" id="panel-l">
+          <div class="collar collar-l" aria-hidden="true"></div>
+          <div class="placket" aria-hidden="true">
+            <span class="btn"></span><span class="btn"></span><span class="btn"></span><span class="btn"></span><span class="btn"></span>
+          </div>
+          <svg class="fray fray-l" viewBox="0 0 60 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+        <div class="panel panel-r" id="panel-r">
+          <div class="collar collar-r" aria-hidden="true"></div>
+          <svg class="fray fray-r" viewBox="0 0 60 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+
+        <div class="patch">
+            <article class="step" data-step="0">
+              <h2 class="ransom">Pull the yarn</h2>
+              <p>Every good build starts with a single loose thread. This whole screen is a sweater, and Domi just found the end of the yarn. Keep scrolling and let her pull.</p>
+            </article>
+            <article class="step" data-step="5">
+              <h3>The pattern</h3>
+              <p class="note">Onshape · SolidWorks · Fusion 360</p>
+              <p>Like a knitting pattern, I start in CAD, then fabricate, test and knit it all back together.</p>
+              <p class="made">knitted by Shiqi, unravelled by Domi ♡</p>
+            </article>
+          </div>
+        <svg class="sewing" id="sewing" aria-hidden="true"></svg>
+
+        <div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+          <span class="cue-dots" id="cue-dots"></span>
+          <span class="cue-text" id="cue-text">keep scrolling ↓</span>
+          <span class="cue-arrow">↓</span>
+        </div>
+        <div class="step-progress" aria-hidden="true"><span id="step-bar"></span></div>
+      </div>
+    </section>
+
+    <!-- ABOUT: a mailbox with a letter inside -->
+    <section id="about" class="section about">
+      <h2 class="ransom">About me</h2>
+      <p class="hint" id="mail-hint">You've got mail! Pull the mailbox door down, or click it.</p>
+
+      <div class="mail" id="mail" data-state="closed">
+        <div class="mail-stage">
+          <button type="button" class="mailbox" id="mailbox" aria-label="Open the mailbox" aria-describedby="mail-hint">
+            <svg viewBox="0 0 260 320" aria-hidden="true">
+              <rect class="mb-post" x="116" y="160" width="28" height="160" rx="3"/>
+              <rect class="mb-post-shadow" x="134" y="160" width="10" height="160"/>
+              <path class="mb-body" d="M34 176 V102 Q34 36 130 36 Q226 36 226 102 V176 Z"/>
+              <path class="mb-inside" d="M48 168 V104 Q48 52 130 52 Q212 52 212 104 V168 Z"/>
+              <g class="mb-flag">
+                <rect class="mb-flag-pole" x="226" y="70" width="8" height="78" rx="3"/>
+                <path class="mb-flag-cloth" d="M234 72 H270 L262 86 L270 100 H234 Z"/>
+              </g>
+              <g class="mb-door">
+                <path class="mb-door-face" d="M48 168 V104 Q48 52 130 52 Q212 52 212 104 V168 Z"/>
+                <path class="mb-door-trim" d="M60 160 V106 Q60 64 130 64 Q200 64 200 106 V160 Z"/>
+                <text class="mb-name" x="130" y="118" text-anchor="middle">S. LIN</text>
+                <rect class="mb-handle" x="116" y="138" width="28" height="9" rx="4"/>
+              </g>
+              <g id="mail-domi" transform="translate(275 320) scale(.84)"></g>
+            </svg>
+            <span class="pull-tab" aria-hidden="true">pull me ↓</span>
+          </button>
+
+          <button type="button" class="envelope" id="envelope" aria-label="Open the letter" tabindex="-1">
+            <span class="env-back" aria-hidden="true"></span>
+            <span class="env-peek" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span class="env-front" aria-hidden="true"></span>
+            <span class="env-flap" aria-hidden="true"></span>
+            <span class="env-seal" aria-hidden="true">SL</span>
+            <span class="env-address" aria-hidden="true">to: <b>you</b><br>from: Shiqi</span>
+            <span class="env-stamp" aria-hidden="true"><span>BU</span></span>
+          </button>
+        </div>
+
+        <div class="letter-wrap">
+          <article class="journal-page letter" id="letter" tabindex="-1" aria-labelledby="letter-hello">
+          <figure class="portrait clipped">
+            <span class="paperclip" aria-hidden="true"></span>
+            <div class="portrait-slot" id="portrait-slot" aria-label="Photo coming soon">
+              <span class="smile" aria-hidden="true">(◕‿◕)</span>
+              <span>photo coming soon</span>
+            </div>
+            <figcaption>Shiqi · Boston, MA</figcaption>
+          </figure>
+          <p class="journal-date" id="letter-hello">Dear reader,</p>
+          <p>I'm a Computer Engineering student at Boston University passionate about AI, robotics, and building things that make life easier, smarter, or more fun. I enjoy working on projects that combine engineering, creativity, and impact — whether that's developing autonomous robots, building digital tools, or creating new user experiences.</p>
+          <p>At BU, I've been working on a startup project called <mark>VibeWake</mark>, which explores how tech can reshape how we wake up and start our day — combining behavioral science, smart hardware, and app development. It's a passion project that pushes me to think like both an engineer and an entrepreneur.</p>
+          <p>Before college, I served as team captain of <mark>FIRST Tech Challenge Team 3371</mark>, where I led the design and programming of competition-ready robots, implemented computer vision systems, and secured sponsorships to keep our team moving. I also worked on the business and outreach side of a FIRST Robotics Competition team, managing a $50K+ budget and building community partnerships.</p>
+          <p class="pullquote">"I bring both a technical foundation and a business mindset."</p>
+          <p>Beyond robotics, I've had hands-on experience in:</p>
+          <ul class="patches">
+            <li><strong>Web development</strong> JavaScript, Node.js, C++</li>
+            <li><strong>UX/UI design</strong> Figma, user testing</li>
+            <li><strong>Marketing &amp; logistics</strong> campaign strategy, team leadership</li>
+            <li><strong>Research &amp; data</strong> MATLAB, Excel, Python</li>
+          </ul>
+          <p>I'm excited by how AI and robotics can be used ethically to solve real-world problems in education, health, and everyday life. I'm always looking to learn, build, and collaborate on something meaningful.</p>
+          <p class="signoff">Let's connect! <span>— Shiqi</span></p>
+        </article>
+          <button type="button" class="reseal" id="reseal">Fold it back into the envelope</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS CAROUSEL -->
+    <section id="projects" class="section">
+      <h2 class="ransom">Projects</h2>
+      <p class="hint">Pinned up for you. Click any polaroid for the full story.</p>
+
+      <div class="pinboard" id="carousel">
+        <article class="card c-robot" data-project="ftc">
+          <div class="card-art" aria-hidden="true"><span>3371</span></div>
+          <div class="card-body">
+            <p class="when">2020–2024 · Team captain</p>
+            <h3>FTC competition robots</h3>
+            <p>Autonomous navigation with AprilTag vision and PIDF control. Reached the FIRST Championship.</p>
+            <ul class="tags"><li>C++</li><li>Vision</li><li>Controls</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-water" data-project="ewb">
+          <div class="card-art" aria-hidden="true"><span>H₂O</span></div>
+          <div class="card-body">
+            <p class="when">2025 · Engineers Without Borders</p>
+            <h3>Water filtration in Kenya</h3>
+            <p>Led the team designing freshwater plumbing filtration systems for schools.</p>
+            <ul class="tags"><li>Systems</li><li>Leadership</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-wake" data-project="vibewake">
+          <div class="card-art" aria-hidden="true"><span>7:00</span></div>
+          <div class="card-body">
+            <p class="when">Startup project at BU</p>
+            <h3>VibeWake</h3>
+            <p>Smart hardware, an app and behavioral science to change how people wake up.</p>
+            <ul class="tags"><li>Hardware</li><li>App</li><li>Product</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-web" data-project="web">
+          <div class="card-art" aria-hidden="true"><span>&lt;/&gt;</span></div>
+          <div class="card-body">
+            <p class="when">2025–2026 · Freelance &amp; nonprofit</p>
+            <h3>Websites for Brooklyn</h3>
+            <p>Designed and shipped sites for four local businesses and nonprofits.</p>
+            <ul class="tags"><li>HTML/CSS</li><li>JavaScript</li><li>Figma</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-fashion" data-project="buji">
+          <div class="card-art" aria-hidden="true"><span>SxB</span></div>
+          <div class="card-body">
+            <p class="when">2025 · Fashion collaboration</p>
+            <h3>SHIQI X BUJI Design</h3>
+            <p>An original clothing line sold worldwide through a partner brand.</p>
+            <ul class="tags"><li>Design</li><li>Marketing</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+
+        <article class="card c-bio" data-project="bio">
+          <div class="card-art" aria-hidden="true"><span>Bay</span></div>
+          <div class="card-body">
+            <p class="when">2023 · Brooklyn College</p>
+            <h3>Jamaica Bay research</h3>
+            <p>Field research on invasive species, presented at the American Museum of Natural History.</p>
+            <ul class="tags"><li>Research</li><li>Data</li></ul>
+            <button type="button" class="open">Open project</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- CAD LAB -->
+    <section id="cad" class="section">
+      <h2 class="ransom">CAD lab</h2>
+      <p class="hint">Real models I designed in Fusion 360. Drag to rotate, scroll or pinch to zoom.</p>
+      <div class="cad">
+        <div class="cad-stage">
+          <canvas id="cad-canvas" aria-label="3D model viewer"></canvas>
+          <p class="cad-status" id="cad-status" role="status">Loading model</p>
+          <div class="cad-tools">
+            <button type="button" id="cad-spin" aria-pressed="true">Auto-rotate</button>
+            <button type="button" id="cad-wire" aria-pressed="false">Wireframe</button>
+            <button type="button" id="cad-reset">Reset view</button>
+          </div>
+        </div>
+        <div class="cad-side">
+          <div class="cad-list" id="cad-list" role="tablist" aria-label="Choose a model"></div>
+          <div class="cad-info" id="cad-info"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="section">
+      <h2 class="ransom">Experience</h2>
+      <ol class="timeline" id="timeline">
+        <li data-exp="bu-ta">
+          <p class="dates">Sep 2026 – now</p>
+          <div>
+            <h3>Teaching Assistant <span>Boston University College of Engineering</span></h3>
+            <p>Mentor student teams through the engineering design process and lead labs on Arduino, MOSFET switching, power supplies, and servo and stepper motor control. Support Onshape CAD instruction and fabrication at BU's EPIC.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="freelance">
+          <p class="dates">Jul – Sep 2026</p>
+          <div>
+            <h3>Web Developer <span>Freelance, Brooklyn</span></h3>
+            <p>Built websites and handled domain migration for Seaway Beauty, the North America Cantonese Arts Foundation and KXNY International.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="athens">
+          <p class="dates">Jul – Oct 2025</p>
+          <div>
+            <h3>Fullstack Engineer &amp; Marketing <span>AthensLabs.ai</span></h3>
+            <p>Built full-stack systems for an AI-agent education platform, prototyped agent features, and set up Jenkins CI/CD with automated tests in Agile sprints. Helped shape product positioning.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="cultured">
+          <p class="dates">Jun – Sep 2025</p>
+          <div>
+            <h3>Frontend Developer <span>Cultured Kids Cuisine</span></h3>
+            <p>Redesigned the responsive frontend for a youth culinary-education nonprofit. My redesign was chosen in A/B review and shipped to production.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="fortune">
+          <p class="dates">Jun – Aug 2025</p>
+          <div>
+            <h3>EHS Technician Assistant <span>Fortune Logistics</span></h3>
+            <p>Diagnosed failing warehouse air handling, replaced HEPA and carbon filtration, and validated air quality for OSHA compliance.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="suny">
+          <p class="dates">Jun – Aug 2024</p>
+          <div>
+            <h3>IT Specialist <span>SUNY ATTAIN Lab</span></h3>
+            <p>Fixed workstation hardware and connectivity issues and applied patches and firmware updates for lab operations.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+        <li data-exp="infinity">
+          <p class="dates">Jul – Sep 2023</p>
+          <div>
+            <h3>UX/UI Design Specialist <span>Infinity Educational Programs</span></h3>
+            <p>Designed accessible Figma prototypes and content for mental-health programs in South Brooklyn.</p>
+            <button type="button" class="open">View details</button>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- CERTIFICATES & HONORS: framed on the wall -->
+    <section id="certs" class="section">
+      <h2 class="ransom">Certificates &amp; Honors</h2>
+      <p class="hint">Hung up on my wall. Click any frame for details and proof.</p>
+      <h3 class="wall-title">Honors</h3>
+      <ul class="wall" id="honors-wall"></ul>
+      <h3 class="wall-title">Certificates</h3>
+      <ul class="wall" id="certs-wall"></ul>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="section">
+      <h2 class="ransom">Toolbox</h2>
+      <p class="hint">Pick a category to filter.</p>
+      <div class="filters" role="group" aria-label="Filter skills">
+        <button type="button" class="filter is-on" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="filter" data-filter="code" aria-pressed="false">Code</button>
+        <button type="button" class="filter" data-filter="robot" aria-pressed="false">Robotics</button>
+        <button type="button" class="filter" data-filter="cad" aria-pressed="false">CAD &amp; hardware</button>
+        <button type="button" class="filter" data-filter="tools" aria-pressed="false">Tools &amp; design</button>
+      </div>
+      <ul class="chips" id="chips">
+        <li data-cat="code">C++</li><li data-cat="code">Python</li><li data-cat="code">Java</li><li data-cat="code">JavaScript</li><li data-cat="code">HTML5 &amp; CSS3</li><li data-cat="code">Node.js</li><li data-cat="code">MATLAB</li>
+        <li data-cat="robot">Arduino</li><li data-cat="robot">Motor control</li><li data-cat="robot">PIDF tuning</li><li data-cat="robot">AprilTags</li><li data-cat="robot">Sensor integration</li><li data-cat="robot">ROS</li>
+        <li data-cat="cad">Onshape</li><li data-cat="cad">SolidWorks</li><li data-cat="cad">Fusion 360</li><li data-cat="cad">AutoCAD</li><li data-cat="cad">Circuit design</li><li data-cat="cad">Hardware debugging</li>
+        <li data-cat="tools">Figma</li><li data-cat="tools">Jenkins CI/CD</li><li data-cat="tools">GitLab</li><li data-cat="tools">VS Code</li><li data-cat="tools">CLion</li><li data-cat="tools">Agile/Scrum</li><li data-cat="tools">Microsoft 365</li>
+      </ul>
+      <p class="langs">I speak English and Chinese natively.</p>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section contact">
+      <h2 class="ransom">Let's build something</h2>
+      <p>I'm looking for engineering internships in robotics, embedded systems and software. Email is the fastest way to reach me.</p>
+      <div class="email-row">
+        <a class="email" href="mailto:shiqilin17@gmail.com">shiqilin17@gmail.com</a>
+        <button type="button" class="copy" id="copy-email">Copy email</button>
+      </div>
+      <p class="toast" id="toast" role="status" aria-live="polite"></p>
+      <figure class="sleepy" id="sleepy"></figure>
+      <p class="sleepy-cap">Signing off for the night, with my co-pilot. ↓ one more thing</p>
+    </section>
+
+    <!-- THE REVEAL: Domi is real -->
+    <section id="reveal" class="section reveal" aria-labelledby="reveal-title">
+      <p class="scribble">psst… one more thing</p>
+      <h2 class="ransom" id="reveal-title">Domi is real</h2>
+      <p class="reveal-lede">She isn't a random cartoon cat. Every Domi on this page was drawn from a real photo. Here's the evidence.</p>
+      <figure class="polaroid hero-photo">
+        <span class="tape" aria-hidden="true"></span>
+        <div class="develop"><img src="media/domi/shiqi-and-domi.jpg" alt="Shiqi asleep, hugging Domi, her cream and white British longhair cat" loading="lazy"></div>
+        <figcaption>me &amp; Domi, the end of a very long day</figcaption>
+      </figure>
+      <ul class="gallery-domi">
+        <li><figure class="polaroid"><div class="develop"><img src="media/domi/domi-laundry.jpg" alt="Domi sitting inside the washing machine, staring at the camera" loading="lazy"></div><figcaption>laundry supervisor</figcaption></figure><a class="seen" href="#top">as seen in the porthole ↑</a></li>
+        <li><figure class="polaroid"><div class="develop"><img src="media/domi/domi-blinds.jpg" alt="Domi on her back, batting the cord of the window blinds with her paw" loading="lazy"></div><figcaption>chief string inspector</figcaption></figure><a class="seen" href="#build">as seen pulling the yarn ↑</a></li>
+        <li><figure class="polaroid"><div class="develop"><img src="media/domi/domi-plumbing.jpg" alt="Domi standing on her hind legs, peeking into the toilet bowl" loading="lazy"></div><figcaption>head of plumbing</figcaption></figure><a class="seen" href="#about">as seen checking my mail ↑</a></li>
+        <li><figure class="polaroid"><div class="develop"><img src="media/domi/shiqi-and-domi.jpg" alt="Shiqi and Domi asleep together" loading="lazy"></div><figcaption>nap partner</figcaption></figure><a class="seen" href="#contact">as seen signing off ↑</a></li>
+      </ul>
+      <p class="reveal-end">Thanks for reading, and for petting my cat. <a href="mailto:shiqilin17@gmail.com">Say hi</a> ♡</p>
     </section>
   </main>
 
-  <!-- ===== dialogs ===== -->
-  <dialog id="detail" class="sheet" aria-labelledby="detail-title">
-    <button type="button" class="x" data-close aria-label="Close">✕</button>
+  <footer class="site-footer">
+    <p>© <span id="year">2026</span> Shiqi Lin · New York and Boston</p>
+  </footer>
+
+  <!-- Project detail dialog -->
+  <dialog class="detail" id="detail" aria-labelledby="detail-title">
+    <button type="button" class="detail-close" id="detail-close" aria-label="Close project">✕</button>
     <div id="detail-body"></div>
   </dialog>
 
-  <dialog id="letterDlg" class="letter-dlg" aria-label="A letter from Shiqi">
-    <button type="button" class="x" data-close aria-label="Close the letter">✕</button>
-    <article class="letter">
-      <figure class="clip-photo"><span class="paperclip" aria-hidden="true"></span><div id="letter-photo"><span>photo coming soon</span></div><figcaption>me, in Boston</figcaption></figure>
-      <p class="dear">Dear reader,</p>
-      <p>I'm a Computer Engineering student at Boston University passionate about AI, robotics, and building things that make life easier, smarter, or more fun. I enjoy working on projects that combine engineering, creativity, and impact — whether that's developing autonomous robots, building digital tools, or creating new user experiences.</p>
-      <p>At BU, I've been working on a startup project called <mark>VibeWake</mark>, which explores how tech can reshape how we wake up and start our day — combining behavioral science, smart hardware, and app development. It's a passion project that pushes me to think like both an engineer and an entrepreneur.</p>
-      <p>Before college, I served as team captain of <mark>FIRST Tech Challenge Team 3371</mark>, where I led the design and programming of competition-ready robots, implemented computer vision systems, and secured sponsorships to keep our team moving. I also worked on the business/outreach side of a FIRST Robotics Competition team, managing a $50K+ budget and building community partnerships.</p>
-      <p>Beyond robotics, I've had hands-on experience in:</p>
-      <ul>
-        <li><b>Web development</b> (JavaScript, Node.js, C++)</li>
-        <li><b>UX/UI design</b> (Figma, user testing)</li>
-        <li><b>Marketing and logistics</b> (campaign strategy, team leadership)</li>
-        <li><b>Research and data analysis</b> (MATLAB, Excel, Python)</li>
-      </ul>
-      <p>I'm excited by how AI and robotics can be used ethically to solve real-world problems in education, health, and everyday life. I bring both a technical foundation and a business mindset — and I'm always looking to learn, build, and collaborate on something meaningful.</p>
-      <p class="sign">Let's connect!<span>Shiqi</span></p>
-    </article>
-  </dialog>
-
-  <dialog id="bookDlg" class="book-dlg" aria-label="Experience book">
-    <button type="button" class="x" data-close aria-label="Close the book">✕</button>
-    <div class="book">
-      <div class="page left" id="page-L"></div>
-      <div class="page right" id="page-R"></div>
-      <div class="leaf" id="leaf"><div class="leaf-front"></div><div class="leaf-back"></div></div>
-    </div>
-    <div class="book-ctrl">
-      <button type="button" class="pill ghost" id="book-prev">← Previous</button>
-      <span id="book-count">Contents</span>
-      <button type="button" class="pill" id="book-next">Next page →</button>
-    </div>
-  </dialog>
-
-  <dialog id="toolsDlg" class="tools-dlg" aria-labelledby="tools-title">
-    <button type="button" class="x" data-close aria-label="Close">✕</button>
-    <h2 id="tools-title">My toolbox</h2>
-    <p class="note">Pick a category to filter.</p>
-    <div class="chip-filters" id="tool-filters" role="group" aria-label="Filter skills"></div>
-    <ul class="chips" id="tool-chips"></ul>
-    <p class="note" id="tool-langs"></p>
-  </dialog>
-
-  <dialog id="certsDlg" class="sheet list-dlg" aria-labelledby="certs-title">
-    <button type="button" class="x" data-close aria-label="Close">✕</button>
-    <div class="detail-content">
-      <h2 id="certs-title">Certificates &amp; honors</h2>
-      <ul class="cert-list" id="cert-list"></ul>
-    </div>
-  </dialog>
-
-  <dialog id="photosDlg" class="mac" aria-label="Photos on Shiqi's laptop">
-    <div class="mac-screen">
-      <div class="mac-bar"><span class="dots"><button type="button" data-close aria-label="Close Photos"></button><i></i><i></i></span><b>Photos</b></div>
-      <div class="mac-body">
-        <aside class="mac-side"><p>Library</p><ul><li class="on">Hobbies</li><li>Robotics</li><li>NYC</li><li>Favorites</li></ul></aside>
-        <section class="mac-main">
-          <div id="ph-library"><h2>Hobbies</h2><ul class="ph-grid" id="ph-grid"></ul></div>
-          <div id="ph-viewer" hidden><p class="ph-top"><button type="button" class="ph-back" id="ph-back">‹ Library</button><b id="ph-viewer-title"></b></p><div id="ph-stage"></div></div>
-        </section>
-      </div>
-    </div>
-    <div class="mac-base" aria-hidden="true"></div>
-  </dialog>
-
-  <script type="module" src="app.js"></script>
+  <script src="script.js"></script>
+  <script src="domi.js"></script>
+  <script src="garment.js"></script>
+  <script src="needle.js"></script>
+  <script type="module" src="cad.js"></script>
 </body>
 </html>
