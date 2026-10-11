@@ -155,10 +155,10 @@
     const by = br.top - gr.top + br.height / 2;
     if (D) {
       const st = D.st;
-      const sc = Math.max(0.55, Math.min(1.05, H / 900)) * (W < 700 ? 0.75 : 1);
+      const sc = Math.max(0.7, Math.min(1.3, H / 720)) * (W < 700 ? 0.8 : 1);
       const ground = H - 18;
       st.s = sc; st.y = ground; st.flip = true; st.t = time;
-      const reach = 112 * sc;             // from her center to her raised paw
+      const reach = 70 * sc;              // from her center to her raised paw
       const walkIn = ease(seg(p, 0.02, 0.1));
       const pull = ease(seg(p, 0.13, 0.24));
       const back = ease(seg(p, 0.84, 0.92));
@@ -183,7 +183,7 @@
       st.lookY = batting ? -1 : 0.3;
       st.blink = (time % 4) < 0.12 ? 1 : 0;
       D.apply();
-      const pawX = x - reach, pawY = ground - (batting ? 150 : 70) * sc;
+      const pawX = x - reach, pawY = ground - (batting ? 95 : 45) * sc;
       // the strand
       const edgeX = W * 0.52 - open * W * 0.45, edgeY = H * 0.34;
       const ballR = 30 * sc * clamp01(seg(p, 0.14, 0.4) * (1 - back) + 0.0001);
@@ -193,11 +193,11 @@
       let d;
       if (p < 0.13) {
         // dangling from the top button, swinging, batted by her paw
-        const endY = Math.min(ground - 160 * sc, H * 0.7);
+        const endY = Math.min(ground - 105 * sc, H * 0.75);
         const sway = Math.sin(time * 2) * 14 + (batting ? (swing - 0.5) * 40 : 0);
         d = `M${bx} ${by} Q${bx + sway * 0.4} ${(by + endY) / 2} ${bx + sway} ${endY}`;
       } else if (p < 0.24) {
-        d = `M${edgeX.toFixed(1)} ${edgeY.toFixed(1)} Q${((edgeX + pawX) / 2).toFixed(1)} ${((edgeY + pawY) / 2 + 20 * (1 - pull)).toFixed(1)} ${pawX.toFixed(1)} ${(ground - 120 * sc).toFixed(1)}`;
+        d = `M${edgeX.toFixed(1)} ${edgeY.toFixed(1)} Q${((edgeX + pawX) / 2).toFixed(1)} ${((edgeY + pawY) / 2 + 20 * (1 - pull)).toFixed(1)} ${pawX.toFixed(1)} ${(ground - 80 * sc).toFixed(1)}`;
       } else {
         const sag = 80 + 30 * Math.sin(time);
         d = `M${edgeX.toFixed(1)} ${edgeY.toFixed(1)} Q${((edgeX + bxp) / 2).toFixed(1)} ${(Math.max(edgeY, byp) + sag).toFixed(1)} ${bxp.toFixed(1)} ${byp.toFixed(1)}`;
@@ -206,7 +206,7 @@
       strand.style.opacity = p > 0.92 ? 0 : 1;
       if (st.sleep > 0.9 && Math.random() < 0.012 && window.Domi) {
         const r = garment.getBoundingClientRect();
-        window.Domi.pop(r.left + x - 60 * sc, r.top + ground - 120 * sc, "z", "zzz");
+        window.Domi.pop(r.left + x - 40 * sc, r.top + ground - 90 * sc, "z", "zzz");
       }
     }
 

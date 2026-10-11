@@ -1227,7 +1227,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .porthole .drum { position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #54595d 0 40%, #2f3336 75%); box-shadow: 0 0 0 9px #2c2f31, 0 0 0 11px #9ea3a6; overflow: hidden; }
 .porthole .drum::before { content: ""; position: absolute; inset: 0; background: repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.07) 0 3px, transparent 3px 9px); }
 .hero-domi { position: absolute; inset: 14%; border-radius: 50%; overflow: hidden; cursor: pointer; }
-.hero-domi .domi-svg { position: absolute; left: 50%; bottom: -6%; width: 104%; transform: translateX(-50%); }
+.hero-domi .domi-svg { position: absolute; left: 50%; bottom: -4%; width: 92%; transform: translateX(-50%); }
 .hero-domi .df-head { transform-origin: 0 -100px; transform-box: view-box; transition: transform .25s ease; }
 .hero-domi .df-closed { opacity: 0; }
 .hero-domi.blink .df-open, .hero-domi.petted .df-open { opacity: 0; }
@@ -1258,8 +1258,8 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 /* Domi peeking into the mailbox (just like the bathroom photo) */
 .mail-stage { position: relative; }
 .mailbox .domi-stand { pointer-events: none; }
-.mailbox .ds-tail { transform-origin: 40px -10px; transform-box: view-box; animation: tailwag 3.4s ease-in-out infinite; }
-.mailbox .ds-head { transform-origin: -28px -170px; transform-box: view-box; animation: peek 4s ease-in-out infinite; }
+.mailbox .ds-tail { transform-origin: 30px -6px; transform-box: view-box; animation: tailwag 3.4s ease-in-out infinite; }
+.mailbox .ds-head { transform-origin: -12px -110px; transform-box: view-box; animation: peek 4s ease-in-out infinite; }
 @keyframes peek { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) translateX(-3px); } }
 
 /* Shiqi and Domi asleep (the last photo, drawn) */

@@ -30,53 +30,82 @@
   const P = (d, fill, extra = "") => `<path d="${d}" fill="${fill}" ${extra}/>`;
 
   // ------------------------------------------------------------ side view (faces right)
-  const leg = (beans) => `${P("M-12 0 Q-15 22 -12 36 Q-13 45 1 45 Q14 45 12 36 Q15 22 12 0 Z", C.white)}
-    <ellipse cx="2" cy="42" rx="14" ry="7" fill="${C.white}"/>
-    ${beans ? `<g class="beans"><ellipse cx="2" cy="44" rx="6" ry="4.5" fill="${C.pink}"/><circle cx="-7" cy="38" r="2.6" fill="${C.pink}"/><circle cx="-1" cy="36" r="2.6" fill="${C.pink}"/><circle cx="6" cy="36" r="2.6" fill="${C.pink}"/><circle cx="11" cy="39" r="2.4" fill="${C.pink}"/></g>` : ""}`;
-  const SIDE = `
-    <ellipse class="d-shadow" cx="0" cy="3" rx="96" ry="9" fill="#2a1d10" opacity=".13"/>
-    <g data-p="tail" transform="translate(-74 -74)">
-      ${P(fluff(-34, -44, 24, 56, 20, 0.2, -0.6), C.cream)}
-      ${P(fluff(-38, -56, 12, 34, 14, 0.2, -0.6), C.creamDk, 'opacity=".35"')}
-      ${P(fluff(-58, -86, 13, 14, 12, 0.25), C.white, 'opacity=".75"')}
+  // shared gradients (the same ids in every Domi; the first one wins, they're identical)
+  const DEFS = `<defs>
+    <radialGradient id="domi-iris" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#e2e4b4"/><stop offset=".55" stop-color="#a9b375"/><stop offset="1" stop-color="#76814c"/></radialGradient>
+    <linearGradient id="domi-white" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf8"/><stop offset="1" stop-color="#f1e7d9"/></linearGradient>
+    <linearGradient id="domi-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5d5aa"/><stop offset="1" stop-color="#e4b27c"/></linearGradient>
+    <radialGradient id="domi-nose" cx=".4" cy=".3" r=".7"><stop offset="0" stop-color="#f8b6b1"/><stop offset="1" stop-color="#e5867f"/></radialGradient>
+  </defs>`;
+  const WH = "url(#domi-white)", CR = "url(#domi-cream)";
+  // little fur strokes inside a shape, for texture
+  function strands(cx, cy, rx, ry, n, col, seed = 1, w = 1.4) {
+    let s = "", k = seed;
+    const rnd = () => ((k = (k * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < n; i++) {
+      const t = rnd() * Math.PI * 2, rr = 0.55 + rnd() * 0.4;
+      const x = cx + Math.cos(t) * rx * rr, y = cy + Math.sin(t) * ry * rr;
+      const dx = Math.cos(t) * 6, dy = Math.sin(t) * 5 + 3;
+      s += `M${r1(x)} ${r1(y)} q${r1(dx * 0.5 + 2)} ${r1(dy * 0.5)} ${r1(dx)} ${r1(dy)} `;
+    }
+    return `<path d="${s}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" opacity=".55"/>`;
+  }
+  // a big shiny kitten eye
+  const eye = (x, y, rx, ry) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#domi-iris)" stroke="${C.line}" stroke-width="${r1(rx * 0.14)}"/>
+    <path d="M${r1(x - rx * 0.8)} ${r1(y + ry * 0.55)} Q${x} ${r1(y + ry * 1.05)} ${r1(x + rx * 0.8)} ${r1(y + ry * 0.55)}" stroke="#fff" stroke-width="${r1(rx * 0.12)}" fill="none" opacity=".35"/>`;
+  const pupil = (x, y, rx, ry) => `<ellipse cx="${x}" cy="${y}" rx="${r1(rx * 0.46)}" ry="${r1(ry * 0.72)}" fill="${C.pupil}"/>
+    <circle cx="${r1(x + rx * 0.3)}" cy="${r1(y - ry * 0.34)}" r="${r1(rx * 0.32)}" fill="#fff"/><circle cx="${r1(x - rx * 0.32)}" cy="${r1(y + ry * 0.3)}" r="${r1(rx * 0.14)}" fill="#fff" opacity=".9"/>`;
+  const earTufts = (x, y, a) => `<path d="M${x} ${y} l${r1(Math.cos(a) * 9)} ${r1(Math.sin(a) * 9)} M${x + 3} ${y + 3} l${r1(Math.cos(a + 0.3) * 8)} ${r1(Math.sin(a + 0.3) * 8)} M${x - 3} ${y + 2} l${r1(Math.cos(a - 0.3) * 7)} ${r1(Math.sin(a - 0.3) * 7)}" stroke="#fffdf8" stroke-width="1.6" stroke-linecap="round"/>`;
+
+  // ------------------------------------------------------------ side view of a 5-month-old kitten (faces right): big head, small round body, stubby legs
+  const LEG = "M-10 0 Q-12 14 -10 22 Q-11 30 1 30 Q12 30 10 22 Q12 14 10 0 Z";
+  const leg = (beans, fill = WH) => `${P(LEG, fill)}
+    <ellipse cx="1" cy="27" rx="11.5" ry="6.5" fill="${fill}"/><path d="M-3 25 v4 M2 25 v5 M7 25 v4" stroke="${C.shade}" stroke-width="1.2"/>
+    ${beans ? `<g class="beans"><ellipse cx="1" cy="30" rx="5" ry="3.8" fill="${C.pink}"/><circle cx="-6" cy="25" r="2.2" fill="${C.pink}"/><circle cx="-1" cy="23" r="2.2" fill="${C.pink}"/><circle cx="4" cy="23" r="2.2" fill="${C.pink}"/><circle cx="8.5" cy="25.5" r="2" fill="${C.pink}"/></g>` : ""}`;
+  const SIDE = `${DEFS}
+    <ellipse class="d-shadow" cx="0" cy="3" rx="66" ry="7" fill="#2a1d10" opacity=".13"/>
+    <g data-p="tail" transform="translate(-48 -50)">
+      ${P(fluff(-20, -30, 17, 38, 18, 0.24, -0.6), CR)}
+      ${strands(-20, -30, 12, 30, 8, C.creamDk, 3)}
+      ${P(fluff(-38, -60, 10, 11, 12, 0.3), C.white, 'opacity=".8"')}
     </g>
-    <g data-p="legBF" transform="translate(-46 -40)"><g data-p="legBFi">${P("M-12 0 Q-15 22 -12 36 Q-13 45 1 45 Q14 45 12 36 Q15 22 12 0 Z", C.shade)}</g></g>
-    <g data-p="legFF" transform="translate(44 -40)"><g data-p="legFFi">${P("M-12 0 Q-15 22 -12 36 Q-13 45 1 45 Q14 45 12 36 Q15 22 12 0 Z", C.shade)}</g></g>
+    <g data-p="legBF" transform="translate(-28 -26)"><g data-p="legBFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
+    <g data-p="legFF" transform="translate(28 -26)"><g data-p="legFFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
     <g data-p="upper">
       <g data-p="body">
-        ${P(fluff(0, -62, 84, 46, 30, 0.1), C.white)}
-        ${P(fluff(-10, -90, 66, 22, 22, 0.16, -0.05), C.cream)}
-        ${P(fluff(-58, -66, 25, 27, 14, 0.18), C.cream)}
-        ${P(fluff(10, -74, 22, 14, 12, 0.2, 0.3), C.cream, 'opacity=".85"')}
-        ${P(fluff(0, -30, 70, 12, 22, 0.25), C.shade, 'opacity=".55"')}
-        ${P(fluff(68, -60, 26, 34, 16, 0.16), C.white)}
+        ${P(fluff(0, -42, 54, 32, 28, 0.13), WH)}
+        ${P(fluff(-8, -62, 40, 15, 20, 0.2, -0.05), CR)}
+        ${P(fluff(-36, -46, 17, 19, 12, 0.22), CR)}
+        ${strands(-8, -60, 34, 10, 9, C.creamDk, 7)}
+        ${strands(0, -30, 44, 12, 10, "#e3d6c4", 11)}
+        ${P(fluff(36, -44, 20, 26, 16, 0.2), WH)}
+        ${strands(36, -40, 14, 20, 7, "#e3d6c4", 5)}
       </g>
-      <g data-p="legBN" transform="translate(-40 -38)"><g data-p="legBNi">${P(fluff(-2, 8, 24, 22, 14, 0.18), C.white)}${leg(false)}</g></g>
-      <g data-p="legFN" transform="translate(58 -42)"><g data-p="legFNi">${leg(true)}</g></g>
-      <g data-p="head" transform="translate(86 -92)">
+      <g data-p="legBN" transform="translate(-24 -24)"><g data-p="legBNi">${P(fluff(-2, 4, 17, 15, 14, 0.22), WH)}${leg(false)}</g></g>
+      <g data-p="head" transform="translate(50 -62)">
         <g data-p="headi">
-          ${P(fluff(8, -4, 46, 40, 24, 0.16), C.white)}
-          ${P("M-8 -46 L-1 -84 L20 -56 Z", C.cream)}${P("M-2 -50 L1 -74 L13 -57 Z", C.pink)}
-          ${P("M30 -60 L48 -86 L54 -50 Z", C.cream)}${P("M35 -59 L47 -78 L49 -54 Z", C.pink)}
-          ${P(fluff(24, -26, 38, 33, 24, 0.12), C.white)}
-          ${P(fluff(22, -48, 30, 14, 16, 0.18), C.cream)}
-          ${P(fluff(1, -38, 12, 12, 10, 0.2), C.cream, 'opacity=".8"')}
-          ${P(fluff(30, -10, 22, 13, 14, 0.18), C.white)}
-          <ellipse cx="10" cy="-14" rx="7" ry="4" fill="${C.pink}" opacity=".35"/><ellipse cx="46" cy="-14" rx="6" ry="4" fill="${C.pink}" opacity=".35"/>
+          ${P("M-12 -50 L-10 -100 L22 -70 Z", CR)}${P("M-6 -56 L-6 -88 L14 -70 Z", C.pink)}${earTufts(-2, -66, -1.9)}
+          ${P("M38 -74 L62 -104 L68 -58 Z", CR)}${P("M44 -72 L60 -96 L62 -62 Z", C.pink)}${earTufts(56, -70, -1.4)}
+          ${P(fluff(22, -10, 54, 40, 26, 0.18), WH)}
+          ${P(fluff(26, -34, 48, 42, 28, 0.13), WH)}
+          ${P(fluff(24, -62, 34, 15, 18, 0.2), CR)}
+          <path d="M14 -66 q2 8 0 14 M24 -68 q0 8 -1 15 M34 -66 q-2 8 0 14" stroke="${C.creamDk}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".55"/>
+          ${P(fluff(-6, -42, 12, 14, 10, 0.24), CR, 'opacity=".75"')}
+          ${strands(26, -12, 40, 18, 12, "#e3d6c4", 13)}
+          ${P(fluff(30, -12, 22, 12, 14, 0.2), WH)}
+          <ellipse cx="2" cy="-18" rx="9" ry="5" fill="${C.pink}" opacity=".4"/><ellipse cx="56" cy="-18" rx="8" ry="5" fill="${C.pink}" opacity=".4"/>
           <g data-p="eyes">
-            <g data-p="open">
-              <ellipse cx="16" cy="-27" rx="7.5" ry="6.6" fill="${C.eye}" stroke="${C.line}" stroke-width="1.4"/>
-              <ellipse cx="40" cy="-27" rx="7.5" ry="6.6" fill="${C.eye}" stroke="${C.line}" stroke-width="1.4"/>
-              <g data-p="pupils"><ellipse cx="16" cy="-27" rx="2.6" ry="5.4" fill="${C.pupil}"/><ellipse cx="40" cy="-27" rx="2.6" ry="5.4" fill="${C.pupil}"/>
-              <circle cx="18" cy="-30" r="1.8" fill="#fff"/><circle cx="42" cy="-30" r="1.8" fill="#fff"/></g>
+            <g data-p="open">${eye(13, -34, 11, 12.5)}${eye(45, -34, 11, 12.5)}
+              <g data-p="pupils">${pupil(13, -34, 11, 12.5)}${pupil(45, -34, 11, 12.5)}</g>
             </g>
-            <g data-p="closed" opacity="0"><path d="M9 -27 Q16 -21 23 -27 M33 -27 Q40 -21 47 -27" stroke="${C.line}" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+            <g data-p="closed" opacity="0"><path d="M3 -33 Q13 -25 23 -33 M35 -33 Q45 -25 55 -33" stroke="${C.line}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M4 -31 l-4 3 M54 -31 l4 3" stroke="${C.line}" stroke-width="1.6" stroke-linecap="round"/></g>
           </g>
-          ${P("M24 -18 h8 l-4 5 z", C.nose)}
-          <path d="M28 -13 q-3 5 -8 2 M28 -13 q3 5 8 2" stroke="${C.line}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-          <path d="M14 -12 L-14 -16 M14 -9 L-12 -6 M42 -12 L72 -16 M42 -9 L70 -5" stroke="${C.whisker}" stroke-width="1.1"/>
+          <path d="M25 -20 h8 q1 0 0 1.4 l-3.4 3.6 q-0.6 0.6 -1.2 0 l-3.4 -3.6 q-1 -1.4 0 -1.4 z" fill="url(#domi-nose)"/>
+          <path d="M29 -14 v2 M29 -12 q-3 4 -7 1.5 M29 -12 q3 4 7 1.5" stroke="${C.line}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <path d="M12 -14 L-16 -18 M12 -11 L-15 -8 M13 -8 L-12 1 M46 -14 L76 -18 M46 -11 L75 -8 M45 -8 L72 1" stroke="${C.whisker}" stroke-width="1"/>
         </g>
       </g>
+      <g data-p="legFN" transform="translate(36 -26)"><g data-p="legFNi">${leg(true)}</g></g>
     </g>`;
 
   function rig(parent) {
@@ -87,6 +116,7 @@
     const q = (n) => g.querySelector(`[data-p="${n}"]`);
     const parts = {};
     ["tail", "legBFi", "legFFi", "upper", "legBNi", "legFNi", "head", "headi", "open", "closed", "pupils", "body"].forEach((n) => (parts[n] = q(n)));
+    parts.beans = g.querySelector(".beans");
     const st = { x: 0, y: 0, s: 1, flip: false, phase: 0, speed: 0, swat: 0, crouch: 0, pet: 0, sleep: 0, blink: 0, lookX: 0, lookY: 0, tilt: 0, wag: 0, t: 0 };
     function apply() {
       const { phase, speed, swat, crouch, pet, sleep } = st;
@@ -98,13 +128,14 @@
       parts.legFFi.setAttribute("transform", legT(sw(0)));
       parts.legBNi.setAttribute("transform", legT(sw(0)));
       parts.legFNi.setAttribute("transform", `rotate(${r1(sw(Math.PI) * (1 - swat) - 115 * swat)}) scale(1 ${r1(lerp(legK, 1, swat) * 100) / 100})`);
-      const bob = -Math.abs(Math.sin(phase)) * 3 * speed + 15 * crouch + 30 * sleep - 4 * swat;
+      const bob = -Math.abs(Math.sin(phase)) * 3 * speed + 10 * crouch + 18 * sleep - 4 * swat;
       const wiggle = crouch * Math.sin(st.t * 22) * 2;
       parts.upper.setAttribute("transform", `translate(${r1(wiggle)} ${r1(bob)}) rotate(${r1(-6 * swat + 4 * crouch)})`);
       const purr = pet > 0.5 && !reduce ? Math.sin(st.t * 40) * 0.6 : 0;
-      parts.head.setAttribute("transform", `translate(${r1(86 - 6 * sleep)} ${r1(-92 + 22 * sleep + 6 * crouch + purr)}) rotate(${r1(st.tilt + 10 * pet + 16 * sleep - 10 * swat)})`);
+      parts.head.setAttribute("transform", `translate(${r1(50 - 4 * sleep)} ${r1(-62 + 14 * sleep + 4 * crouch + purr)}) rotate(${r1(st.tilt + 10 * pet + 16 * sleep - 10 * swat)})`);
       const wagA = reduce ? 0 : Math.sin(st.t * (2 + 6 * st.wag)) * (6 + 16 * st.wag);
-      parts.tail.setAttribute("transform", `translate(-74 ${r1(-74 + 24 * sleep)}) rotate(${r1(wagA + 40 * sleep - 10 * crouch)})`);
+      parts.tail.setAttribute("transform", `translate(-48 ${r1(-50 + 16 * sleep)}) rotate(${r1(wagA + 40 * sleep - 10 * crouch)})`);
+      if (parts.beans) parts.beans.setAttribute("opacity", swat > 0.3 ? 1 : 0);
       const closed = Math.max(pet, sleep, st.blink);
       parts.open.setAttribute("opacity", closed > 0.5 ? 0 : 1);
       parts.closed.setAttribute("opacity", closed > 0.5 ? 1 : 0);
@@ -115,34 +146,35 @@
 
   // ------------------------------------------------------------ sitting, facing you
   function front() {
-    return `<g class="domi-front">
-      <ellipse cx="0" cy="6" rx="92" ry="10" fill="#2a1d10" opacity=".12"/>
-      <g class="df-tail">${P(fluff(78, -40, 26, 50, 18, 0.2, 0.5), C.cream)}${P(fluff(92, -78, 13, 14, 12, 0.25), C.white, 'opacity=".7"')}</g>
-      ${P(fluff(0, -64, 78, 70, 30, 0.1), C.white)}
-      ${P(fluff(-46, -70, 30, 40, 16, 0.16), C.cream)}${P(fluff(48, -74, 28, 36, 16, 0.16), C.cream)}
-      ${P(fluff(0, -60, 44, 54, 22, 0.14), C.white)}
-      ${P(fluff(-30, -4, 26, 14, 14, 0.18), C.white)}${P(fluff(30, -4, 26, 14, 14, 0.18), C.white)}
-      <g class="df-toes"><path d="M-40 -2 v6 M-32 -1 v7 M-24 -2 v6 M24 -2 v6 M32 -1 v7 M40 -2 v6" stroke="${C.shade}" stroke-width="2"/></g>
+    return `<g class="domi-front">${DEFS}
+      <ellipse cx="0" cy="6" rx="70" ry="9" fill="#2a1d10" opacity=".12"/>
+      <g class="df-tail">${P(fluff(58, -26, 18, 36, 18, 0.24, 0.9), CR)}${strands(58, -26, 12, 26, 7, C.creamDk, 2)}${P(fluff(78, -46, 10, 11, 12, 0.28), C.white, 'opacity=".8"')}</g>
+      ${P(fluff(0, -44, 56, 48, 30, 0.12), WH)}
+      ${P(fluff(-38, -50, 20, 28, 14, 0.2), CR)}${P(fluff(40, -52, 18, 26, 14, 0.2), CR)}
+      ${P(fluff(0, -50, 36, 42, 24, 0.16), WH)}
+      ${strands(0, -46, 28, 32, 14, "#e2d5c2", 9)}
+      ${P(fluff(-20, -4, 18, 11, 14, 0.22), WH)}${P(fluff(20, -4, 18, 11, 14, 0.22), WH)}
+      <path d="M-27 -6 v6 M-20 -5 v7 M-13 -6 v6 M13 -6 v6 M20 -5 v7 M27 -6 v6" stroke="${C.shade}" stroke-width="1.8"/>
       <g class="df-head">
-        ${P("M-60 -150 L-52 -206 L-18 -168 Z", C.cream)}${P("M-52 -158 L-48 -192 L-28 -170 Z", C.pink)}
-        ${P("M60 -150 L52 -206 L18 -168 Z", C.cream)}${P("M52 -158 L48 -192 L28 -170 Z", C.pink)}
-        ${P(fluff(0, -126, 74, 56, 30, 0.14), C.white)}
-        ${P(fluff(0, -160, 46, 22, 18, 0.18), C.cream)}
-        ${P(fluff(-34, -154, 18, 14, 10, 0.2), C.cream, 'opacity=".9"')}${P(fluff(34, -154, 18, 14, 10, 0.2), C.cream, 'opacity=".9"')}
-        ${P(fluff(0, -104, 34, 22, 16, 0.16), C.white)}
-        <ellipse cx="-38" cy="-108" rx="11" ry="6" fill="${C.pink}" opacity=".35"/><ellipse cx="38" cy="-108" rx="11" ry="6" fill="${C.pink}" opacity=".35"/>
+        ${P("M-80 -150 L-76 -226 L-26 -182 Z", CR)}${P("M-70 -160 L-68 -210 L-36 -182 Z", C.pink)}${earTufts(-62, -176, -1.9)}${earTufts(-56, -168, -1.7)}
+        ${P("M80 -150 L76 -226 L26 -182 Z", CR)}${P("M70 -160 L68 -210 L36 -182 Z", C.pink)}${earTufts(62, -176, -1.25)}${earTufts(56, -168, -1.45)}
+        ${P(fluff(0, -104, 96, 52, 34, 0.16), WH)}
+        ${P(fluff(0, -128, 86, 72, 34, 0.12), WH)}
+        ${P(fluff(0, -178, 54, 24, 22, 0.2), CR)}
+        <path d="M-14 -186 q3 12 0 20 M0 -190 q0 12 -1 21 M14 -186 q-3 12 0 20" stroke="${C.creamDk}" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".5"/>
+        ${P(fluff(-50, -160, 20, 17, 12, 0.22), CR, 'opacity=".9"')}${P(fluff(50, -160, 20, 17, 12, 0.22), CR, 'opacity=".9"')}
+        ${strands(0, -96, 74, 30, 16, "#e3d6c4", 21)}
+        ${P(fluff(0, -98, 36, 22, 18, 0.18), WH)}
+        <ellipse cx="-50" cy="-104" rx="14" ry="8" fill="${C.pink}" opacity=".4"/><ellipse cx="50" cy="-104" rx="14" ry="8" fill="${C.pink}" opacity=".4"/>
         <g class="df-eyes">
-          <g class="df-open">
-            <ellipse cx="-24" cy="-128" rx="12" ry="10.5" fill="${C.eye}" stroke="${C.line}" stroke-width="1.8"/>
-            <ellipse cx="24" cy="-128" rx="12" ry="10.5" fill="${C.eye}" stroke="${C.line}" stroke-width="1.8"/>
-            <g class="df-pupils"><ellipse cx="-24" cy="-128" rx="4.2" ry="8.6" fill="${C.pupil}"/><ellipse cx="24" cy="-128" rx="4.2" ry="8.6" fill="${C.pupil}"/>
-            <circle cx="-20" cy="-133" r="3" fill="#fff"/><circle cx="28" cy="-133" r="3" fill="#fff"/></g>
+          <g class="df-open">${eye(-32, -128, 21, 23)}${eye(32, -128, 21, 23)}
+            <g class="df-pupils">${pupil(-32, -128, 21, 23)}${pupil(32, -128, 21, 23)}</g>
           </g>
-          <g class="df-closed"><path d="M-35 -128 Q-24 -119 -13 -128 M13 -128 Q24 -119 35 -128" stroke="${C.line}" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+          <g class="df-closed"><path d="M-50 -126 Q-32 -112 -14 -126 M14 -126 Q32 -112 50 -126" stroke="${C.line}" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M-50 -124 l-6 4 M50 -124 l6 4" stroke="${C.line}" stroke-width="2.4" stroke-linecap="round"/></g>
         </g>
-        ${P("M-6 -112 h12 l-6 7 z", C.nose)}
-        <path d="M0 -105 q-4 7 -11 3 M0 -105 q4 7 11 3" stroke="${C.line}" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M-20 -106 L-64 -112 M-20 -101 L-62 -96 M20 -106 L64 -112 M20 -101 L62 -96" stroke="${C.whisker}" stroke-width="1.4"/>
+        <path d="M-8 -104 h16 q2 0 0.6 2.4 l-6.4 6.6 q-1.6 1.4 -3 0 l-6.4 -6.6 q-1.4 -2.4 0.6 -2.4 z" fill="url(#domi-nose)"/>
+        <path d="M0 -95 v3 M0 -92 q-5 7 -12 3 M0 -92 q5 7 12 3" stroke="${C.line}" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M-26 -98 L-80 -106 M-26 -93 L-80 -88 M-24 -88 L-74 -72 M26 -98 L80 -106 M26 -93 L80 -88 M24 -88 L74 -72" stroke="${C.whisker}" stroke-width="1.4"/>
       </g>
     </g>`;
   }
@@ -185,24 +217,33 @@
 
   // ------------------------------------------------------------ Domi standing up to peek inside something (paws up, back to you)
   function stand() {
-    return `<g class="domi-stand">
-      <ellipse cx="0" cy="4" rx="60" ry="7" fill="#2a1d10" opacity=".12"/>
-      <g class="ds-tail">${P(fluff(52, -26, 22, 46, 18, 0.2, 1.0), C.cream)}${P(fluff(80, -40, 10, 12, 10, 0.25), C.white, 'opacity=".7"')}</g>
-      ${P(fluff(4, -44, 36, 44, 22, 0.12), C.white)}
-      ${P(fluff(20, -50, 15, 18, 12, 0.18), C.cream)}
-      ${P(fluff(-2, -104, 30, 62, 26, 0.12, -0.15), C.white)}
-      ${P(fluff(10, -124, 25, 22, 16, 0.16), C.cream)}${P(fluff(18, -86, 14, 13, 12, 0.2), C.cream)}${P(fluff(-6, -154, 22, 14, 14, 0.18), C.cream)}
-      <ellipse cx="-12" cy="-3" rx="15" ry="7" fill="${C.white}"/>
-      <g class="ds-arm">${P(fluff(-36, -160, 24, 9, 12, 0.2, -0.45), C.white)}<ellipse cx="-58" cy="-171" rx="10" ry="7" fill="${C.white}"/></g>
+    return `<g class="domi-stand">${DEFS}
+      <ellipse cx="2" cy="3" rx="40" ry="5" fill="#2a1d10" opacity=".12"/>
+      <g class="ds-tail">${P(fluff(38, -14, 14, 27, 16, 0.26, 1.05), CR)}${strands(38, -14, 9, 18, 6, C.creamDk, 4)}${P(fluff(56, -22, 8, 9, 10, 0.3), C.white, 'opacity=".8"')}</g>
+      ${P(fluff(2, -40, 30, 38, 26, 0.14), WH)}
+      ${P(fluff(12, -54, 17, 16, 14, 0.22), CR)}${P(fluff(17, -30, 11, 10, 12, 0.24), CR)}
+      ${strands(2, -40, 22, 28, 10, "#e2d5c2", 6)}
+      ${P(fluff(-8, -4, 12, 7, 10, 0.24), WH)}${P(fluff(14, -4, 11, 6, 10, 0.24), WH)}
+      <g class="ds-arm">
+        ${P(fluff(-22, -80, 8, 18, 12, 0.22, 0.6), WH)}${P(fluff(-12, -82, 8, 18, 12, 0.22, 0.45), WH)}
+        ${P(fluff(-34, -96, 9, 7, 10, 0.24), WH)}${P(fluff(-22, -100, 9, 7, 10, 0.24), WH)}
+        <path d="M-37 -100 v4 M-33 -101 v5 M-25 -104 v4 M-21 -105 v5" stroke="${C.shade}" stroke-width="1"/>
+      </g>
       <g class="ds-head">
-        ${P("M-52 -196 L-50 -224 L-33 -203 Z", C.cream)}${P("M-48 -199 L-47 -217 L-37 -204 Z", C.pink)}
-        ${P("M-20 -205 L-8 -228 L-3 -199 Z", C.cream)}${P("M-16 -205 L-8 -221 L-6 -202 Z", C.pink)}
-        ${P(fluff(-28, -184, 29, 26, 20, 0.15), C.white)}
-        ${P(fluff(-27, -199, 22, 11, 14, 0.2), C.cream)}
-        <ellipse cx="-40" cy="-182" rx="4.6" ry="3.4" fill="${C.eye}" stroke="${C.line}" stroke-width="1"/><ellipse cx="-22" cy="-183" rx="4.6" ry="3.4" fill="${C.eye}" stroke="${C.line}" stroke-width="1"/>
-        <circle cx="-41" cy="-180.6" r="1.8" fill="${C.pupil}"/><circle cx="-23" cy="-181.6" r="1.8" fill="${C.pupil}"/>
-        ${P("M-35 -173 h6 l-3 4 z", C.nose)}
-        <path d="M-44 -171 L-70 -168 M-24 -172 L2 -170" stroke="${C.whisker}" stroke-width="1"/>
+        ${P("M-48 -132 L-50 -172 L-22 -150 Z", CR)}${P("M-44 -136 L-45 -164 L-28 -150 Z", C.pink)}${earTufts(-40, -146, -1.8)}
+        ${P("M8 -150 L22 -176 L28 -136 Z", CR)}${P("M12 -148 L21 -168 L24 -140 Z", C.pink)}${earTufts(20, -150, -1.35)}
+        ${P(fluff(-12, -106, 44, 26, 24, 0.18), WH)}
+        ${P(fluff(-12, -120, 40, 36, 26, 0.14), WH)}
+        ${P(fluff(-12, -146, 28, 13, 16, 0.22), CR)}
+        <path d="M-20 -150 q2 7 0 12 M-12 -152 q0 8 -1 13 M-4 -150 q-2 7 0 12" stroke="${C.creamDk}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".5"/>
+        ${strands(-12, -106, 34, 14, 10, "#e3d6c4", 8)}
+        ${eye(-27, -118, 8.5, 9.5)}${eye(1, -118, 8.5, 9.5)}
+        <ellipse cx="-29" cy="-114.5" rx="3.8" ry="6" fill="${C.pupil}"/><ellipse cx="-1" cy="-114.5" rx="3.8" ry="6" fill="${C.pupil}"/>
+        <circle cx="-26.5" cy="-120" r="2.6" fill="#fff"/><circle cx="1.5" cy="-120" r="2.6" fill="#fff"/><circle cx="-31" cy="-112" r="1.1" fill="#fff"/><circle cx="-3" cy="-112" r="1.1" fill="#fff"/>
+        <path d="M-17 -103 h7 q1 0 0.4 1.2 l-3.2 3.2 q-0.6 0.6 -1.2 0 l-3.2 -3.2 q-0.6 -1.2 0.4 -1.2 z" fill="url(#domi-nose)"/>
+        <path d="M-13.5 -98.5 q-3 4 -7 1.5 M-13.5 -98.5 q3 4 7 1.5" stroke="${C.line}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="-40" cy="-104" rx="7" ry="4" fill="${C.pink}" opacity=".45"/><ellipse cx="14" cy="-104" rx="7" ry="4" fill="${C.pink}" opacity=".45"/>
+        <path d="M-28 -102 L-58 -106 M-28 -99 L-56 -94 M2 -102 L30 -106 M2 -99 L28 -94" stroke="${C.whisker}" stroke-width="1"/>
       </g>
     </g>`;
   }
@@ -244,7 +285,7 @@
     </g>`;
   }
 
-  window.Domi = { rig, front, stand, sleepy, fluff, C, purr, pop, MEOWS };
+  window.Domi = { rig, front, stand, sleepy, fluff, strands, C, purr, pop, MEOWS };
 
   // ------------------------------------------------------------ the hero Domi: pet her, she watches your yarn
   document.addEventListener("DOMContentLoaded", () => {
@@ -306,7 +347,7 @@
     D.g.style.pointerEvents = "auto";
     D.g.style.cursor = "pointer";
     let W = innerWidth, H = 170;
-    const S = () => (innerWidth < 700 ? 0.42 : 0.55);
+    const S = () => (innerWidth < 700 ? 0.5 : 0.64);
     const resize = () => { W = innerWidth; svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H); };
     window.addEventListener("resize", resize); resize();
     const st = D.st;
@@ -368,7 +409,7 @@
       st.wag = chasing ? clamp(st.speed + st.crouch, 0, 1) : 0.1;
       // look at the yarn ball
       if (fine && mx >= 0) {
-        const hx = st.x + (st.flip ? -1 : 1) * 100 * st.s, hy = innerHeight - H + st.y - 110 * st.s;
+        const hx = st.x + (st.flip ? -1 : 1) * 76 * st.s, hy = innerHeight - H + st.y - 96 * st.s;
         st.lookX = ((mx - hx) / 200) * (st.flip ? -1 : 1);
         st.lookY = (my - hy) / 200;
         st.tilt = clamp(-(my - hy) / 30, -14, 6) * (1 - st.sleep);
