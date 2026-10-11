@@ -1236,7 +1236,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 @keyframes purr { 50% { translate: 0 .8px; } }
 .hero-domi.hop .domi-svg { animation: hop .45s cubic-bezier(.3,1.6,.5,1); }
 @keyframes hop { 40% { transform: translateX(-50%) translateY(-10%); } }
-.df-tail { transform-origin: 70px -10px; transform-box: view-box; animation: tailwag 3s ease-in-out infinite; }
+.df-tail { transform-origin: 30px -14px; transform-box: view-box; animation: tailwag 3s ease-in-out infinite; }
 @keyframes tailwag { 50% { transform: rotate(12deg); } }
 .porthole .glass { position: absolute; inset: 14%; border-radius: 50%; pointer-events: none; background: linear-gradient(130deg, rgba(255,255,255,.28), transparent 40%, transparent 70%, rgba(255,255,255,.12)); }
 .domi-tag { font-family: var(--hand); font-weight: 700; font-size: 1.45rem; color: var(--yarn); transform: rotate(-3deg); max-width: 12ch; line-height: 1.15; margin: 0; }
@@ -1258,7 +1258,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 /* Domi peeking into the mailbox (just like the bathroom photo) */
 .mail-stage { position: relative; }
 .mailbox .domi-stand { pointer-events: none; }
-.mailbox .ds-tail { transform-origin: 30px -6px; transform-box: view-box; animation: tailwag 3.4s ease-in-out infinite; }
+.mailbox .ds-tail { transform-origin: 16px -12px; transform-box: view-box; animation: tailwag 3.4s ease-in-out infinite; }
 .mailbox .ds-head { transform-origin: -12px -110px; transform-box: view-box; animation: peek 4s ease-in-out infinite; }
 @keyframes peek { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) translateX(-3px); } }
 

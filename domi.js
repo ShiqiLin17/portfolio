@@ -76,6 +76,39 @@
     <circle cx="${r1(x + rx * 0.26)}" cy="${r1(y - ry * 0.28)}" r="${r1(rx * 0.24)}" fill="#fff" opacity=".95"/><circle cx="${r1(x - rx * 0.28)}" cy="${r1(y + ry * 0.3)}" r="${r1(rx * 0.1)}" fill="#fff" opacity=".7"/>`;
   const earTufts = (x, y, a) => `<path d="M${x} ${y} l${r1(Math.cos(a) * 9)} ${r1(Math.sin(a) * 9)} M${x + 3} ${y + 3} l${r1(Math.cos(a + 0.3) * 8)} ${r1(Math.sin(a + 0.3) * 8)} M${x - 3} ${y + 2} l${r1(Math.cos(a - 0.3) * 7)} ${r1(Math.sin(a - 0.3) * 7)}" stroke="#fffdf8" stroke-width="1" stroke-linecap="round" opacity=".9"/>`;
 
+  // a flowing, feathery tail: a plume built along a curve, thin at the base and full near the tip
+  function plume(p0, p1, p2, p3, wBase, wMax, seed = 1) {
+    const N = 28, L = [], R = [];
+    const at = (t) => {
+      const u = 1 - t;
+      return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0],
+              u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]];
+    };
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = at(Math.max(0, t - 0.01)), b = at(Math.min(1, t + 0.01)), c = at(t);
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len;
+      // full and round near the tip, slim at the base, with a soft feathery ripple
+      let w = wBase + (wMax - wBase) * Math.pow(Math.sin(Math.min(1, t * 1.15) * Math.PI * 0.62), 0.9);
+      if (t > 0.86) w *= Math.sqrt(Math.max(0, (1 - t) / 0.14));
+      w *= 1 + 0.07 * Math.sin(t * 22 + seed);
+      L.push([c[0] + nx * w, c[1] + ny * w]); R.push([c[0] - nx * w, c[1] - ny * w]);
+    }
+    const pts = [...L, ...R.reverse()];
+    let s = `M${r1(pts[0][0])} ${r1(pts[0][1])}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      s += ` Q${r1(pts[i][0])} ${r1(pts[i][1])} ${r1(mx)} ${r1(my)}`;
+    }
+    return s + "Z";
+  }
+  const tail = (p0, p1, p2, p3, wb, wm, seed) => {
+    const inner = [p0, p1, p2, p3];
+    return `${P(plume(p0, p1, p2, p3, wb + 2, wm + 4, seed), CR, 'opacity=".8" filter="url(#domi-plush)"')}
+      ${P(plume(p0, p1, p2, p3, wb, wm, seed), CR)}
+      ${P(plume(inner[0], inner[1], inner[2], inner[3], wb * 0.4, wm * 0.45, seed + 2), "#f7dfbd", 'opacity=".7"')}`;
+  };
+
   // ------------------------------------------------------------ side view of a 5-month-old kitten (faces right): big head, small round body, stubby legs
   const LEG = "M-10 0 Q-12 14 -10 22 Q-11 30 1 30 Q12 30 10 22 Q12 14 10 0 Z";
   const leg = (beans, fill = WH) => `${P(LEG, fill)}
@@ -84,9 +117,7 @@
   const SIDE = `${DEFS}
     <ellipse class="d-shadow" cx="0" cy="3" rx="66" ry="7" fill="#2a1d10" opacity=".13"/>
     <g data-p="tail" transform="translate(-48 -50)">
-      ${P(fluff(-20, -30, 22, 42, 18, 0.24, -0.6), CR)}${wisps(-20, -30, 22, 42, 34, "#f0cfa3", 9, 0, 6.28, 10)}
-      ${strands(-20, -30, 12, 30, 8, C.creamDk, 3)}
-      ${P(fluff(-38, -60, 10, 11, 12, 0.3), C.white, 'opacity=".8"')}
+      ${tail([4, 4], [-30, -4], [-46, -46], [-24, -84], 5, 19, 1)}
     </g>
     <g data-p="legBF" transform="translate(-28 -26)"><g data-p="legBFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
     <g data-p="legFF" transform="translate(28 -26)"><g data-p="legFFi">${P(LEG, C.shade)}<ellipse cx="1" cy="27" rx="11" ry="6" fill="${C.shade}"/></g></g>
@@ -167,7 +198,7 @@
   function front() {
     return `<g class="domi-front">${DEFS}
       <ellipse cx="0" cy="6" rx="70" ry="9" fill="#2a1d10" opacity=".12"/>
-      <g class="df-tail">${P(fluff(60, -26, 23, 40, 18, 0.24, 0.9), CR)}${wisps(60, -26, 23, 40, 30, "#f0cfa3", 7, 0, 6.28, 10)}${strands(58, -26, 12, 26, 7, C.creamDk, 2)}${P(fluff(78, -46, 10, 11, 12, 0.28), C.white, 'opacity=".8"')}</g>
+      <g class="df-tail">${tail([30, -14], [70, -4], [96, -16], [86, -64], 7, 21, 3)}</g>
       ${P(fluff(0, -44, 68, 56, 30, 0.16), WH, 'opacity=".9" filter="url(#domi-plush)"')}${wisps(0, -44, 68, 56, 46, "#f3eadc", 16, 0, 6.28, 16)}
       ${P(fluff(0, -44, 60, 50, 30, 0.12), WH)}${wisps(0, -44, 60, 50, 40, "#efe4d4", 4, 0.3, 2.85, 13)}
       ${P(fluff(-38, -50, 20, 28, 14, 0.2), PATCH)}${P(fluff(40, -52, 18, 26, 14, 0.2), PATCH)}
@@ -238,7 +269,7 @@
   function stand() {
     return `<g class="domi-stand">${DEFS}
       <ellipse cx="2" cy="3" rx="40" ry="5" fill="#2a1d10" opacity=".12"/>
-      <g class="ds-tail">${P(fluff(40, -14, 18, 31, 16, 0.26, 1.05), CR)}${wisps(40, -14, 18, 31, 24, "#f0cfa3", 20, 0, 6.28, 9)}${strands(38, -14, 9, 18, 6, C.creamDk, 4)}${P(fluff(56, -22, 8, 9, 10, 0.3), C.white, 'opacity=".8"')}</g>
+      <g class="ds-tail">${tail([16, -12], [44, 0], [70, -4], [72, -36], 5, 15, 5)}</g>
       ${P(fluff(2, -40, 38, 45, 26, 0.16), WH, 'opacity=".9" filter="url(#domi-plush)"')}${wisps(2, -40, 38, 45, 34, "#f3eadc", 19, 0, 6.28, 13)}
       ${P(fluff(2, -40, 33, 41, 26, 0.14), WH)}${wisps(2, -40, 33, 41, 28, "#efe4d4", 2, -0.6, 3.6, 11)}
       ${P(fluff(12, -54, 17, 16, 14, 0.22), PATCH)}${P(fluff(17, -30, 11, 10, 12, 0.24), PATCH)}
