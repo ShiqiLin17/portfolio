@@ -271,12 +271,18 @@ const experience = {
     ]]],
   },
   suny: {
-    color: "#c6dceb", art: "IT", title: "IT Specialist", when: "Jun – Aug 2024 · SUNY ATTAIN Lab, Manhattan",
-    summary: "Kept a research and training lab's computers running and helped people use them.",
+    color: "#c6dceb", art: "IT", title: "Information Technology Specialist", when: "Jun – Aug 2024 · SJP SUNY ATTAIN · Internship, hybrid in Manhattan",
+    summary: "Helped a SUNY Advanced Technology Training and Information Networking (ATTAIN) lab run smoothly, and helped people use it.",
     sections: [["What I did", [
-      "Diagnosed and fixed workstation hardware, peripheral and connectivity issues.",
-      "Applied system patches, firmware upgrades and security updates under SUNY IT policy.",
-      "Earned Microsoft Office Specialist certifications: Word Associate, Excel Expert and Outlook Associate.",
+      "Applied skills from SUNY's ATTAIN Lab to support data recording, digital literacy training and collaborative online work.",
+      "Assisted with data management and organizing digital resources to make the lab more efficient.",
+      "Supported students and lab users with Microsoft Office tools and online platforms.",
+      "Diagnosed and fixed workstation hardware, peripheral and connectivity issues, and applied patches and updates under SUNY IT policy.",
+      "Built communication and teamwork skills working alongside lab coordinators and program participants.",
+    ]], ["Certifications earned", [
+      "Microsoft Word Associate",
+      "Microsoft Excel Expert",
+      "Microsoft Outlook Associate",
     ]]],
   },
   infinity: {
@@ -319,6 +325,19 @@ const experience = {
       "CPR Certification",
     ]], ["Skills", [
       "Supervisory skills and Chinese (Mandarin) translation.",
+    ]]],
+  },
+  ftc3371: {
+    color: "#c4dfcd", art: "3371", title: "Captain, Team 3371", when: "Sep 2020 – Jun 2024 · FIRST Tech Challenge · Apprenticeship, on-site in Brooklyn",
+    summary: "Led a FIRST Tech Challenge team through four seasons of designing, building and programming competition robots.",
+    sections: [["What I did", [
+      "Directed the design, fabrication and optimization of competition-ready robots, integrating mechanical and software systems.",
+      "Engineered autonomous navigation and precision control programs for high-stakes matches.",
+      "Deployed computer vision with AprilTags, UVC camera systems and powered USB hubs for real-time object detection.",
+      "Spearheaded corporate outreach, securing sponsorship from BrioTech to fund team operations.",
+    ]], ["Awards", [
+      "2023 FIRST Championship, Curie Division.",
+      "Team Spirit Award at the NY Tech Valley Regional (2023), finishing 6th of 48 teams.",
     ]]],
   },
   frc333: {
