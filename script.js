@@ -321,6 +321,19 @@ const experience = {
       "Supervisory skills and Chinese (Mandarin) translation.",
     ]]],
   },
+  frc333: {
+    color: "#c6dceb", art: "333", title: "Business Outreach", when: "Mar 2020 – Jun 2024 · FIRST Robotics Team 333 Megalodons · Apprenticeship, hybrid in Brooklyn",
+    summary: "Kept a FIRST Robotics Competition team funded, from sponsors to spending.",
+    sections: [["What I did", [
+      "Led sponsorship outreach, cultivating partnerships to support a $50K annual budget.",
+      "Managed financial planning and resource allocation to maximize team performance and outreach impact.",
+    ]], ["Awards", [
+      "2023 FIRST Championship, Curie Division.",
+      "Team Spirit Award at the NY Tech Valley Regional (2023), finishing 6th of 48 teams.",
+    ]], ["Skills", [
+      "3D printing and Microsoft Excel.",
+    ]]],
+  },
 };
 
 const dialog = $("#detail");
