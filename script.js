@@ -268,7 +268,18 @@ const experience = {
       "Turned user needs into high-fidelity Figma prototypes.",
       "Improved information architecture and user flows for accessibility and ease of use.",
       "Produced presentations and web layouts for community outreach.",
+    ]], ["Topics I designed for", [
+      "Dialectical Behavior Therapy (DBT): its core principles, four modules and therapeutic techniques.",
+      "PTSD: trauma responses, symptom clusters, and treatment and support.",
+      "Fairness in health care and health insurance in the USA.",
     ]]],
+    media: [
+      { type: "image", src: "media/infinity/dbt-infographic.jpg", fit: true, alt: "Infographic slide on Dialectical Behavior Therapy", caption: "DBT infographic" },
+      { type: "image", src: "media/infinity/dbt-definition.jpg", fit: true, alt: "Slide defining Dialectical Behavioral Therapy with an illustration", caption: "DBT, defined" },
+      { type: "image", src: "media/infinity/ptsd.jpg", fit: true, alt: "Infographic slide on PTSD", caption: "PTSD infographic" },
+      { type: "image", src: "media/infinity/fairness.jpg", fit: true, alt: "Slide on fairness in health care, with an equality vs. equity illustration", caption: "Fairness in health care" },
+      { type: "image", src: "media/infinity/health-insurance.jpg", fit: true, alt: "Written reflection on health insurance in the USA", caption: "Health insurance reflection" },
+    ],
   },
 };
 
@@ -288,7 +299,7 @@ function mediaHTML(media = [], placeholder) {
     </div>`;
   }
   return `<div class="gallery">${media.map((m) => {
-    if (m.type === "image") return `<figure><img src="${esc(m.src)}" alt="${esc(m.alt || "")}" loading="lazy">${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    if (m.type === "image") return `<figure${m.fit ? ' class="fit"' : ""}><img src="${esc(m.src)}" alt="${esc(m.alt || "")}" loading="lazy">${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
     if (m.type === "video") return `<figure><video src="${esc(m.src)}" controls playsinline preload="metadata"></video>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
     if (m.type === "youtube") return `<figure class="wide"><iframe src="https://www.youtube-nocookie.com/embed/${esc(m.id)}" title="${esc(m.caption || "Video")}" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></figure>`;
     return "";
