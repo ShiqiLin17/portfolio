@@ -186,14 +186,16 @@ const projects = {
     ],
   },
   bio: {
-    color: "#efe4c2", art: "Bay", title: "Invasive species research at Jamaica Bay", when: "Jul–Sep 2023 · Brooklyn College AREAC program",
-    summary: "Field research on biological control of the invasive reed Phragmites australis.",
+    color: "#efe4c2", art: "Bay", title: "Biology Researcher", when: "Jul – Sep 2023 · Brooklyn College AREAC · Apprenticeship, on-site in Brooklyn",
+    summary: "Field research on biological control of the invasive reed Phragmites australis, aiming for real-world environmental solutions.",
     sections: [
-      ["The work", [
-        "Collected samples at Jamaica Bay with aquatic field equipment.",
-        "Analyzed data and built charts in Excel to interpret findings.",
-        "Designed and presented a research poster at the American Museum of Natural History.",
-        "Earned a $1K research stipend.",
+      ["What I did", [
+        "Conducted field research with aquatic lab equipment to collect samples at Jamaica Bay.",
+        "Investigated biological control of invasive species, focusing on Phragmites australis.",
+        "Analyzed research data and built detailed Excel charts to track and interpret findings.",
+        "Designed and presented a scientific poster of our results at the American Museum of Natural History.",
+        "Received a $1K research stipend for outstanding contribution and completing the program.",
+        "Earned the Aquatic Research Environmental Assessment Center (AREAC) Program certificate.",
       ]],
       ["The experiment", [
         "Question: can Eastern mud snails (Ilyanassa obsoleta) eat different parts of the invasive reed Phragmites australis, and so help control it?",
@@ -278,16 +280,22 @@ const experience = {
     ]]],
   },
   infinity: {
-    color: "#b9d3dd", art: "UX", title: "UX/UI Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Brooklyn",
-    summary: "Designed digital materials for mental-health awareness programs in South Brooklyn.",
+    color: "#b9d3dd", art: "UX", title: "User Experience Design Specialist", when: "Jul – Sep 2023 · Infinity Educational Programs, Inc. · Internship, remote from Brooklyn",
+    summary: "Designed presentations and digital content for mental-health awareness initiatives in South Brooklyn.",
     sections: [["What I did", [
-      "Turned user needs into high-fidelity Figma prototypes.",
-      "Improved information architecture and user flows for accessibility and ease of use.",
-      "Produced presentations and web layouts for community outreach.",
+      "Designed and developed presentations and digital content supporting mental-health awareness in the South Brooklyn community.",
+      "Applied UX/UI design principles so materials were accessible and easy to use for community audiences.",
+      "Created wireframes and mockups in Figma, working with teammates to align designs with user needs.",
+      "Produced engaging, informative PowerPoint presentations and web layouts tailored to mental-health services.",
+      "Contributed visually compelling, mission-aligned digital materials to outreach efforts.",
     ]], ["Topics I designed for", [
       "Dialectical Behavior Therapy (DBT): its core principles, four modules and therapeutic techniques.",
       "PTSD: trauma responses, symptom clusters, and treatment and support.",
       "Fairness in health care and health insurance in the USA.",
+    ]], ["Certifications earned", [
+      "Sexual Harassment Prevention Training",
+      "Hats & Ladders Career Readiness Training",
+      "CPR Certification",
     ]]],
     media: [
       { type: "image", src: "media/infinity/dbt-infographic.jpg", fit: true, alt: "Infographic slide on Dialectical Behavior Therapy", caption: "DBT infographic" },
@@ -296,6 +304,22 @@ const experience = {
       { type: "image", src: "media/infinity/fairness.jpg", fit: true, alt: "Slide on fairness in health care, with an equality vs. equity illustration", caption: "Fairness in health care" },
       { type: "image", src: "media/infinity/health-insurance.jpg", fit: true, alt: "Written reflection on health insurance in the USA", caption: "Health insurance reflection" },
     ],
+  },
+  cfl: {
+    color: "#d3e2d0", art: "CFL", title: "Educational Counselor", when: "Jun – Sep 2022 · Center for Family Life in Sunset Park · Internship, on-site in Brooklyn",
+    summary: "Ran a summer program for hundreds of kids in Sunset Park, and helped families and staff understand each other.",
+    sections: [["What I did", [
+      "Facilitated daily educational and recreational activities for 500+ children, supporting a team of 50+ staff.",
+      "Led and supervised full-day field trips three times a week, keeping everyone safe, engaged and on schedule.",
+      "Translated Mandarin so staff could communicate with non-English-speaking parents.",
+      "Helped keep a safe, inclusive and enriching environment for kids from diverse backgrounds.",
+    ]], ["Certifications earned", [
+      "Sexual Harassment Prevention Training",
+      "Hats & Ladders Career Readiness Training",
+      "CPR Certification",
+    ]], ["Skills", [
+      "Supervisory skills and Chinese (Mandarin) translation.",
+    ]]],
   },
 };
 
@@ -342,6 +366,7 @@ function openDetail(p, opener) {
   dialog.showModal();
   dialog.scrollTop = 0;
 }
+experience.bio = projects.bio;
 const openProject = (key, opener) => openDetail(projects[key], opener);
 cards.forEach((card) => {
   $(".open", card).addEventListener("click", (e) => openProject(card.dataset.project, e.currentTarget));
@@ -513,8 +538,9 @@ const CERTS = [
   ]},
   { group: "Science & service", items: [
     { abbr: "H₂O", title: "Aquatic Research Environmental Assessment Center (AREAC) Program", issuer: "Brooklyn College", text: "Certificate of achievement from Brooklyn College Now and AREAC for completing the Aquatic Ecology Institute (GSCI 2020), Summer 2023: field research on invasive Phragmites australis at Jamaica Bay, with a poster presented at the American Museum of Natural History.", media: [{ type: "image", src: "media/certs/areac-certificate.jpg", alt: "AREAC certificate of achievement for Shiqi Lin", caption: "Certificate, Summer 2023", fit: true, wide: true }] },
-    { abbr: "CPR", title: "CPR Certification", issuer: "Cardiopulmonary resuscitation", text: "Certified in CPR while working with children and community programs." },
-    { abbr: "H&L", title: "Hats & Ladders Career Readiness Training", issuer: "Career readiness", text: "Career exploration and workplace readiness training." },
+    { abbr: "CPR", title: "CPR Certification", issuer: "Center for Family Life & Infinity Educational Programs · 2022–2023", text: "Certified in cardiopulmonary resuscitation, earned during my internships working with children and community programs." },
+    { abbr: "H&L", title: "Hats & Ladders Career Readiness Training", issuer: "Center for Family Life & Infinity Educational Programs · 2022–2023", text: "Career exploration and workplace readiness training, earned during my Educational Counselor and UX design internships." },
+    { abbr: "SHP", title: "Sexual Harassment Prevention Training", issuer: "Center for Family Life & Infinity Educational Programs · 2022–2023", text: "Workplace sexual harassment prevention training, earned during my Educational Counselor and UX design internships." },
   ]},
 ];
 const HONORS = [
