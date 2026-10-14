@@ -173,15 +173,21 @@ const projects = {
       ]],
       ["Stack", ["HTML5, CSS3, JavaScript, Node.js, Figma, and DNS and domain management."]],
     ],
+    links: [
+      { label: "seawaybeauty.com", href: "https://seawaybeauty.com/" },
+      { label: "nacawtc.org", href: "https://nacawtc.org/" },
+      { label: "kxnyinc.com", href: "https://kxnyinc.com/" },
+    ],
   },
   buji: {
-    color: "#b9d3dd", art: "SxB", title: "SHIQI X BUJI Design", when: "Jan–Mar 2025 · Fashion collaboration",
+    color: "#b9d3dd", art: "SxB", title: "Fashion Designer | SHIQI X BUJI Design", when: "Jan – Mar 2025 · BUJI Design · Contract, hybrid in Boston",
     summary: "A college side hustle: an original clothing line launched with BUJI Design and sold to customers worldwide.",
     sections: [
       ["What I did", [
-        "Created original designs published on the partner brand's website.",
-        "Signed and managed a formal contract with the brand.",
-        "Promoted the line through social media marketing.",
+        "Launched a college side hustle with a clothing company, publishing original fashion designs for worldwide purchase.",
+        "Signed and managed a formal contract while keeping communication with the partner brand clear and steady.",
+        "Promoted the designs through social media marketing, building visibility and engagement.",
+        "Featured designs were published on the company website for global customers.",
       ]],
     ],
   },
@@ -226,45 +232,61 @@ const projects = {
    Empty lists show "coming soon" placeholders. */
 const experience = {
   "bu-ta": {
-    color: "#c4dfcd", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering",
-    summary: "Helping first-year engineering students take a project from problem statement to working prototype.",
+    color: "#c4dfcd", art: "BU", title: "Teaching Assistant", when: "Sep 2026 – now · Boston University College of Engineering · Part-time, on-site in Boston",
+    summary: "Helping engineering students take a project from problem statement to working prototype.",
     sections: [["What I do", [
-      "Mentor student teams through the full design process: problem statements, requirements, morphological charts, concept and detailed design, prototyping and testing.",
-      "Lead hands-on labs on Arduino programming, MOSFET switching circuits, power supplies, and servo and stepper motor control.",
-      "Help students choose sensors and actuators and develop circuit diagrams, power budgets and code flowcharts.",
-      "Support Onshape CAD instruction and coordinate fabrication sessions at BU's Engineering Product Innovation Center (EPIC).",
-      "Coordinate with faculty and TAs across sections on kits, materials and assessments.",
-    ]]],
+      "Mentor student teams through the full engineering design process: problem statements, functional requirements, objectives and metrics, morphological charts, conceptual design, modeling, detailed design, prototyping, testing and iteration.",
+      "Lead hands-on labs on Arduino programming, MOSFET switching circuits, power supplies, and servo and stepper motor control, and troubleshoot student hardware and code in real time.",
+      "Help students choose sensors and actuators and develop detailed designs, including circuit diagrams, power budgets and code flowcharts.",
+      "Support CAD instruction in Onshape, including an Arduino housing modeling project, and coordinate fabrication sessions at BU's Engineering Product Innovation Center (EPIC).",
+      "Answer questions on project scope, design decisions, electronics and assignments in class and office hours.",
+      "Coordinate with faculty and fellow TAs across sections to prepare component kits, manage project materials and track student assessments.",
+    ]], ["Skills", ["Arduino and embedded systems."]]],
   },
   freelance: {
-    color: "#d3e2d0", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Freelance, Brooklyn",
-    summary: "Designed and built websites for three local businesses and nonprofits, and moved each domain to GoDaddy.",
-    sections: [["Clients", ["Seaway Beauty", "North America Cantonese Arts Foundation", "KXNY International"]]],
+    color: "#d3e2d0", art: "</>", title: "Web Developer", when: "Jul – Sep 2026 · Three internships, hybrid in Brooklyn",
+    summary: "Designed and built websites for three Brooklyn businesses and nonprofits, and migrated each domain to GoDaddy.",
+    sections: [["Clients", [
+      "Seaway Beauty (Jul – Sep 2026): designed and developed the web page, and migrated the domain to GoDaddy.",
+      "North America Cantonese Arts Foundation (Jul – Sep 2026): designed and developed the web page, and migrated the domain to GoDaddy.",
+      "KXNY International (Jul – Aug 2026): designed and developed the web page, and migrated the domain to GoDaddy.",
+    ]]],
+    links: [
+      { label: "seawaybeauty.com", href: "https://seawaybeauty.com/" },
+      { label: "nacawtc.org", href: "https://nacawtc.org/" },
+      { label: "kxnyinc.com", href: "https://kxnyinc.com/" },
+    ],
   },
   athens: {
-    color: "#cfdeea", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai, Boston",
+    color: "#cfdeea", art: "AL", title: "Fullstack Engineer & Marketing", when: "Jul – Oct 2025 · AthensLabs.ai · Self-employed, hybrid in Boston",
     summary: "Engineering and go-to-market work at an AI-agent startup building an AI-native learning platform.",
     sections: [["What I did", [
+      "Partnered cross-functionally to align AI agent capabilities with market demands, supporting product positioning and startup growth strategy.",
       "Designed full-stack systems for an AI-agent education platform, with resilient backend services and clear UIs.",
       "Prototyped reliability-critical agent features and set up Jenkins CI/CD pipelines with automated testing in Agile sprints.",
-      "Worked across teams to align agent capabilities with market needs and support product positioning.",
-    ]]],
+    ]], ["Certifications earned", ["MathWorks Machine Learning Onramp", "MathWorks MATLAB Onramp"]],
+    ["Skills", ["Microsoft Excel and interviewing."]]],
     links: [{ label: "athenslabs.ai", href: "https://www.athenslabs.ai/" }],
   },
   cultured: {
-    color: "#eadcc3", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine",
-    summary: "Modernized the website for a nonprofit that teaches kids through culinary education.",
+    color: "#eadcc3", art: "CKC", title: "Frontend Developer", when: "Jun – Sep 2025 · Cultured Kids Cuisine · Internship, remote (NYC)",
+    summary: "Built and modernized the website for a nonprofit that empowers youth through culinary education.",
     sections: [["What I did", [
-      "Redesigned responsive frontend pages to match updated brand standards, using Figma, HTML, CSS, JavaScript and Node.js.",
-      "Built UI components and checked functionality, load times and responsiveness.",
+      "Worked with a fellow developer to design and build website features from the ground up using Figma, VS Code and Node.js.",
+      "Implemented responsive layouts and interactive elements with JavaScript, HTML, CSS and C++.",
       "My redesign was chosen in a cross-team A/B review and deployed to production.",
-      "Assigned and tracked weekly development tasks with a fellow developer.",
-    ]]],
+      "Assigned and managed weekly development tasks to keep our workflow organized and efficient.",
+      "Debugged and refined front-end features, from dynamic buttons to mobile-friendly designs.",
+      "Supported global outreach: contact research, professional email communication and Excel progress tracking.",
+      "Worked with mentors and team leads on real-world development challenges, strengthening my communication skills.",
+    ]], ["Skills", ["JavaScript and GitHub."]]],
   },
   fortune: {
-    color: "#dfe6cf", art: "EHS", title: "EHS Technician Assistant", when: "Jun – Aug 2025 · Fortune Logistics, Avenel NJ",
-    summary: "Fixed warehouse air-quality problems flagged by state officials.",
-    sections: [["What I did", [
+    color: "#dfe6cf", art: "EHS", title: "EHS Technician Assistant & Logistics Operations", when: "Jun – Aug 2025 · Fortune Logistics, Inc. · Full-time, on-site in New Jersey",
+    summary: "Fixed warehouse air-quality problems flagged by state officials, and ran dock operations across three warehouses.",
+    sections: [["Logistics operations", [
+      "Directed dock operations at 3 warehouses of about 40 workers each, checking in 40+ trucks a day across UPS, Swift and GoFo.",
+    ]], ["Environmental health & safety", [
       "Inspected and diagnosed failing air handling and filtration systems.",
       "Replaced HEPA filters, pre-filters and activated carbon units, and balanced ductwork airflow.",
       "Validated indoor air quality after the upgrade, bringing the site into OSHA compliance.",
@@ -399,6 +421,7 @@ function openDetail(p, opener) {
   dialog.scrollTop = 0;
 }
 experience.bio = projects.bio;
+experience.buji = projects.buji;
 const openProject = (key, opener) => openDetail(projects[key], opener);
 cards.forEach((card) => {
   $(".open", card).addEventListener("click", (e) => openProject(card.dataset.project, e.currentTarget));
