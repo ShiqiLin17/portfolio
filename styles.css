@@ -409,6 +409,7 @@ h3 { font-family: var(--news); font-weight: 400; font-size: 1.45rem; line-height
 .gallery img, .gallery video { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--paper-2); }
 .gallery iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; display: block; }
 .gallery figure.fit img { aspect-ratio: 16 / 9; object-fit: contain; background: #f4efe6; }
+.gallery figure.wide.fit img { aspect-ratio: auto; }
 .gallery figcaption { font-family: var(--hand); font-size: 1.2rem; color: #5f5447; margin-top: 4px; }
 .slot {
   aspect-ratio: 4 / 3; border: 2.5px dashed var(--line); display: grid; place-content: center; justify-items: center; gap: 4px;

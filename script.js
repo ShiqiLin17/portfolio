@@ -195,6 +195,22 @@ const projects = {
         "Designed and presented a research poster at the American Museum of Natural History.",
         "Earned a $1K research stipend.",
       ]],
+      ["The experiment", [
+        "Question: can Eastern mud snails (Ilyanassa obsoleta) eat different parts of the invasive reed Phragmites australis, and so help control it?",
+        "Fed 36 mud snails in four groups: sea lettuce (Ulva, the control), and Phragmites stems, leaves or roots.",
+        "Weighed the snails and their food every morning and evening for four days, and tracked their feces and condition.",
+        "Leaf-fed snails showed the best numbers, but the snails' poor condition by the end meant mud snails alone shouldn't be relied on to stop Phragmites.",
+      ]],
+    ],
+    media: [
+      { type: "image", src: "media/areac/poster.jpg", alt: "Research poster: Biological Control of Invasive Species, Phragmites australis", caption: "Our poster", fit: true, wide: true },
+      { type: "image", src: "media/areac/lab.jpg", alt: "Lab bench with a microscope and the project folder", caption: "The lab at Brooklyn College" },
+      { type: "image", src: "media/areac/snails-feeding.jpg", alt: "Mud snails in a dish with Phragmites stems", caption: "Snails on Phragmites stems" },
+      { type: "image", src: "media/areac/materials.jpg", alt: "Phragmites roots, stems and leaves, sea lettuce, dishes, snails and pipettes", caption: "Materials" },
+      { type: "image", src: "media/areac/title-slide.jpg", alt: "Title slide of the group presentation", caption: "Presentation", fit: true },
+      { type: "image", src: "media/areac/chart-snail-weight.jpg", alt: "Line chart of mud snail wet weight on different diets", caption: "Snail weight by diet", fit: true },
+      { type: "image", src: "media/areac/chart-food-change.jpg", alt: "Bar chart of percent daily change in food wet weight", caption: "Daily change in food", fit: true },
+      { type: "image", src: "media/areac/script.jpg", alt: "Page of the presentation script", caption: "Presentation script", fit: true },
     ],
   },
 };
@@ -299,7 +315,7 @@ function mediaHTML(media = [], placeholder) {
     </div>`;
   }
   return `<div class="gallery">${media.map((m) => {
-    if (m.type === "image") return `<figure${m.fit ? ' class="fit"' : ""}><img src="${esc(m.src)}" alt="${esc(m.alt || "")}" loading="lazy">${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    if (m.type === "image") return `<figure${m.fit || m.wide ? ` class="${[m.fit && "fit", m.wide && "wide"].filter(Boolean).join(" ")}"` : ""}><img src="${esc(m.src)}" alt="${esc(m.alt || "")}" loading="lazy">${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
     if (m.type === "video") return `<figure><video src="${esc(m.src)}" controls playsinline preload="metadata"></video>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
     if (m.type === "youtube") return `<figure class="wide"><iframe src="https://www.youtube-nocookie.com/embed/${esc(m.id)}" title="${esc(m.caption || "Video")}" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></figure>`;
     return "";
@@ -496,7 +512,7 @@ const CERTS = [
     { abbr: "CTE", title: "Engineering Certificate", issuer: "Career & Technical Education · Midwood High School", text: "Completed the CTE engineering pathway in Midwood's robotics branch." },
   ]},
   { group: "Science & service", items: [
-    { abbr: "H₂O", title: "Aquatic Research Environmental Assessment Center (AREAC) Program", issuer: "Brooklyn College", text: "Completed the summer field research program studying invasive Phragmites australis at Jamaica Bay, with a poster presented at the American Museum of Natural History." },
+    { abbr: "H₂O", title: "Aquatic Research Environmental Assessment Center (AREAC) Program", issuer: "Brooklyn College", text: "Certificate of achievement from Brooklyn College Now and AREAC for completing the Aquatic Ecology Institute (GSCI 2020), Summer 2023: field research on invasive Phragmites australis at Jamaica Bay, with a poster presented at the American Museum of Natural History.", media: [{ type: "image", src: "media/certs/areac-certificate.jpg", alt: "AREAC certificate of achievement for Shiqi Lin", caption: "Certificate, Summer 2023", fit: true, wide: true }] },
     { abbr: "CPR", title: "CPR Certification", issuer: "Cardiopulmonary resuscitation", text: "Certified in CPR while working with children and community programs." },
     { abbr: "H&L", title: "Hats & Ladders Career Readiness Training", issuer: "Career readiness", text: "Career exploration and workplace readiness training." },
   ]},
@@ -505,7 +521,7 @@ const HONORS = [
   { abbr: "★", title: "FIRST Championship", kind: "Honor", issuer: "FIRST · Curie Division · 2023", text: "Competed at the 2023 FIRST Championship in the Curie Division with the Brooklyn robotics teams I helped lead." },
   { abbr: "✦", title: "Think Award", kind: "Award", issuer: "FIRST Tech Challenge · NYC Qualifier", text: "Awarded to FTC Team 3371 for engineering documentation and design process, while ranking 2nd at the qualifier." },
   { abbr: "♥", title: "Team Spirit Award", kind: "Award", issuer: "FIRST Robotics Competition · NY Tech Valley Regional 2023", text: "Awarded to FRC Team 333, which also finished 6th of 48 teams at the regional." },
-  { abbr: "$1K", title: "Research Stipend", kind: "Honor", issuer: "Brooklyn College AREAC · 2023", text: "Recognized for outstanding contribution to invasive species field research at Jamaica Bay, with a research poster presented at the American Museum of Natural History." },
+  { abbr: "$1K", title: "Research Stipend", kind: "Honor", issuer: "Brooklyn College AREAC · 2023", text: "Recognized for outstanding contribution to invasive species field research at Jamaica Bay, with a research poster presented at the American Museum of Natural History.", media: [{ type: "image", src: "media/areac/poster.jpg", alt: "Research poster: Biological Control of Invasive Species, Phragmites australis", caption: "The poster", fit: true, wide: true }] },
 ];
 {
   const tones = ["#c4dfcd", "#c6dceb", "#eadcc3", "#d3e2d0", "#efe4c2", "#b9d3dd"];
