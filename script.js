@@ -375,6 +375,16 @@ const experience = {
       "3D printing and Microsoft Excel.",
     ]]],
   },
+  ohnbar: {
+    color: "#cfdeea", art: "Lab", title: "Undergraduate Researcher", when: "Prof. Eshed Ohn-Bar's Lab · Boston University, Boston",
+    summary: "Research on datasets and benchmarks for assistive navigation and autonomous driving.",
+    sections: [["Guide Dog Navigation Dataset", [
+      "Verified and corrected Gemini-generated, second-by-second annotations of guide dog and handler behavior against dual-camera video and IMU data.",
+      "Validated activity labels against a defined taxonomy, removing hallucinated labels and adding missed activities to build a reliable training dataset.",
+    ]], ["Bench2Drive: End-to-End Autonomous Driving Benchmark", [
+      "Worked on Bench2Drive, a closed-loop benchmark that evaluates end-to-end autonomous driving models in the CARLA simulator.",
+    ]]],
+  },
 };
 
 const dialog = $("#detail");
