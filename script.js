@@ -385,6 +385,14 @@ const experience = {
       "Worked on Bench2Drive, a closed-loop benchmark that evaluates end-to-end autonomous driving models in the CARLA simulator.",
     ]]],
   },
+  warren: {
+    color: "#eadcc3", art: "NHC", title: "C Tower Outreach Coordinator", when: "2024 – 2025 · Warren Towers Neighborhood Hall Council · Boston University",
+    summary: "Elected by my peers to the executive board of the Warren Towers hall council, one of BU's largest residence halls.",
+    sections: [["The role", [
+      "Voted onto the 2024–2025 Neighborhood Hall Council executive board by fellow Warren Towers residents.",
+      "Served as Outreach Coordinator for C Tower, connecting residents with the council and its events.",
+    ]]],
+  },
 };
 
 const dialog = $("#detail");
